@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="de">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <title>Mein VR-Prototyp</title>
+
+         <!-- A-Frame Framework -->
+        <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    </head>
+
+    <body>
+        <div id="loading">Lädt Szene...</div>
+
+        <a-scene>
+
+            <!-- Videoeinstellungen vorbereiten -->
+            <a-assert>
+                <video 
+                    id="natureVideo"
+                    src="video/test.mp4"
+                    autoplay
+                    lopp="true"
+                    playsinline
+                    crossorigin="anonymous">
+                </video>
+            </a-assert>
+
+            <a-videosphere src="#natureVideo" rotation="0 -90 0"></a-videosphere>
+
+            <!--setzt Blickpunkt im Raum, sodass umschauen im Raum aktiviert wird (1.6 = 1,60 Augenhöhe) -->
+            <a-entity camera look-controls position="0 1.6 0">
+
+                <!--Gaze-Cursor Einstellungen:-->
+                <a-entity cursor="fuse: true; fuseTimeout: 1000"
+                    geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
+                    material="color: white; shader: flat"
+                    position="0 0 -0.5">
+                </a-entity>
+
+            </a-entity>
+            
+            <!-- Test-text mit Einstellungen -->
+            <a-text value="Willkommen in der Natur" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>            
+        </a-scene>
+    </body>
+</html>
