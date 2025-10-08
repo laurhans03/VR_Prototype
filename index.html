@@ -39,21 +39,86 @@
                     material="color: white; shader: flat"
                     position="0 0 -0.5">
                 </a-entity>
-
-                
-                
             
             </a-entity>
 
             <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
             <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
 
-            <a-cylinder position="0.15 0.6 -0.3" rotation="90 0 0" height="0.3" radius="0.05" color="#ccc"></a-cylinder>
-            <a-cylinder position="-0.15 0.6 -0.3" rotation="90 0 0" height="0.3" radius="0.05" color="#ccc"></a-cylinder>
-           
+            <!-- Hüfte -->
+            <a-cylinder
+                position="0 1.2 -0.2"
+                rotation="0 0 0"
+                height="0.2"
+                radius="0.15"
+                material="color: #333; shader: flat">
+            </a-cylinder>
+
+            <!-- Oberschenkel rechts -->
+            <a-cylinder
+                position="0.12 0.95 -0.4"
+                rotation="20 0 90"
+                height="0.4"
+                radius="0.06"
+                material="color: #333; shader: flat">
+            </a-cylinder>
+
+            <!-- Oberschenkel links -->
+            <a-cylinder
+                position="-0.12 0.95 -0.4"
+                rotation="20 0 90"
+                height="0.4"
+                radius="0.06"
+                material="color: #333; shader: flat">
+            </a-cylinder>
+
+            <!-- Knie rechts -->
+            <a-sphere
+                position="0.25 0.85 -0.6"
+                radius="0.05"
+                material="color: #333; shader: flat">
+            </a-sphere>
+
+            <!-- Knie links -->
+            <a-sphere
+                position="-0.25 0.85 -0.6"
+                radius="0.05"
+                material="color: #333; shader: flat">
+            </a-sphere>
+
+            <!-- Unterschenkel rechts -->
+            <a-cylinder
+                position="0.25 0.65 -0.7"
+                rotation="70 0 90"
+                height="0.3"
+                radius="0.05"
+                material="color: #333; shader: flat">
+            </a-cylinder>
+
+            <!-- Unterschenkel links -->
+            <a-cylinder
+                position="-0.25 0.65 -0.7"
+                rotation="70 0 90"
+                height="0.3"
+                radius="0.05"
+                material="color: #333; shader: flat">
+            </a-cylinder>
+
+            <!-- Füße (optional) -->
+            <a-box
+                position="0.25 0.5 -0.8"
+                depth="0.2" height="0.05" width="0.1"
+                material="color: #333; shader: flat">
+            </a-box>
+
+            <a-box
+                position="-0.25 0.5 -0.8"
+                depth="0.2" height="0.05" width="0.1"
+                material="color: #333; shader: flat">
+            </a-box>
             
             <!-- Test-text mit Einstellungen -->
-            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
+            <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
                      
         </a-scene>
     </body>
