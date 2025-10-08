@@ -19,8 +19,8 @@
 
              <!-- Video assets -->
             <a-assets>
-                <video id="video1" src="video/room1.mp4" autoplay loop playsinline crossorigin="anonymous"></video>
-                <video id="video2" src="video/room2.mp4" autoplay loop playsinline crossorigin="anonymous"></video>
+                <video id="video1" src="video/room1.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
+                <video id="video2" src="video/room2.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
             </a-assets>
 
             <!-- Room 1 -->
@@ -52,22 +52,22 @@
 
             
             <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>     
+            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>     
         </a-scene>
 
         <script>
+            window.onload = () => {
+                const video1 = document.querySelector('#video1');
+                const video2 = document.querySelector('#video2');
+                video1.play();
+                video2.play();
+            };
+
             const btn = document.querySelector('#toRoom2');
             btn.addEventListener('click', () => {
                 document.querySelector('#room1').setAttribute('visible', 'false');
                 document.querySelector('#room2').setAttribute('visible', 'true');
             });
-            window.addEventListener('DOMContentLoaded', () => {
-                const video1 = document.querySelector('#video1');
-                const video2 = document.querySelector('#video2');
-                video1.play();
-                video2.play();
-            });
-
         </script>
 
     </body>
