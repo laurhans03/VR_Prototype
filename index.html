@@ -42,12 +42,17 @@
 
             </a-entity>
 
-            <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
+
             <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
+            <a-cylinder id="leftArm" position="-0.2 1.2 -0.5" height="0.5" radius="0.02" color="#d8b48a"></a-cylinder>
+
+            <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
+            <a-cylinder id="rightArm" position="0.2 1.2 -0.5" height="0.5" radius="0.02" color="#d8b48a"></a-cylinder>
+
             
             
             <!-- Test-text mit Einstellungen -->
-            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>            
+            <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>            
         </a-scene>
     </body>
 </html>
