@@ -80,41 +80,31 @@
                     material="color: white; opacity: 0.1; side: double; shader: standard; transparent: true;">
                 </a-cylinder> -->
 
-                <!-- Segment 1: Nähe Hand -->
                 <a-cylinder
-                    position="0 0 0.10"
-                    rotation="90 0 0"
-                    height="0.35"
-                    radiusTop="0.008" radiusBottom="0.012"
-                    material="color: #ffffff; opacity: 0.6; emissive: #ffffff; emissiveIntensity: 0.3; transparent: true; side: double; shader: standard;">
-                </a-cylinder>
+      position="0 0 0.05"
+      rotation="0 0 90"
+      height="0.5"
+      radiusTop="0.01" radiusBottom="0.012"
+      material="color: #ffffff; opacity: 0.5; emissive: #ffffff; emissiveIntensity: 0.3; transparent: true; side: double; shader: standard;">
+  </a-cylinder>
 
-                <!-- Segment 2: Mitte des Arms -->
-                <a-cylinder
-                    position="0 0 0.40"
-                    rotation="90 0 0"
-                    height="0.35"
-                    radiusTop="0.007" radiusBottom="0.009"
-                    material="color: #ffffff; opacity: 0.35; emissive: #ffffff; emissiveIntensity: 0.2; transparent: true; side: double; shader: standard;">
-                </a-cylinder>
+  <!-- Armsegment 2 (weiter hinten) -->
+  <a-cylinder
+      position="0 0 0.35"
+      rotation="0 0 95"
+      height="0.5"
+      radiusTop="0.008" radiusBottom="0.01"
+      material="color: #ffffff; opacity: 0.25; emissive: #ffffff; emissiveIntensity: 0.15; transparent: true; side: double; shader: standard;">
+  </a-cylinder>
 
-                <!-- Segment 3: Übergang Richtung Körper -->
-                <a-cylinder
-                    position="0 0 0.75"
-                    rotation="95 0 0"
-                    height="0.40"
-                    radiusTop="0.005" radiusBottom="0.008"
-                    material="color: #ffffff; opacity: 0.2; emissive: #ffffff; emissiveIntensity: 0.1; transparent: true; side: double; shader: standard;">
-                </a-cylinder>
-
-                <!-- Segment 4: leicht nach hinten zum Körper -->
-                <a-cylinder
-                    position="0 0 1.15"
-                    rotation="105 0 0"
-                    height="0.40"
-                    radiusTop="0.003" radiusBottom="0.006"
-                    material="color: #ffffff; opacity: 0.08; emissive: #ffffff; emissiveIntensity: 0.05; transparent: true; side: double; shader: standard;">
-                </a-cylinder>
+  <!-- Armsegment 3 (verblasst im Hintergrund) -->
+  <a-cylinder
+      position="0 0 0.75"
+      rotation="0 0 100"
+      height="0.6"
+      radiusTop="0.005" radiusBottom="0.008"
+      material="color: #ffffff; opacity: 0.1; emissive: #ffffff; emissiveIntensity: 0.08; transparent: true; side: double; shader: standard;">
+  </a-cylinder>
 
             
             </a-entity>
@@ -122,7 +112,7 @@
            
             
             <!-- Test-text mit Einstellungen -->
-            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
+            <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
                      
         </a-scene>
     </body>
