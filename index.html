@@ -48,38 +48,47 @@
 
 
            <a-entity id="lap" position="0 0.2 0.1" rotation="0 0 0" scale="0.6 0.6 0.6">
-  <!-- Basis: abgeflachte Kugel -->
+   <!-- Basis: abgerundete Oberschenkel -->
   <a-sphere
-    radius="0.25"
-    segments-height="10"
+    radius="0.22"
     position="0 0 0"
-    material="color: #888; opacity: 0.7; metalness: 0.1; roughness: 1; shader: standard;"
-    scale="1 0.3 1">
+    scale="1 0.35 1.3"
+    material="color: #777; opacity: 0.8; roughness: 1; metalness: 0.1; shader: standard;">
   </a-sphere>
 
-  <!-- Beinansätze -->
+  <!-- Linkes Bein -->
   <a-cylinder
-    position="-0.10 -0.05 0.15"
-    rotation="20 0 0"
-    height="0.25"
-    radiusTop="0.05"
-    radiusBottom="0.07"
-    material="color: #777; opacity: 0.7; shader: standard;">
+    position="-0.11 -0.08 0.22"
+    rotation="25 10 0"
+    height="0.35"
+    radiusTop="0.06"
+    radiusBottom="0.08"
+    material="color: #777; opacity: 0.8; roughness: 1; metalness: 0.1; shader: standard;">
   </a-cylinder>
 
+  <!-- Rechtes Bein -->
   <a-cylinder
-    position="0.10 -0.05 0.15"
-    rotation="20 0 0"
-    height="0.25"
-    radiusTop="0.05"
-    radiusBottom="0.07"
-    material="color: #777; opacity: 0.7; shader: standard;">
+    position="0.11 -0.08 0.22"
+    rotation="25 -10 0"
+    height="0.35"
+    radiusTop="0.06"
+    radiusBottom="0.08"
+    material="color: #777; opacity: 0.8; roughness: 1; metalness: 0.1; shader: standard;">
   </a-cylinder>
+
+  <!-- Sanfter Übergang zwischen Schoß und Beinen -->
+  <a-torus
+    position="0 -0.02 0.05"
+    rotation="90 0 0"
+    radius="0.22"
+    radius-tubular="0.03"
+    material="color: #777; opacity: 0.5; shader: standard;">
+  </a-torus>
 </a-entity>
 
             
             <!-- Test-text mit Einstellungen -->
-            <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
+            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
                      
         </a-scene>
     </body>
