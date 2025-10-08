@@ -6,20 +6,22 @@
 
         <title>Mein VR-Prototyp</title>
 
-         <!-- A-Frame Framework -->
+         <!-- Load the A-Frame framework for building WebVR scenes -->
         <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
     </head>
 
     <body>
+        <!-- Display a loading message before the scene is fully initialized -->
         <div id="loading">Loading scene...</div>
 
+        <!-- Main VR scene container -->
         <a-scene>
 
-            <!-- Videoeinstellungen vorbereiten -->
+            <!-- Load and define a video asset for immersive background -->
             <a-assert>
                 <video 
-                    id="natureVideo"
-                    src="video/test_neu.mp4"
+                    id="video1"
+                    src="video/room1.mp4"
                     autoplay
                     loop="true"
                     playsinline
@@ -28,12 +30,41 @@
                 </video>
             </a-assert>
 
-            <a-videosphere src="#natureVideo" rotation="0 -90 0"></a-videosphere>
+            <a-assert>
+                <video 
+                    id="video2"
+                    src="video/room2.mp4"
+                    autoplay
+                    loop="true"
+                    playsinline
+                    webkit-playsinline
+                    crossorigin="anonymous">
+                </video>
+            </a-assert>
 
-            <!--setzt Blickpunkt im Raum, sodass umschauen im Raum aktiviert wird (1.6 = 1,60 Augenhöhe) -->
-            <a-entity camera look-controls position="0 1.3 0">
+            <a-entity id="room1">
+                 <!-- Wrap the video around the user in a 360° sphere -->
+                <a-videosphere src="#video1" rotation="0 -90 0"></a-videosphere>
+                
+                <a-entitiy id=""toRoom2
+                    geometry="primitive: plane; height: 0.3; width: 1"
+                    material="color: #4CAF50"
+                    position="0 1.5 -2"
+                    text="value: Weiter; align: center; color: white"
+                    class="clickable">
+                </a-entitiy>
+            </a-entity>
 
-                <!--Gaze-Cursor Einstellungen:-->
+            <a-entity id="room2">
+                 <!-- Wrap the video around the user in a 360° sphere -->
+                <a-videosphere src="#video2" rotation="0 -90 0"></a-videosphere>
+            </a-entity>
+           
+
+          <!-- Define the user's camera and enable head movement tracking -->
+          <a-entity camera look-controls position="0 1.3 0">
+
+                <!-- Add a gaze-based cursor for interaction (e.g., selecting objects by looking at them) -->
                 <a-entity cursor="fuse: true; fuseTimeout: 1000"
                     geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
                     material="color: white; shader: flat"
@@ -42,24 +73,23 @@
             
             </a-entity>
 
+             <!-- Enable hand tracking for left and right hands -->
             <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
             <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
 
-
-            <a-circle 
-  position="0 0 0" 
-  rotation="-90 0 0" 
-  radius="0.6" 
-  color="#666"
-  opacity="1">
-</a-circle>
-
-
-
             
-            <!-- Test-text mit Einstellungen -->
+            <!-- Display a welcome message floating in front of the user -->
             <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
                      
         </a-scene>
+
+        <script>
+            // Nach 1 Sekunde Blick → Wechsel auf Raum 2
+            const btn = document.querySelector('#toRoom2');
+            btn.addEventListener('click', () => {
+                document.querySelector('#room1').setAttribute('visible', 'false');
+                document.querySelector('#room2').setAttribute('visible', 'true');
+            });
+        </script>
     </body>
 </html>
