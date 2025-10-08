@@ -16,17 +16,18 @@
         <a-scene>
 
             <!-- Videoeinstellungen vorbereiten -->
-            <a-assert>
+            <a-assets>
                 <video 
                     id="natureVideo"
-                    src="video/test_neu.mp4"
+                    src="video/SolarEclipse.mp4"
                     autoplay
-                    lopp="true"
+                    loop
                     playsinline
                     webkit-playsinline
                     crossorigin="anonymous">
                 </video>
-            </a-assert>
+            </a-assets>
+
 
             <a-videosphere src="#natureVideo" rotation="0 -90 0"></a-videosphere>
 
