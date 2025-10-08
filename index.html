@@ -48,19 +48,27 @@
             <!-- <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity> -->
 
            <a-entity id="leftHand" hand-tracking-controls="hand: left">
-                <script src="https://unpkg.com/aframe-gradient-shader/dist/aframe-gradient-shader.min.js"></script>
-                <a-cylinder
+                <!-- <a-cylinder
                     position="0 0 0.15"
                     rotation="90 0 0"
                     height="0.3"
                     radius="0.02"
                     material="color: white; opacity: 0.5; shader: flat">
+                </a-cylinder> -->
+
+                <a-cylinder
+                    position="-0.15 0 0"
+                    rotation="90 0 0"
+                    height="0.5"
+                    radiusTop="0.005"
+                    radiusBottom="0.03"
+                    material="color: white; opacity: 0.4; shader: standard; transparent: true">
                 </a-cylinder>
             </a-entity>
             
             
             <!-- Test-text mit Einstellungen -->
-            <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
+            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
                      
         </a-scene>
     </body>
