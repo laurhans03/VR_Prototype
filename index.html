@@ -26,12 +26,20 @@
             <!-- Room 1 -->
             <a-entity id="room1" visible="true">
                 <a-videosphere src="#video1" rotation="0 0 0"></a-videosphere>
-                <a-text value="Weiter" align="center" color="white" position="0 1.5 -2" width="2" class="clickable" id="toRoom2"></a-text>
+                <!-- Button für Szenenwechsel -->
+                <a-entity id="toRoom2"
+                        geometry="primitive: plane; width: 0.8; height: 0.3"
+                        material="color: #333; opacity: 0.8"
+                        position="0 1.5 -2"
+                        text="value: Weiter; align: center; color: white"
+                        class="clickable">
+                </a-entity>
             </a-entity>
 
             <!-- Room 2 (initially hidden) -->
             <a-entity id="room2" visible="false">
                 <a-videosphere src="#video2" rotation="0 0 0"></a-videosphere>
+                <a-text value="Welcome to room 2!" position="0 1.8 -2" align="center" color="#fff"></a-text>
             </a-entity>
 
             <!-- Define the user's camera and enable head movement tracking -->
@@ -42,16 +50,6 @@
                     geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
                     material="color: white; shader: flat"
                     position="0 0 -0.5">
-  
-                    <!-- Ladeanimation: Farbe füllt sich beim Blick -->
-                    <a-animation attribute="material.color"
-                                from="white"
-                                to="#4CAF50"
-                                dur="2000"
-                                begin="mouseenter"
-                                end="mouseleave">
-                    </a-animation>
-
                 </a-entity>
 
 
@@ -63,23 +61,42 @@
 
             
             <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>     
+            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>     
         </a-scene>
 
         <script>
-            // Ensure videos start playing
+            // Sicherstellen, dass Videos abspielen
             window.onload = () => {
                 document.querySelector('#video1').play();
                 document.querySelector('#video2').play();
             };
 
-            // Room switch after gaze click
-            const btn = document.querySelector('#toRoom2');
-            btn.addEventListener('click', () => {
+            const cursor = document.querySelector('#gazeCursor');
+            const button = document.querySelector('#toRoom2');
+
+            // Farbe ändern während des "Fuses"
+            button.addEventListener('mouseenter', () => {
+                cursor.setAttribute('animation__color', {
+                property: 'material.color',
+                from: 'white',
+                to: 'yellow',
+                dur: 2000,
+                easing: 'linear'
+                });
+            });
+
+            button.addEventListener('mouseleave', () => {
+                cursor.removeAttribute('animation__color');
+                cursor.setAttribute('material', 'color', 'white');
+            });
+
+            // Wenn Fuse vollständig: Raumwechsel
+            button.addEventListener('click', () => {
                 document.querySelector('#room1').setAttribute('visible', 'false');
                 document.querySelector('#room2').setAttribute('visible', 'true');
+                cursor.setAttribute('material', 'color', 'white');
             });
-        </script>
+    </script>
 
 
     </body>
