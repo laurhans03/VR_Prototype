@@ -21,7 +21,7 @@
                     id="natureVideo"
                     src="video/test_neu.mp4"
                     autoplay
-                    lopp="true"
+                    loop="true"
                     playsinline
                     webkit-playsinline
                     crossorigin="anonymous">
@@ -43,19 +43,34 @@
             </a-entity>
 
 
-            <a-entity id="leftHand" hand-tracking-controls="hand: left" 
-                oculus-hand-model="left"
-                gltf-model="url(models/male_body.glb)">
-            </a-entity>
 
-            <!-- <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity> -->
-            <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
+            <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
+            <!-- <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity> -->
 
+            <a-assets>
+                <a-asset-item id="armModel" src="models/arm.glb"></a-asset-item>
+            </a-assets>
+
+            <a-entity id="leftArm" gltf-model="#armModel" arm-follow position="0 1.4 -0.3" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
 
             
             
             <!-- Test-text mit Einstellungen -->
-            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>            
+            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
+                     
         </a-scene>
+
+        <script>
+            AFRAME.registerComponent('arm-follow', {
+            tick: function () {
+                const hand = document.querySelector('#leftHand');
+                const arm = this.el;
+                if (hand && arm) {
+                arm.object3D.position.copy(hand.object3D.position);
+                arm.object3D.rotation.copy(hand.object3D.rotation);
+                }
+            }
+            });
+        </script>
     </body>
 </html>
