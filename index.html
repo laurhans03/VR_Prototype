@@ -17,49 +17,22 @@
         <!-- Main VR scene container -->
         <a-scene>
 
-            <!-- Load and define a video asset for immersive background -->
-            <a-assert>
-                <video 
-                    id="video1"
-                    src="video/room1.mp4"
-                    autoplay
-                    loop="true"
-                    playsinline
-                    webkit-playsinline
-                    crossorigin="anonymous">
-                </video>
-            </a-assert>
+             <!-- Video assets -->
+            <a-assets>
+                <video id="video1" src="video/room1.mp4" autoplay loop playsinline crossorigin="anonymous"></video>
+                <video id="video2" src="video/room2.mp4" autoplay loop playsinline crossorigin="anonymous"></video>
+            </a-assets>
 
-            <a-assert>
-                <video 
-                    id="video2"
-                    src="video/room2.mp4"
-                    autoplay
-                    loop="true"
-                    playsinline
-                    webkit-playsinline
-                    crossorigin="anonymous">
-                </video>
-            </a-assert>
-
+            <!-- Room 1 -->
             <a-entity id="room1">
-                 <!-- Wrap the video around the user in a 360° sphere -->
                 <a-videosphere src="#video1" rotation="0 -90 0"></a-videosphere>
-                
-                <a-entitiy id=""toRoom2
-                    geometry="primitive: plane; height: 0.3; width: 1"
-                    material="color: #4CAF50"
-                    position="0 1.5 -2"
-                    text="value: Weiter; align: center; color: white"
-                    class="clickable">
-                </a-entitiy>
+                <a-text value="Weiter" align="center" color="white" position="0 1.5 -2" width="2" class="clickable" id="toRoom2"></a-text>
             </a-entity>
 
-            <a-entity id="room2">
-                 <!-- Wrap the video around the user in a 360° sphere -->
+            <!-- Room 2 (initially hidden) -->
+            <a-entity id="room2" visible="false">
                 <a-videosphere src="#video2" rotation="0 -90 0"></a-videosphere>
             </a-entity>
-           
 
           <!-- Define the user's camera and enable head movement tracking -->
           <a-entity camera look-controls position="0 1.3 0">
@@ -80,16 +53,18 @@
             
             <!-- Display a welcome message floating in front of the user -->
             <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
+
+            <a-entity camera look-controls position="0 1.3 0" raycaster="objects: .clickable"></a-entity>
                      
         </a-scene>
 
         <script>
-            // Nach 1 Sekunde Blick → Wechsel auf Raum 2
             const btn = document.querySelector('#toRoom2');
             btn.addEventListener('click', () => {
                 document.querySelector('#room1').setAttribute('visible', 'false');
                 document.querySelector('#room2').setAttribute('visible', 'true');
             });
         </script>
+
     </body>
 </html>
