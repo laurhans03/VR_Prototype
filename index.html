@@ -44,33 +44,23 @@
 
 
 
-            <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
+            <!-- <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity> -->
             <!-- <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity> -->
 
-            <a-assets>
-                <a-asset-item id="armModel" src="models/arm.glb"></a-asset-item>
-            </a-assets>
-
-            <a-entity id="leftArm" gltf-model="#armModel" position="0 1.6 -0.5" rotation="0 0 0" scale="1 1 1"></a-entity>
-
+           <a-entity id="leftHand" hand-tracking-controls="hand: left">
+                <a-cylinder
+                    position="0 -0.1 0"
+                    rotation="90 0 0"
+                    height="0.3"
+                    radius="0.03"
+                    material="color: white; opacity: 0.5; shader: flat">
+                </a-cylinder>
+            </a-entity>
             
             
             <!-- Test-text mit Einstellungen -->
-            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
+            <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>  
                      
         </a-scene>
-
-        <script>
-            AFRAME.registerComponent('arm-follow', {
-            tick: function () {
-                const hand = document.querySelector('#leftHand');
-                const arm = this.el;
-                if (hand && arm) {
-                arm.object3D.position.copy(hand.object3D.position);
-                arm.object3D.rotation.copy(hand.object3D.rotation);
-                }
-            }
-            });
-        </script>
     </body>
 </html>
