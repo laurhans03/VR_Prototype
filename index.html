@@ -51,14 +51,15 @@
                     position="0 0 -0.5"
                     material="color: white; shader: flat"
                     cursor="fuse: true; fuseTimeout: 2000">
+                    <a-animation attribute="theta-length"
+                        from="0"
+                        to="360"
+                        dur="2000"
+                        begin="mouseenter"
+                        end="mouseleave">
+                    </a-animation>
                 </a-ring>
-                <a-animation attribute="theta-length"
-                    from="0"
-                    to="360"
-                    dur="2000"
-                    begin="mouseenter"
-                    end="mouseleave">
-                </a-animation>
+                
 
 
             </a-entity>
