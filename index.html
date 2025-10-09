@@ -43,17 +43,28 @@
 
             <!-- Define the user's camera and enable head movement tracking -->
             <a-entity camera look-controls position="0 1.3 0" raycaster="objects: .clickable">
-                <a-entity cursor="fuse: true; fuseTimeout: 2000"
+                <a-entity id="cursorBase" 
+                    cursor="fuse: true; fuseTimeout: 2000"
                     position="0 0 -0.5"
                     geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
                     material="color: transparent; shader: flat">
                 </a-entity>
 
-               <a-ring id="progressRing"
-                    position="0 1.3 -0.5"
-                    radius-inner="0.01"
+                <a-ring
+                    id="progressRing"
+                    radius-inner="0.011"
                     radius-outer="0.02"
-                    color="#4CAF50"
+                    position="0 0 -0.5"
+                    color="#FFD700"
+                    theta-start="0"
+                    theta-length="0">
+                </a-ring>
+
+               <!-- <a-ring id="progressRing"
+                    position="0 1.3 -0.5"
+                    radius-inner="0.011"
+                    radius-outer="0.02"
+                    color="#FFD700"
                     theta-length="0"
                     visible="true">
                 <a-animation attribute="theta-length"
@@ -68,7 +79,7 @@
                     begin="mouseleave"
                     fill="forwards">
                 </a-animation>
-            </a-ring>
+            </a-ring> -->
 
 
                 <!-- Gaze-Ring -->
@@ -101,7 +112,7 @@
 
             
             <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>     
+            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>     
         </a-scene>
 
         <script>
@@ -115,6 +126,32 @@
             const button = document.querySelector('#toRoom2');
             const room1 = document.querySelector('#room1');
             const room2 = document.querySelector('#room2');
+            const progressRing = document.querySelector('#progressRing');
+
+            button.addEventListener('mouseenter', () => {
+        progressRing.removeAttribute('animation'); // Reset vorheriger Animationszustand
+        progressRing.setAttribute('animation', {
+          property: 'theta-length',
+          from: 0,
+          to: 360,
+          dur: 2000,
+          easing: 'linear'
+        });
+      });
+
+      // Fortschritt abbrechen, wenn der Blick weggeht
+      button.addEventListener('mouseleave', () => {
+        progressRing.removeAttribute('animation');
+        progressRing.setAttribute('theta-length', 0);
+      });
+
+      // Nach 2 Sekunden (fuseTimeout) — Klick → Szene wechseln
+      button.addEventListener('click', () => {
+        room1.setAttribute('visible', 'false');
+        room2.setAttribute('visible', 'true');
+        progressRing.removeAttribute('animation');
+        progressRing.setAttribute('theta-length', 0);
+      });
 
             // FUSE LADEN (Gelbfüllung)
             // button.addEventListener('mouseenter', () => {
@@ -134,12 +171,12 @@
             // });
 
             // Nach 2 Sekunden Blick: Szenenwechsel
-            button.addEventListener('click', () => {
-                room1.setAttribute('visible', 'false');
-                room2.setAttribute('visible', 'true');
+            // button.addEventListener('click', () => {
+            //     room1.setAttribute('visible', 'false');
+            //     room2.setAttribute('visible', 'true');
                 // cursor.removeAttribute('animation__colorFill')
                 // cursor.setAttribute('material', 'color', 'white');
-            });
+            // });
     </script>
 
 
