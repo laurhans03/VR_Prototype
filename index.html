@@ -52,6 +52,13 @@
                     material="color: white; shader: flat"
                     cursor="fuse: true; fuseTimeout: 2000">
                 </a-ring>
+                <a-animation attribute="theta-length"
+                    from="0"
+                    to="360"
+                    dur="2000"
+                    begin="mouseenter"
+                    end="mouseleave">
+                </a-animation>
 
 
             </a-entity>
@@ -62,7 +69,7 @@
 
             
             <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>     
+            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>     
         </a-scene>
 
         <script>
@@ -72,34 +79,34 @@
                 document.querySelector('#video2').play();
             };
 
-            const cursor = document.querySelector('#cursorRing');
+            // const cursor = document.querySelector('#cursorRing');
             const button = document.querySelector('#toRoom2');
             const room1 = document.querySelector('#room1');
             const room2 = document.querySelector('#room2');
 
             // FUSE LADEN (Gelbfüllung)
-            button.addEventListener('mouseenter', () => {
-                cursor.setAttribute('animation__colorFill', {
-                property: 'material.color',
-                from: 'white',
-                to: 'yellow',
-                dur: 2000,
-                easing: 'linear'
-                });
-            });
+            // button.addEventListener('mouseenter', () => {
+            //     cursor.setAttribute('animation__colorFill', {
+            //     property: 'material.color',
+            //     from: 'white',
+            //     to: 'yellow',
+            //     dur: 2000,
+            //     easing: 'linear'
+            //     });
+            // });
 
-            // Wenn man wegsieht, abbrechen
-            button.addEventListener('mouseleave', () => {
-                cursor.removeAttribute('animation__colorFill');
-                cursor.setAttribute('material', 'color', 'white');
-            });
+            // // Wenn man wegsieht, abbrechen
+            // button.addEventListener('mouseleave', () => {
+            //     cursor.removeAttribute('animation__colorFill');
+            //     cursor.setAttribute('material', 'color', 'white');
+            // });
 
             // Nach 2 Sekunden Blick: Szenenwechsel
             button.addEventListener('click', () => {
                 room1.setAttribute('visible', 'false');
                 room2.setAttribute('visible', 'true');
-                cursor.removeAttribute('animation__colorFill')
-                cursor.setAttribute('material', 'color', 'white');
+                // cursor.removeAttribute('animation__colorFill')
+                // cursor.setAttribute('material', 'color', 'white');
             });
     </script>
 
