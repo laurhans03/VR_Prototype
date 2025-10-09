@@ -1,184 +1,107 @@
 <!doctype html>
 <html lang="de">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <title>Mein VR-Prototyp</title>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-         <!-- Load the A-Frame framework for building WebVR scenes -->
-        <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
-    </head>
+    <title>Mein VR-Prototyp</title>
 
-    <body>
-        <!-- Display a loading message before the scene is fully initialized -->
-        <div id="loading">Loading scene...</div>
+    <!-- Load the A-Frame framework for building WebVR scenes -->
+    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+</head>
 
-        <!-- Main VR scene container -->
-        <a-scene>
+<body>
+    <!-- Display a loading message before the scene is fully initialized -->
+    <div id="loading">Loading scene...</div>
 
-             <!-- Video assets -->
-            <a-assets>
-                <video id="video1" src="video/room1.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
-                <video id="video2" src="video/room2.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
-            </a-assets>
+    <!-- Main VR scene container -->
+    <a-scene>
 
-            <!-- Room 1 -->
-            <a-entity id="room1" visible="true">
-                <a-videosphere src="#video1" rotation="0 0 0"></a-videosphere>
-                <!-- Button für Szenenwechsel -->
-                <a-entity id="toRoom2"
-                        geometry="primitive: plane; width: 0.8; height: 0.3"
-                        material="color: #333; opacity: 0.8"
-                        position="0 1.5 -2"
-                        text="value: Weiter; align: center; color: white"
-                        class="clickable">
-                </a-entity>
+        <!-- Video assets -->
+        <a-assets>
+            <video id="video1" src="video/room1.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
+            <video id="video2" src="video/room2.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
+        </a-assets>
+
+        <!-- Room 1 -->
+        <a-entity id="room1" visible="true">
+            <a-videosphere src="#video1" rotation="0 0 0"></a-videosphere>
+            <!-- Button für Szenenwechsel -->
+            <a-entity id="toRoom2" geometry="primitive: plane; width: 0.8; height: 0.3"
+                material="color: #333; opacity: 0.8" position="0 1.5 -2"
+                text="value: Weiter; align: center; color: white" class="clickable">
+            </a-entity>
+        </a-entity>
+
+        <!-- Room 2 (initially hidden) -->
+        <a-entity id="room2" visible="false">
+            <a-videosphere src="#video2" rotation="0 0 0"></a-videosphere>
+        </a-entity>
+
+        <!-- Define the user's camera and enable head movement tracking -->
+        <a-entity camera look-controls position="0 1.3 0" raycaster="objects: .clickable">
+            <a-entity id="cursorBase" cursor="fuse: true; fuseTimeout: 2000" position="0 0 -0.5"
+                geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
+                material="color: transparent; shader: flat">
             </a-entity>
 
-            <!-- Room 2 (initially hidden) -->
-            <a-entity id="room2" visible="false">
-                <a-videosphere src="#video2" rotation="0 0 0"></a-videosphere>
-            </a-entity>
+            <a-ring id="progressRing" radius-inner="0.011" radius-outer="0.02" position="0 0 -0.5" color="#FFD700"
+                theta-start="0" theta-length="0">
+            </a-ring>
 
-            <!-- Define the user's camera and enable head movement tracking -->
-            <a-entity camera look-controls position="0 1.3 0" raycaster="objects: .clickable">
-                <a-entity id="cursorBase" 
-                    cursor="fuse: true; fuseTimeout: 2000"
-                    position="0 0 -0.5"
-                    geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
-                    material="color: transparent; shader: flat">
-                </a-entity>
+        </a-entity>
 
-                <a-ring
-                    id="progressRing"
-                    radius-inner="0.011"
-                    radius-outer="0.02"
-                    position="0 0 -0.5"
-                    color="#FFD700"
-                    theta-start="0"
-                    theta-length="0">
-                </a-ring>
-
-               <!-- <a-ring id="progressRing"
-                    position="0 1.3 -0.5"
-                    radius-inner="0.011"
-                    radius-outer="0.02"
-                    color="#FFD700"
-                    theta-length="0"
-                    visible="true">
-                <a-animation attribute="theta-length"
-                    from="0"
-                    to="360"
-                    dur="2000"
-                    begin="fusing"
-                    fill="forwards">
-                </a-animation>
-                <a-animation attribute="theta-length"
-                    to="0"
-                    begin="mouseleave"
-                    fill="forwards">
-                </a-animation>
-            </a-ring> -->
+        <!-- Enable hand tracking for left and right hands -->
+        <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
+        <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
 
 
-                <!-- Gaze-Ring -->
-                <!-- <a-entity id="cursorRing"
-                    cursor="fuse: true; fuseTimeout: 2000"
-                    geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
-                    material="color: #4CAF50; shader: flat"
-                    position="0 0 -0.5"
-                    theta-length="0">
+        <!-- Display a welcome message floating in front of the user -->
+        <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
+    </a-scene>
 
-                     <a-animation attribute="theta-length"
-                        from="0"
-                        to="360"
-                        dur="2000"
-                        begin="fusing"
-                        fill="forwards">
-                    </a-animation>
-                    <a-animation attribute="theta-length"
-                        to="0"
-                        begin="mouseleave"
-                        fill="forwards">
-                    </a-animation>
-                </a-entity> -->
+    <script>
+        // Videos sicher starten
+        window.onload = () => {
+            document.querySelector('#video1').play();
+            document.querySelector('#video2').play();
+        };
 
-            </a-entity>
+        // const cursor = document.querySelector('#cursorRing');
+        const button = document.querySelector('#toRoom2');
+        const room1 = document.querySelector('#room1');
+        const room2 = document.querySelector('#room2');
+        const progressRing = document.querySelector('#progressRing');
 
-             <!-- Enable hand tracking for left and right hands -->
-            <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
-            <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
-
-            
-            <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>     
-        </a-scene>
-
-        <script>
-            // Videos sicher starten
-            window.onload = () => {
-                document.querySelector('#video1').play();
-                document.querySelector('#video2').play();
-            };
-
-            // const cursor = document.querySelector('#cursorRing');
-            const button = document.querySelector('#toRoom2');
-            const room1 = document.querySelector('#room1');
-            const room2 = document.querySelector('#room2');
-            const progressRing = document.querySelector('#progressRing');
-
-            button.addEventListener('mouseenter', () => {
-        progressRing.removeAttribute('animation'); // Reset vorheriger Animationszustand
-        progressRing.setAttribute('animation', {
-          property: 'theta-length',
-          from: 0,
-          to: 360,
-          dur: 2000,
-          easing: 'linear'
+        button.addEventListener('mouseenter', () => {
+            progressRing.removeAttribute('animation'); // Reset vorheriger Animationszustand
+            progressRing.setAttribute('animation', {
+                property: 'theta-length',
+                from: 0,
+                to: 360,
+                dur: 2000,
+                easing: 'linear'
+            });
         });
-      });
 
-      // Fortschritt abbrechen, wenn der Blick weggeht
-      button.addEventListener('mouseleave', () => {
-        progressRing.removeAttribute('animation');
-        progressRing.setAttribute('theta-length', 0);
-      });
+        // Fortschritt abbrechen, wenn der Blick weggeht
+        button.addEventListener('mouseleave', () => {
+            progressRing.removeAttribute('animation');
+            progressRing.setAttribute('theta-length', 0);
+        });
 
-      // Nach 2 Sekunden (fuseTimeout) — Klick → Szene wechseln
-      button.addEventListener('click', () => {
-        room1.setAttribute('visible', 'false');
-        room2.setAttribute('visible', 'true');
-        progressRing.removeAttribute('animation');
-        progressRing.setAttribute('theta-length', 0);
-      });
+        // Nach 2 Sekunden (fuseTimeout) — Klick → Szene wechseln
+        button.addEventListener('click', () => {
+            room1.setAttribute('visible', 'false');
+            room2.setAttribute('visible', 'true');
+            progressRing.removeAttribute('animation');
+            progressRing.setAttribute('theta-length', 0);
+        });
 
-            // FUSE LADEN (Gelbfüllung)
-            // button.addEventListener('mouseenter', () => {
-            //     cursor.setAttribute('animation__colorFill', {
-            //     property: 'material.color',
-            //     from: 'white',
-            //     to: 'yellow',
-            //     dur: 2000,
-            //     easing: 'linear'
-            //     });
-            // });
-
-            // // Wenn man wegsieht, abbrechen
-            // button.addEventListener('mouseleave', () => {
-            //     cursor.removeAttribute('animation__colorFill');
-            //     cursor.setAttribute('material', 'color', 'white');
-            // });
-
-            // Nach 2 Sekunden Blick: Szenenwechsel
-            // button.addEventListener('click', () => {
-            //     room1.setAttribute('visible', 'false');
-            //     room2.setAttribute('visible', 'true');
-                // cursor.removeAttribute('animation__colorFill')
-                // cursor.setAttribute('material', 'color', 'white');
-            // });
     </script>
 
 
-    </body>
+</body>
+
 </html>
