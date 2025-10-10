@@ -20,10 +20,16 @@
     <a-scene>
 
         <!-- Video assets -->
-        <a-assets>
+        <!-- <a-assets>
             <video id="video1" src="video/room1.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
             <video id="video2" src="video/room2.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
+        </a-assets> -->
+
+        <a-assets>
+            <video id="video1" autoplay loop muted playsinline crossorigin="anonymous"
+                    src="https://ia600701.us.archive.org/24/items/vecteezy_garden-of-the-terme-di-sirmione-vr-360_19080390/vecteezy_garden-of-the-terme-di-sirmione-vr-360_19080390.mp4"></video>
         </a-assets>
+
 
         <!-- Room 1 -->
         <a-entity id="room1" visible="true">
@@ -78,7 +84,7 @@
 
 
         <!-- Display a welcome message floating in front of the user -->
-        <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
+        <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
     </a-scene>
 
 
