@@ -21,24 +21,20 @@
 
         <!-- Video assets -->
         <a-assets>
-            <video id="video1" src="video/room1.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
-            <video id="video2" src="video/room2.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
+            <video id="video1" src="media/room1.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
+            <video id="video2" src="media/room2.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
+            <img id="menu_img" src="media/menu.png">
+
         </a-assets>
 
-        <!-- <a-assets>
-            <video id="video1" autoplay loop muted playsinline crossorigin="anonymous"
-                    src="https://archive.org/download/room1_202510/room1.mp4"></video>
-                    
-                    <video id="video2" src="video/room2.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
-            </a-assets> -->
 
 
-        <!-- Room 1 -->
-        <a-entity id="room1" visible="true">
-            <a-videosphere src="#video1" rotation="0 0 0"></a-videosphere>
+        <!-- Menu 1 -->
+        <a-entity id="menu" visible="true">
+            <a-videosphere src="#menu_img" rotation="0 0 0"></a-videosphere>
          
             <!-- Video-Entry (Icon + Text) -->
-            <a-entity id="toRoom2" class="clickable" position="0 1.5 -2">
+            <a-entity id="toRoom1" class="clickable" position="-3 1.5 -2">
             
             <!-- Symbol/Icon -->
             <a-image
@@ -51,7 +47,7 @@
 
             <!-- Text darunter -->
             <a-text
-                value="Mein Video"
+                value="Room1"
                 align="center"
                 position="0 -0.35 0"
                 width="2"
@@ -62,9 +58,9 @@
 
         </a-entity>
 
-        <!-- Room 2 (initially hidden) -->
-        <a-entity id="room2" visible="false">
-            <!-- <a-videosphere src="#video2" rotation="0 0 0"></a-videosphere> -->
+        <!-- Room 1 (initially hidden) -->
+        <a-entity id="room1" visible="false">
+            <a-videosphere src="#video1" rotation="0 0 0"></a-videosphere>
         </a-entity>
 
         <!-- Define the user's camera and enable head movement tracking -->
@@ -86,7 +82,7 @@
 
 
         <!-- Display a welcome message floating in front of the user -->
-        <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
+        <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
     </a-scene>
 
 
@@ -95,13 +91,6 @@
         // Videos sicher starten
         window.onload = () => {
             document.querySelector('#video1').play();
-        //    const video = document.querySelector('#video1');
-        //     video.muted = true;
-        //     video.setAttribute('playsinline', '');
-        //     video.addEventListener('canplaythrough', () => {
-        //         video.play();
-        //     });
-
             document.querySelector('#video2').play();
         };
 
