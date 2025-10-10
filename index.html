@@ -9,38 +9,25 @@
 
     <!-- Load the A-Frame framework for building WebVR scenes -->
     <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-html-shader@1.3.0/dist/aframe-html-shader.min.js"></script>
 </head>
 
 <body>
     <!-- Display a loading message before the scene is fully initialized -->
     <div id="loading">Loading scene...</div>
 
-     <div id="ytplayer" style="display: none">
-        <iframe width="560" height="315"
-        src="https://www.youtube.com/embed/0-AWUOTDqUA?autoplay=1&mute=1&loop=1&playlist=0-AWUOTDqUA"
-        frameborder="0" allowfullscreen>
-        </iframe>
-    </div>
-
 
     <!-- Main VR scene container -->
     <a-scene>
 
         <!-- Video assets -->
-        <!-- <a-assets>
+        <a-assets>
             <video id="video1" src="video/room1.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
             <video id="video2" src="video/room2.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
-        </a-assets> -->
+        </a-assets>
 
         <!-- Room 1 -->
         <a-entity id="room1" visible="true">
-            <!-- <a-videosphere src="#video1" rotation="0 0 0"></a-videosphere> -->
-            <a-entity geometry="primitive: plane; height: 3; width: 5"
-                material="shader: html; target: #ytplayer"
-                position="0 2 -4">
-            </a-entity>
-
+            <a-videosphere src="#video1" rotation="0 0 0"></a-videosphere>
          
             <!-- Video-Entry (Icon + Text) -->
             <a-entity id="toRoom2" class="clickable" position="0 1.5 -2">
@@ -94,38 +81,9 @@
         <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
     </a-scene>
 
-     <script>
-    const button = document.querySelector('#toRoom2');
-    const room1 = document.querySelector('#room1');
-    const room2 = document.querySelector('#room2');
-    const progressRing = document.querySelector('#progressRing');
-
-    button.addEventListener('mouseenter', () => {
-      progressRing.removeAttribute('animation');
-      progressRing.setAttribute('animation', {
-        property: 'theta-length',
-        from: 0,
-        to: 360,
-        dur: 2000,
-        easing: 'linear'
-      });
-    });
-
-    button.addEventListener('mouseleave', () => {
-      progressRing.removeAttribute('animation');
-      progressRing.setAttribute('theta-length', 0);
-    });
-
-    button.addEventListener('click', () => {
-      room1.setAttribute('visible', 'false');
-      room2.setAttribute('visible', 'true');
-      progressRing.removeAttribute('animation');
-      progressRing.setAttribute('theta-length', 0);
-    });
-  </script>
 
     
-    <!-- <script>
+    <script>
         // Videos sicher starten
         window.onload = () => {
             document.querySelector('#video1').play();
@@ -163,7 +121,7 @@
             progressRing.setAttribute('theta-length', 0);
         });
 
-    </script> -->
+    </script>
 
 
 </body>
