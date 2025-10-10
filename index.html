@@ -24,9 +24,10 @@
 
             <!-- <video id="video1" autoplay loop playsinline crossorigin="anonymous"></video> -->
              <video id="video1"
-                src="https://storage.googleapis.com/pixvana-public/sample-videos/forest_walk.mp4"
-                autoplay loop muted playsinline crossorigin="anonymous">
-            </video>
+       src="https://cdn.aframe.io/videos/bunny360.mp4"
+       autoplay loop muted playsinline crossorigin="anonymous">
+</video>
+
 
 
             <video id="video2" src="video/room2.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
@@ -34,8 +35,8 @@
 
         <!-- Room 1 -->
         <a-entity id="room1" visible="true">
-            <!-- <a-videosphere src="#video1" rotation="0 0 0"></a-videosphere> -->
-             <a-videosphere src="#placeHolderVideo"></a-videosphere>
+            <a-videosphere src="#video1" rotation="0 0 0"></a-videosphere>
+            
          
             <!-- Video-Entry (Icon + Text) -->
             <a-entity id="toRoom2" class="clickable" position="0 1.5 -2">
@@ -86,7 +87,7 @@
 
 
         <!-- Display a welcome message floating in front of the user -->
-        <a-text value="Welcome" align="center" position="0 1.8 -2" color="#000000" width="3"></a-text>
+        <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#000000" width="3"></a-text>
     </a-scene>
 
     <script>
