@@ -86,7 +86,7 @@
 
 
         <!-- Display a welcome message floating in front of the user -->
-        <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
+        <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
     </a-scene>
 
 
@@ -95,11 +95,12 @@
         // Videos sicher starten
         window.onload = () => {
             // document.querySelector('#video1').play();
-            const video = document.querySelector('#video1');
+           const video = document.querySelector('#video1');
+            video.muted = true;
+            video.setAttribute('playsinline', '');
             video.addEventListener('canplaythrough', () => {
                 video.play();
             });
-
 
             document.querySelector('#video2').play();
         };
