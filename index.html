@@ -43,7 +43,7 @@
 
             
             <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
+            <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
 
@@ -79,24 +79,29 @@
                 assets.appendChild(videoEl);
 
                 // Menü-Eintrag erzeugen
-                const entry = document.createElement('a-entity');
-                entry.classList.add('clickable');
-                entry.setAttribute('id', `to-${video.id}`);
+                // const entry = document.createElement('a-entity');
+                // entry.classList.add('clickable');
+                // entry.setAttribute('id', `to-${video.id}`);
 
-                // ---- Position auf der Kugel berechnen ----
-                // "x" = horizontaler Winkel, "y" = vertikaler Winkel (beides in Grad)
-                const [angleYDeg, angleXDeg] = video.position.split(' ').map(Number);
-                const radius = 3; // Abstand von der Mitte (Kugelradius)
-                const angleY = THREE.MathUtils.degToRad(angleYDeg); // horizontal
-                const angleX = THREE.MathUtils.degToRad(angleXDeg); // vertikal
+                // // ---- Position auf der Kugel berechnen ----
+                // // "x" = horizontaler Winkel, "y" = vertikaler Winkel (beides in Grad)
+                // const [angleYDeg, angleXDeg] = video.position.split(' ').map(Number);
+                // const radius = 3; // Abstand von der Mitte (Kugelradius)
+                // const angleY = THREE.MathUtils.degToRad(angleYDeg); // horizontal
+                // const angleX = THREE.MathUtils.degToRad(angleXDeg); // vertikal
 
-                // Kugelkoordinaten → kartesisch
-                const posX = radius * Math.sin(angleY) * Math.cos(angleX);
-                const posY = radius * Math.sin(angleX);
-                const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
+                // // Kugelkoordinaten → kartesisch
+                // const posX = radius * Math.sin(angleY) * Math.cos(angleX);
+                // const posY = radius * Math.sin(angleX);
+                // const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
 
-                entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
-                entry.setAttribute('look-at', '[camera]'); // immer zur Kamera drehen
+                // entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
+                // entry.setAttribute('look-at', '[camera]'); // immer zur Kamera drehen
+
+                // Container für Icon+Text
+                const container = document.createElement('a-entity');
+                container.setAttribute('position', `${posX} ${posY} ${posZ}`);
+                container.setAttribute('look-at', '[camera]'); // Container immer frontal zur Kamera
 
                 // ---- Icon ----
                 const icon = document.createElement('a-image');
