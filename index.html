@@ -80,7 +80,7 @@
 
 
         <!-- Display a welcome message floating in front of the user -->
-        <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
+        <a-text value="Welcome" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
     </a-scene>
 
     <script>
@@ -109,7 +109,20 @@
                 const entry = document.createElement('a-entity');
                 entry.classList.add('clickable');
                 entry.setAttribute('id', `to-${video.id}`);
-                entry.setAttribute('position', video.position);
+
+
+                // position = sphärische Koordinaten, damit sie auf der Kugel liegen
+                const [x, y, z] = video.position.split(' ').map(Number);
+                const radius = 3; // wie weit sie auf der Kugeloberfläche liegen sollen
+                const angleY = x * (Math.PI / 180); // benutze x als horizontale Drehung
+                const angleX = y * (Math.PI / 180); // benutze y als vertikale Drehung
+
+                const posX = radius * Math.sin(angleY);
+                const posY = Math.sin(angleX) * radius * 0.5; // leicht angehoben
+                const posZ = -radius * Math.cos(angleY);
+
+                entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
+                entry.setAttribute('look-at', '[camera]');
 
                 // Icon
                 const icon = document.createElement('a-image');
