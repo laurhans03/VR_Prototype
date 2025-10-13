@@ -2,19 +2,19 @@
   "videos": [
     {
       "id": "room1",
-      "title": "Beautiful Lake",
+      "title": "Clearing in the forest",
       "src": "media/room1.mp4",
        "position": "-30 40"
     },
     {
       "id": "room2",
-      "title": "Forest Walk",
+      "title": "River floating",
       "src": "media/room2.mp4",
       "position": "0 40"
     },
     {
       "id": "room3",
-      "title": "Sunny Field",
+      "title": "Sea with rocks",
       "src": "media/room3.mp4",
       "position": "30 40"
     },
