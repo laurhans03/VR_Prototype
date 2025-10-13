@@ -44,7 +44,7 @@
 
             
             <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
+            <a-text value="Welcome" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
@@ -133,8 +133,17 @@
                     menu.setAttribute('visible', 'false');
                     const room = document.createElement('a-entity');
                     room.setAttribute('id', video.id);
-                    room.innerHTML = `<a-videosphere src="#${video.id}" rotation="0 0 0"></a-videosphere>`;
+                   
+                    const sphere = document.createElement('a-videosphere');
+                    sphere.setAttribute('src', `#${video.id}`);
+                    sphere.setAttribute('rotation', '0 0 0');
+
+                    room.appendChild(sphere);
                     document.querySelector('a-scene').appendChild(room);
+
+                    const videoEl = document.querySelector(`#${video.id}`);
+                    videoEl.play();
+
                 });
                 });
 
