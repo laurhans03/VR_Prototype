@@ -118,8 +118,12 @@
                 // Kugelkoordinaten → kartesisch
                 const posX = radius * Math.sin(angleY) * Math.cos(angleX);
                 // const posY = radius * Math.sin(angleX);
+                
                 const cameraY = document.querySelector('#camera').object3D.position.y;
-                const posY = cameraY; // oder cameraY + 0.1 für leicht über Augenhöhe
+                let rowOffset = 0;
+                if (i < 3) rowOffset = 0.3;       // obere Reihe
+                else rowOffset = -0.3;  
+                const posY = cameraY + rowOffset; // oder cameraY + 0.1 für leicht über Augenhöhe
                 const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
 
                 entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
@@ -178,7 +182,7 @@
                 });
 
             document.getElementById('loading').style.display = 'none';
-        };
+        });
         </script>
     
     <!-- <script>
