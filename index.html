@@ -54,7 +54,7 @@
         <a-entity id="avatarAnchor">
             <a-entity id="avatar" gltf-model="#avatarModel"
                         position="-1.2 -1.3 -1.7"
-                        rotation="0 200 0"
+                        rotation="0 0 0"
                         scale="1 1 1">
             </a-entity>
         </a-entity>
@@ -80,22 +80,32 @@
 
     <script>
 
-        AFRAME.registerComponent('adjust-avatar', {
+       AFRAME.registerComponent('adjust-avatar', {
             tick: function () {
                 const camera = document.querySelector('#camera');
                 const avatarAnchor = document.querySelector('#avatarAnchor');
-
                 if (!camera || !avatarAnchor) return;
 
                 const camPos = camera.object3D.position;
-                // Avatar sitzt 1.2m unterhalb und 0.6m vor dem Kopf
-                avatarAnchor.setAttribute('position', {
-                x: camPos.x,
-                y: camPos.y,
-                z: camPos.z
-                });
+
+                // relative Position (vor & unter Kamera)
+                const offset = {
+                x: -0.2,   // leicht links
+                y: -1.25,  // etwa 1.25m unter Augenhöhe
+                z: -0.7    // 70cm vor der Kamera (damit du den Schoß siehst)
+                };
+
+                avatarAnchor.object3D.position.set(
+                camPos.x + offset.x,
+                camPos.y + offset.y,
+                camPos.z + offset.z
+                );
+
+                // Avatar soll dich anschauen (nur nötig, wenn er nach vorn sehen soll)
+                avatarAnchor.object3D.lookAt(camPos.x, camPos.y, camPos.z);
             }
             });
+
 
 
         // window.onload = async () => {
