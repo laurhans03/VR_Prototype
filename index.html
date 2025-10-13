@@ -25,6 +25,20 @@
             <a-asset-item id="avatarModel" src="models/man_sitting.glb"></a-asset-item>
         </a-assets>
 
+        <!-- Kamera: unabhängig vom Avatar, wird vom Headset gesteuert -->
+        <a-entity id="cameraRig" position="0 0 0">
+            <a-entity id="camera" camera look-controls wasd-controls="enabled: false" raycaster="objects: .clickable">
+            <a-entity id="cursorBase" cursor="fuse: true; fuseTimeout: 2000" position="0 0 -0.5"
+                        geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
+                        material="color: transparent; shader: flat">
+            </a-entity>
+
+            <a-ring id="progressRing" radius-inner="0.011" radius-outer="0.02" position="0 0 -0.5" color="#FFD700"
+                    theta-start="0" theta-length="0">
+            </a-ring>
+            </a-entity>
+        </a-entity>
+
 
     <!-- Avatar sitzt vor dir -->
     <a-entity id="avatar" gltf-model="#avatarModel"
@@ -33,19 +47,6 @@
             scale="1 1 1">
     </a-entity>
 
-    <!-- Kamera bleibt unabhängig -->
-    <a-entity id="cameraRig" position="0 1.6 0">
-    <a-entity id="camera" camera look-controls wasd-controls="enabled: false" raycaster="objects: .clickable">
-        <a-entity id="cursorBase" cursor="fuse: true; fuseTimeout: 2000" position="0 0 -0.5"
-                geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
-                material="color: transparent; shader: flat">
-        </a-entity>
-
-        <a-ring id="progressRing" radius-inner="0.011" radius-outer="0.02" position="0 0 -0.5" color="#FFD700"
-                theta-start="0" theta-length="0">
-        </a-ring>
-    </a-entity>
-    </a-entity>
 
 
         <!-- Menu 1 -->
@@ -53,7 +54,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             
             <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
+            <a-text value="Welcome" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
