@@ -9,6 +9,7 @@
 
     <!-- Load the A-Frame framework for building WebVR scenes -->
     <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
 </head>
 
 <body>
@@ -30,7 +31,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
 
             <!-- Define the user's camera and enable head movement tracking -->
-            <a-entity camera look-controls position="0 1.3 0" raycaster="objects: .clickable">
+            <a-entity id="camera" camera look-controls position="0 1.3 0" raycaster="objects: .clickable">
                 <a-entity id="cursorBase" cursor="fuse: true; fuseTimeout: 2000" position="0 0 -0.5"
                     geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
                     material="color: transparent; shader: flat">
@@ -43,7 +44,7 @@
 
             
             <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
+            <a-text value="Welcome" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
@@ -83,14 +84,21 @@
                 // ---- Position auf der Kugel berechnen ----
                 // "x" = horizontaler Winkel, "y" = vertikaler Winkel (beides in Grad)
                 const [angleYDeg, angleXDeg] = video.position.split(' ').map(Number);
-                const radius = 3; // Abstand von der Mitte (Kugelradius)
-                const angleY = THREE.MathUtils.degToRad(angleYDeg); // horizontal
-                const angleX = THREE.MathUtils.degToRad(angleXDeg); // vertikal
+                // const radius = 3; // Abstand von der Mitte (Kugelradius)
+                // const angleY = THREE.MathUtils.degToRad(angleYDeg); // horizontal
+                // const angleX = THREE.MathUtils.degToRad(angleXDeg); // vertikal
 
                 // Kugelkoordinaten → kartesisch
-                const posX = radius * Math.sin(angleY) * Math.cos(angleX);
-                const posY = radius * Math.sin(angleX);
-                const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
+                // const posX = radius * Math.sin(angleY) * Math.cos(angleX);
+                // const posY = radius * Math.sin(angleX);
+                // const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
+
+                const radius = 3;
+                const angleY = THREE.MathUtils.degToRad(angleYDeg);
+
+                const posX = radius * Math.sin(angleY);
+                const posY = 0; // oder z. B. 1.5 für Augenhöhe
+                const posZ = -radius * Math.cos(angleY);
 
                 entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
                 entry.setAttribute('look-at', '[camera]'); // immer zur Kamera drehen
