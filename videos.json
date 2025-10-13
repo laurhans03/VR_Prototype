@@ -4,19 +4,19 @@
       "id": "room1",
       "title": "Beautiful Lake",
       "src": "media/room1.mp4",
-       "position": "-40 30"
+       "position": "-40 40"
     },
     {
       "id": "room2",
       "title": "Forest Walk",
       "src": "media/room2.mp4",
-      "position": "0 30"
+      "position": "0 40"
     },
     {
       "id": "room3",
       "title": "Sunny Field",
       "src": "media/room3.mp4",
-      "position": "40 30"
+      "position": "40 40"
     },
      {
       "id": "room4",
