@@ -18,7 +18,7 @@
 
 
     <!-- Main VR scene container -->
-    <a-scene>
+    <a-scene adjust-avatar>
         <!-- Video assets -->
         <a-assets>
             <img id="menu_img" src="media/menu.png">
@@ -44,7 +44,7 @@
             <a-entity id="avatar" gltf-model="#avatarModel"
                         position="0 -1.2 -0.6"
                         rotation="0 180 0"
-                        scale="0.01 0.01 0.01">
+                        scale="1 1 1">
             </a-entity>
         </a-entity>
 
@@ -80,7 +80,10 @@
             });
         }
         });
-        window.onload = async () => {
+
+
+        // window.onload = async () => {
+        document.querySelector('a-scene').addEventListener('loaded', async () => {
             // JSON laden
             const response = await fetch('videos.json');
             const data = await response.json();
