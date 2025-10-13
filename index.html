@@ -80,7 +80,7 @@
 
 
         <!-- Display a welcome message floating in front of the user -->
-        <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
+        <a-text value="Welcome" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
     </a-scene>
 
     <script>
@@ -116,6 +116,7 @@
             icon.setAttribute('src', 'media/videoicon.png');
             icon.setAttribute('width', '0.4');
             icon.setAttribute('height', '0.4');
+            icon.setAttribute('position', '0 0 0');
             icon.setAttribute('material', 'color: white; opacity: 0.9');
             entry.appendChild(icon);
 
@@ -123,7 +124,7 @@
             const text = document.createElement('a-text');
             text.setAttribute('value', video.title);
             text.setAttribute('align', 'center');
-            text.setAttribute('position', '0 -0.35 0');
+            text.setAttribute('position', '0 -0.5 0');
             text.setAttribute('width', '2');
             text.setAttribute('color', 'white');
             entry.appendChild(text);
@@ -143,6 +144,7 @@
                 document.querySelector('a-scene').appendChild(room);
             });
             });
+            document.getElementById('loading').style.display = 'none';
         };
         </script>
     
