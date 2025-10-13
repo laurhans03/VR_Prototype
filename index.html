@@ -24,21 +24,20 @@
             <video id="video1" src="media/room1.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
             <video id="video2" src="media/room2.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
             <img id="menu_img" src="media/menu.png">
-
         </a-assets>
 
 
 
         <!-- Menu 1 -->
         <a-entity id="menu" visible="true">
-            <a-videosphere src="#menu_img" rotation="0 90 0"></a-videosphere>
+            <a-videosphere src="#menu_img" rotation="0 -90 0"></a-videosphere>
          
             <!-- Video-Entry (Icon + Text) -->
             <a-entity id="toRoom1" class="clickable" position="-3 1.5 -2">
             
             <!-- Symbol/Icon -->
             <a-image
-                src="https://cdn.jsdelivr.net/gh/feathericons/feather@main/icons/video.svg"
+                src="media/videoicon.png"
                 position="0 0 0"
                 width="0.4"
                 height="0.4"
