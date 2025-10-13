@@ -132,6 +132,21 @@
                 // Menü-Eintrag ins Menü einfügen
                 menu.appendChild(entry);
 
+                entry.addEventListener('mouseenter', () => {
+                // entferne vorherige Animation (falls vorhanden) und starte neue
+                progressRing.removeAttribute('animation__fill');
+                // setAttribute mit String-Notation ist robust auf vielen A-Frame-Versionen
+                progressRing.setAttribute('animation__fill',
+                    'property: theta-length; from: 0; to: 360; dur: 2000; easing: linear'
+                );
+                });
+
+                entry.addEventListener('mouseleave', () => {
+                // Animation abbrechen und Ring zurücksetzen
+                progressRing.removeAttribute('animation__fill');
+                progressRing.setAttribute('theta-length', 0);
+                });
+
                 // Event: Klick → Videoszene zeigen
                 entry.addEventListener('click', () => {
                     // Menü ausblenden, Raum anzeigen
