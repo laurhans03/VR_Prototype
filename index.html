@@ -44,7 +44,7 @@
 
             
             <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
+            <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
@@ -82,7 +82,6 @@
                 entry.setAttribute('id', `to-${video.id}`);
 
                 // ---- Position auf der Kugel berechnen ----
-                // "x" = horizontaler Winkel, "y" = vertikaler Winkel (beides in Grad)
                 const [angleYDeg, angleXDeg] = video.position.split(' ').map(Number);
                 const radius = 3; // Abstand von der Mitte (Kugelradius)
                 const angleY = THREE.MathUtils.degToRad(angleYDeg); // horizontal
@@ -93,20 +92,8 @@
                 const posY = radius * Math.sin(angleX);
                 const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
 
-                // const radius = 3;
-                // const angleY = THREE.MathUtils.degToRad(angleYDeg);
-
-                // const posX = radius * Math.sin(angleY);
-                // const posY = 0; // oder z. B. 1.5 für Augenhöhe
-                // const posZ = -radius * Math.cos(angleY);
-
                 entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
                 entry.setAttribute('look-at', '[camera]'); // immer zur Kamera drehen
-
-                // Container für Icon+Text
-                // const container = document.createElement('a-entity');
-                // container.setAttribute('position', `${posX} ${posY} ${posZ}`);
-                // container.setAttribute('look-at', '[camera]'); // Container immer frontal zur Kamera
 
                 // ---- Icon ----
                 const icon = document.createElement('a-image');
@@ -121,7 +108,7 @@
                 const text = document.createElement('a-text');
                 text.setAttribute('value', video.title);
                 text.setAttribute('align', 'center');
-                text.setAttribute('position', '0 -0.4 0');
+                text.setAttribute('position', '0 -0.3 0');
                 text.setAttribute('width', '2');
                 text.setAttribute('color', 'white');
                 entry.appendChild(text);
