@@ -40,15 +40,17 @@
         </a-entity>
 
 
-    <!-- Avatar sitzt vor dir -->
-    <a-entity id="avatar" gltf-model="#avatarModel"
-            position="-2.1 -1.3 0.27"
-            rotation="0 0 0"
-            scale="1 1 1">
-    </a-entity>
+        <a-entity id="avatarAnchor" position="0 0 0">
+            <a-entity id="avatar" gltf-model="#avatarModel"
+                        position="0 -1.2 -0.6"
+                        rotation="0 180 0"
+                        scale="0.01 0.01 0.01">
+            </a-entity>
+        </a-entity>
 
-<!-- position="0 -0.4 -0.5" -->
- <!-- position="-1 1 -1" -->
+
+            <!-- position="-2.1 -1.3 0.27" -->
+
 
         <!-- Menu 1 -->
         <a-entity id="menu" visible="true">
@@ -66,6 +68,18 @@
     </a-scene>
 
     <script>
+
+        AFRAME.registerComponent('adjust-avatar', {
+        init: function () {
+            const camera = document.querySelector('#camera');
+            const avatarAnchor = document.querySelector('#avatarAnchor');
+
+            this.el.sceneEl.addEventListener('enter-vr', () => {
+            const y = camera.object3D.position.y;
+            avatarAnchor.setAttribute('position', `0 ${y} 0`);
+            });
+        }
+        });
         window.onload = async () => {
             // JSON laden
             const response = await fetch('videos.json');
@@ -100,7 +114,9 @@
 
                 // Kugelkoordinaten → kartesisch
                 const posX = radius * Math.sin(angleY) * Math.cos(angleX);
-                const posY = radius * Math.sin(angleX);
+                // const posY = radius * Math.sin(angleX);
+                const cameraY = document.querySelector('#camera').object3D.position.y;
+                const posY = cameraY; // oder cameraY + 0.1 für leicht über Augenhöhe
                 const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
 
                 entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
