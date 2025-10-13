@@ -1,0 +1,22 @@
+{
+  "videos": [
+    {
+      "id": "room1",
+      "title": "Beautiful Lake",
+      "src": "media/room1.mp4",
+      "position": "-3 1.5 -2"
+    },
+    {
+      "id": "room2",
+      "title": "Forest Walk",
+      "src": "media/room2.mp4",
+      "position": "0 1.5 -2"
+    },
+    {
+      "id": "room3",
+      "title": "Sunny Field",
+      "src": "media/room3.mp4",
+      "position": "3 1.5 -2"
+    }
+  ]
+}
