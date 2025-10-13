@@ -27,7 +27,7 @@
 
         <!-- Menu 1 -->
         <a-entity id="menu" visible="true">
-            <a-videosphere src="#menu_img" rotation="0 -105 0"></a-videosphere>
+            <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
 
             <!-- Define the user's camera and enable head movement tracking -->
             <a-entity camera look-controls position="0 1.3 0" raycaster="objects: .clickable">
@@ -43,7 +43,7 @@
 
             
             <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
+            <a-text value="Welcome" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
 
@@ -66,8 +66,8 @@
             const assets = document.querySelector('a-assets');
 
             // Für jedes Video aus der JSON
-            data.videos.forEach(video => {
-            // Video-Asset erzeugen
+            data.videos.forEach((video, i) => {
+                // Video-Asset erzeugen
                 const videoEl = document.createElement('video');
                 videoEl.setAttribute('id', video.id);
                 videoEl.setAttribute('src', video.src);
@@ -83,68 +83,64 @@
                 entry.classList.add('clickable');
                 entry.setAttribute('id', `to-${video.id}`);
 
+                // ---- Position auf der Kugel berechnen ----
+                // "x" = horizontaler Winkel, "y" = vertikaler Winkel (beides in Grad)
+                const [angleYDeg, angleXDeg] = video.position.split(' ').map(Number);
+                const radius = 3; // Abstand von der Mitte (Kugelradius)
+                const angleY = THREE.MathUtils.degToRad(angleYDeg); // horizontal
+                const angleX = THREE.MathUtils.degToRad(angleXDeg); // vertikal
 
-                // position = sphärische Koordinaten, damit sie auf der Kugel liegen
-                const [x, y, z] = video.position.split(' ').map(Number);
-                const radius = 3; // wie weit sie auf der Kugeloberfläche liegen sollen
-                const angleY = x * (Math.PI / 180); // benutze x als horizontale Drehung
-                const angleX = y * (Math.PI / 180); // benutze y als vertikale Drehung
-
-                const posX = radius * Math.sin(angleY);
-                const posY = Math.sin(angleX) * radius * 0.5; // leicht angehoben
-                const posZ = -radius * Math.cos(angleY);
+                // Kugelkoordinaten → kartesisch
+                const posX = radius * Math.sin(angleY) * Math.cos(angleX);
+                const posY = radius * Math.sin(angleX);
+                const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
 
                 entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
-                entry.setAttribute('look-at', '[camera]');
+                entry.setAttribute('look-at', '[camera]'); // immer zur Kamera drehen
 
-                // Icon
+                // ---- Icon ----
                 const icon = document.createElement('a-image');
                 icon.setAttribute('src', 'media/videoicon.png');
-                icon.setAttribute('width', '0.4');
-                icon.setAttribute('height', '0.4');
+                icon.setAttribute('width', '0.5');
+                icon.setAttribute('height', '0.5');
                 icon.setAttribute('position', '0 0 0');
                 icon.setAttribute('material', 'color: white; opacity: 0.9');
                 entry.appendChild(icon);
 
-                // Text
+                // ---- Text ----
                 const text = document.createElement('a-text');
                 text.setAttribute('value', video.title);
                 text.setAttribute('align', 'center');
-                text.setAttribute('position', '0 -0.3 0');
+                text.setAttribute('position', '0 -0.4 0');
                 text.setAttribute('width', '2');
                 text.setAttribute('color', 'white');
                 entry.appendChild(text);
 
-                // Menü-Eintrag ins Menü einfügen
+                // ---- Menü-Eintrag hinzufügen ----
                 menu.appendChild(entry);
 
+                // ---- Cursor-Interaktion ----
                 entry.addEventListener('mouseenter', () => {
-                // entferne vorherige Animation (falls vorhanden) und starte neue
-                progressRing.removeAttribute('animation__fill');
-                // setAttribute mit String-Notation ist robust auf vielen A-Frame-Versionen
-                progressRing.setAttribute('animation__fill',
+                    progressRing.removeAttribute('animation__fill');
+                    progressRing.setAttribute('animation__fill',
                     'property: theta-length; from: 0; to: 360; dur: 2000; easing: linear'
-                );
+                    );
                 });
 
                 entry.addEventListener('mouseleave', () => {
-                // Animation abbrechen und Ring zurücksetzen
-                progressRing.removeAttribute('animation__fill');
-                progressRing.setAttribute('theta-length', 0);
+                    progressRing.removeAttribute('animation__fill');
+                    progressRing.setAttribute('theta-length', 0);
                 });
 
-                // Event: Klick → Videoszene zeigen
                 entry.addEventListener('click', () => {
-                    // Menü ausblenden, Raum anzeigen
                     menu.setAttribute('visible', 'false');
-
-                    // Neues Room-Entity erzeugen
                     const room = document.createElement('a-entity');
                     room.setAttribute('id', video.id);
                     room.innerHTML = `<a-videosphere src="#${video.id}" rotation="0 0 0"></a-videosphere>`;
                     document.querySelector('a-scene').appendChild(room);
                 });
-            });
+                });
+
             document.getElementById('loading').style.display = 'none';
         };
         </script>
