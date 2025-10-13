@@ -28,7 +28,10 @@
         <!-- Kamera: unabhängig vom Avatar, wird vom Headset gesteuert -->
         <a-entity id="cameraRig" position="0 0 0">
             <a-entity id="camera" camera look-controls wasd-controls="enabled: false" raycaster="objects: .clickable">
-            <a-entity id="cursorBase" cursor="fuse: true; fuseTimeout: 2000" position="0 0 -0.5"
+                <!-- Display a welcome message floating in front of the user -->
+                <a-text value="Welcome" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
+      
+                <a-entity id="cursorBase" cursor="fuse: true; fuseTimeout: 2000" position="0 0 -0.5"
                         geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
                         material="color: transparent; shader: flat">
             </a-entity>
@@ -40,13 +43,22 @@
         </a-entity>
 
 
-        <a-entity id="avatarAnchor" position="0 0 0">
+        <!-- <a-entity id="avatarAnchor" position="0 0 0">
             <a-entity id="avatar" gltf-model="#avatarModel"
                         position="-1.2 -1.3 -1.7"
                         rotation="0 200 0"
                         scale="1 1 1">
             </a-entity>
+        </a-entity> -->
+
+        <a-entity id="avatarAnchor">
+            <a-entity id="avatar" gltf-model="#avatarModel"
+                        position="0 -1.2 -0.6"
+                        rotation="0 200 0"
+                        scale="1 1 1">
+            </a-entity>
         </a-entity>
+
 
 
             <!-- position="-2.1 -1.3 0.27" -->
@@ -56,9 +68,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             
-            <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
-        </a-entity> 
+             </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
         <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
@@ -70,16 +80,21 @@
     <script>
 
         AFRAME.registerComponent('adjust-avatar', {
-        init: function () {
-            const camera = document.querySelector('#camera');
-            const avatarAnchor = document.querySelector('#avatarAnchor');
+            tick: function () {
+                const camera = document.querySelector('#camera');
+                const avatarAnchor = document.querySelector('#avatarAnchor');
 
-            this.el.sceneEl.addEventListener('enter-vr', () => {
-            const y = camera.object3D.position.y;
-            avatarAnchor.setAttribute('position', `0 ${y} 0`);
+                if (!camera || !avatarAnchor) return;
+
+                const camPos = camera.object3D.position;
+                // Avatar sitzt 1.2m unterhalb und 0.6m vor dem Kopf
+                avatarAnchor.setAttribute('position', {
+                x: camPos.x,
+                y: camPos.y,
+                z: camPos.z
+                });
+            }
             });
-        }
-        });
 
 
         // window.onload = async () => {
