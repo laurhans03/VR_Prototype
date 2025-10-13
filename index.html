@@ -18,11 +18,8 @@
 
     <!-- Main VR scene container -->
     <a-scene>
-
         <!-- Video assets -->
         <a-assets>
-            <!-- <video id="video1" src="media/room1.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
-            <video id="video2" src="media/room2.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video> -->
             <img id="menu_img" src="media/menu.png">
         </a-assets>
 
@@ -31,56 +28,32 @@
         <!-- Menu 1 -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -105 0"></a-videosphere>
-         
-            <!-- Video-Entry (Icon + Text) -->
-            <!-- <a-entity id="toRoom1" class="clickable" position="-3 1.5 -2"> -->
-            
-            <!-- Symbol/Icon -->
-            <!-- <a-image
-                src="media/videoicon.png"
-                position="0 0 0"
-                width="0.4"
-                height="0.4"
-                material="color: white; opacity: 0.9">
-            </a-image> -->
 
-            <!-- Text darunter -->
-            <!-- <a-text
-                value="Room1"
-                align="center"
-                position="0 -0.35 0"
-                width="2"
-                color="white">
-            </a-text>
+            <!-- Define the user's camera and enable head movement tracking -->
+            <a-entity camera look-controls position="0 1.3 0" raycaster="objects: .clickable">
+                <a-entity id="cursorBase" cursor="fuse: true; fuseTimeout: 2000" position="0 0 -0.5"
+                    geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
+                    material="color: transparent; shader: flat">
+                </a-entity>
 
-            </a-entity>-->
-        </a-entity> 
-
-        <!-- Room 1 (initially hidden) -->
-        <!-- <a-entity id="room1" visible="false">
-            <a-videosphere src="#video1" rotation="0 0 0"></a-videosphere>
-        </a-entity> -->
-
-        <!-- Define the user's camera and enable head movement tracking -->
-        <a-entity camera look-controls position="0 1.3 0" raycaster="objects: .clickable">
-            <a-entity id="cursorBase" cursor="fuse: true; fuseTimeout: 2000" position="0 0 -0.5"
-                geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
-                material="color: transparent; shader: flat">
+                <a-ring id="progressRing" radius-inner="0.011" radius-outer="0.02" position="0 0 -0.5" color="#FFD700"
+                    theta-start="0" theta-length="0">
+                </a-ring>
             </a-entity>
 
-            <a-ring id="progressRing" radius-inner="0.011" radius-outer="0.02" position="0 0 -0.5" color="#FFD700"
-                theta-start="0" theta-length="0">
-            </a-ring>
+            
+            <!-- Display a welcome message floating in front of the user -->
+            <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
+        </a-entity> 
 
-        </a-entity>
+
+       
 
         <!-- Enable hand tracking for left and right hands -->
         <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
         <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
 
 
-        <!-- Display a welcome message floating in front of the user -->
-        <a-text value="Welcome" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
     </a-scene>
 
     <script>
