@@ -80,7 +80,7 @@
 
 
         <!-- Display a welcome message floating in front of the user -->
-        <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
+        <a-text value="Welcome" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text>
     </a-scene>
 
     <script>
@@ -95,54 +95,54 @@
             // Für jedes Video aus der JSON
             data.videos.forEach(video => {
             // Video-Asset erzeugen
-            const videoEl = document.createElement('video');
-            videoEl.setAttribute('id', video.id);
-            videoEl.setAttribute('src', video.src);
-            videoEl.setAttribute('autoplay', '');
-            videoEl.setAttribute('loop', '');
-            videoEl.setAttribute('muted', '');
-            videoEl.setAttribute('playsinline', '');
-            videoEl.setAttribute('crossorigin', 'anonymous');
-            assets.appendChild(videoEl);
+                const videoEl = document.createElement('video');
+                videoEl.setAttribute('id', video.id);
+                videoEl.setAttribute('src', video.src);
+                videoEl.setAttribute('autoplay', '');
+                videoEl.setAttribute('loop', '');
+                videoEl.setAttribute('muted', '');
+                videoEl.setAttribute('playsinline', '');
+                videoEl.setAttribute('crossorigin', 'anonymous');
+                assets.appendChild(videoEl);
 
-            // Menü-Eintrag erzeugen
-            const entry = document.createElement('a-entity');
-            entry.classList.add('clickable');
-            entry.setAttribute('id', `to-${video.id}`);
-            entry.setAttribute('position', video.position);
+                // Menü-Eintrag erzeugen
+                const entry = document.createElement('a-entity');
+                entry.classList.add('clickable');
+                entry.setAttribute('id', `to-${video.id}`);
+                entry.setAttribute('position', video.position);
 
-            // Icon
-            const icon = document.createElement('a-image');
-            icon.setAttribute('src', 'media/videoicon.png');
-            icon.setAttribute('width', '0.4');
-            icon.setAttribute('height', '0.4');
-            icon.setAttribute('position', '0 0 0');
-            icon.setAttribute('material', 'color: white; opacity: 0.9');
-            entry.appendChild(icon);
+                // Icon
+                const icon = document.createElement('a-image');
+                icon.setAttribute('src', 'media/videoicon.png');
+                icon.setAttribute('width', '0.4');
+                icon.setAttribute('height', '0.4');
+                icon.setAttribute('position', '0 0 0');
+                icon.setAttribute('material', 'color: white; opacity: 0.9');
+                entry.appendChild(icon);
 
-            // Text
-            const text = document.createElement('a-text');
-            text.setAttribute('value', video.title);
-            text.setAttribute('align', 'center');
-            text.setAttribute('position', '0 -0.5 0');
-            text.setAttribute('width', '2');
-            text.setAttribute('color', 'white');
-            entry.appendChild(text);
+                // Text
+                const text = document.createElement('a-text');
+                text.setAttribute('value', video.title);
+                text.setAttribute('align', 'center');
+                text.setAttribute('position', '0 -0.5 0');
+                text.setAttribute('width', '2');
+                text.setAttribute('color', 'white');
+                entry.appendChild(text);
 
-            // Menü-Eintrag ins Menü einfügen
-            menu.appendChild(entry);
+                // Menü-Eintrag ins Menü einfügen
+                menu.appendChild(entry);
 
-            // Event: Klick → Videoszene zeigen
-            entry.addEventListener('click', () => {
-                // Menü ausblenden, Raum anzeigen
-                menu.setAttribute('visible', 'false');
+                // Event: Klick → Videoszene zeigen
+                entry.addEventListener('click', () => {
+                    // Menü ausblenden, Raum anzeigen
+                    menu.setAttribute('visible', 'false');
 
-                // Neues Room-Entity erzeugen
-                const room = document.createElement('a-entity');
-                room.setAttribute('id', video.id);
-                room.innerHTML = `<a-videosphere src="#${video.id}" rotation="0 0 0"></a-videosphere>`;
-                document.querySelector('a-scene').appendChild(room);
-            });
+                    // Neues Room-Entity erzeugen
+                    const room = document.createElement('a-entity');
+                    room.setAttribute('id', video.id);
+                    room.innerHTML = `<a-videosphere src="#${video.id}" rotation="0 0 0"></a-videosphere>`;
+                    document.querySelector('a-scene').appendChild(room);
+                });
             });
             document.getElementById('loading').style.display = 'none';
         };

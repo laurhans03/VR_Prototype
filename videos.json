@@ -4,31 +4,31 @@
       "id": "room1",
       "title": "Beautiful Lake",
       "src": "media/room1.mp4",
-      "position": "-2 1.5 -2"
+      "position": "-2 2.5 -2"
     },
     {
       "id": "room2",
       "title": "Forest Walk",
       "src": "media/room2.mp4",
-      "position": "0 1.5 -2"
+      "position": "0 2.5 -2"
     },
     {
       "id": "room3",
       "title": "Sunny Field",
       "src": "media/room3.mp4",
-      "position": "2 1.5 -2"
+      "position": "2 2.5 -2"
     },
      {
       "id": "room4",
       "title": "Hammarö udde",
       "src": "media/room4.mp4",
-      "position": "-1 0 -2"
+      "position": "-1 1.5 -2"
     },
     {
       "id": "room5",
       "title": "Bymiljövägen",
       "src": "media/room5.mp4",
-      "position": "1 0 -2"
+      "position": "1 1.5 -2"
     }
   ]
 }
