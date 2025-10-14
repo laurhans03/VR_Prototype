@@ -62,7 +62,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
@@ -74,34 +74,34 @@
 
     <script>
 
-    //    AFRAME.registerComponent('adjust-avatar', {
-    //         tick: function () {
-    //             const camera = document.querySelector('#camera');
-    //             const anchor  = document.querySelector('#avatarAnchor');
-    //             if (!camera || !anchor ) return;
+       AFRAME.registerComponent('adjust-avatar', {
+            tick: function () {
+                const camera = document.querySelector('#camera');
+                const anchor  = document.querySelector('#avatarAnchor');
+                if (!camera || !anchor ) return;
 
-    //             // const camPos = camera.object3D.position;         
-    //             // anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
+                // const camPos = camera.object3D.position;         
+                // anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
 
-    //         }
-    //         });
+            }
+            });
 
-    AFRAME.registerComponent('hide-avatar-behind', {
-        tick: function () {
-            const camera = document.querySelector('#camera');
-            const avatar = document.querySelector('#avatarWrapper');
-            if (!camera || !avatar) return;
+    // AFRAME.registerComponent('hide-avatar-behind', {
+    //     tick: function () {
+    //         const camera = document.querySelector('#camera');
+    //         const avatar = document.querySelector('#avatarWrapper');
+    //         if (!camera || !avatar) return;
 
-            const camDir = new THREE.Vector3();
-            camera.object3D.getWorldDirection(camDir);
+    //         const camDir = new THREE.Vector3();
+    //         camera.object3D.getWorldDirection(camDir);
 
-            // Prüfe, ob Blickrichtung nach unten zeigt
-            const downwardAngle = camDir.y; // y-Komponente des Blickvektors
+    //         // Prüfe, ob Blickrichtung nach unten zeigt
+    //         const downwardAngle = camDir.y; // y-Komponente des Blickvektors
 
-            // Avatar nur zeigen, wenn Blick leicht nach unten geht
-            avatar.object3D.visible = downwardAngle < -0.2;
-        }
-        });
+    //         // Avatar nur zeigen, wenn Blick leicht nach unten geht
+    //         avatar.object3D.visible = downwardAngle < -0.2;
+    //     }
+    //     });
 
 
 
