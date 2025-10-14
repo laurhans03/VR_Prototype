@@ -62,7 +62,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
@@ -85,33 +85,51 @@
 
     //         }
     //         });
-        AFRAME.registerComponent('hide-avatar-behind', {
-        schema: {
-            threshold: {type: 'number', default: -0.2} // wie weit man nach unten schauen muss
-        },
-        tick: function () {
-            const camera = document.querySelector('#camera');
-            const avatar = this.el;
-            if (!camera || !avatar) return;
-
-            const camDir = new THREE.Vector3();
-            camera.object3D.getWorldDirection(camDir);
-
-            // Sichtbarkeit nur aktiv, wenn Blick nach unten zeigt
-            const shouldBeVisible = camDir.y < this.data.threshold;
-
-            // Sanftes Ein-/Ausblenden
-            const currentOpacity = avatar.getAttribute('material')?.opacity || 1;
-            const targetOpacity = shouldBeVisible ? 1 : 0;
-            const newOpacity = THREE.MathUtils.lerp(currentOpacity, targetOpacity, 0.1);
-
-            avatar.setAttribute('visible', newOpacity > 0.05);
-            avatar.setAttribute('material', 'opacity', newOpacity);
-        }
-        });
+        
 
 
+        AFRAME.registerComponent('adjust-avatar', {
+            schema: {
+                offsetX: { type: 'number', default: -0.2 }, // links(+)/rechts(-)
+                offsetY: { type: 'number', default: -1.25 }, // unterhalb der Augen
+                offsetZ: { type: 'number', default: -0.7 } // vor der Kamera (negative Z = vor)
+            },
+            init: function () {
+                // store initial yaw of the camera as "body" orientation
+                const camera = document.querySelector('#camera');
+                if (!camera) {
+                console.warn('adjust-avatar: #camera not found');
+                return;
+                }
+                // Get world quaternion & extract yaw (rotation around Y) at init
+                const q = camera.object3D.getWorldQuaternion(new THREE.Quaternion());
+                const e = new THREE.Euler().setFromQuaternion(q, 'YXZ');
+                this.bodyYaw = e.y; // fix this as body yaw baseline
+                // Precompute quaternion for body yaw
+                this.bodyQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, this.bodyYaw, 0));
+                this.tmpVec = new THREE.Vector3();
+            },
+            tick: function () {
+                const camera = document.querySelector('#camera');
+                const anchor = document.querySelector('#avatarAnchor');
+                if (!camera || !anchor || !this.bodyQuat) return;
 
+                // get camera world position
+                const camWorldPos = camera.object3D.getWorldPosition(new THREE.Vector3());
+
+                // desired offset in body-local space
+                this.tmpVec.set(this.data.offsetX, this.data.offsetY, this.data.offsetZ);
+
+                // rotate offset by fixed body yaw to world
+                this.tmpVec.applyQuaternion(this.bodyQuat);
+
+                // set anchor position to camera position + rotated offset
+                anchor.object3D.position.copy(camWorldPos).add(this.tmpVec);
+
+                // make avatar face the body yaw direction (so it doesn't spin with head)
+                anchor.object3D.rotation.set(0, this.bodyYaw, 0);
+            }
+            });
 
 
 
