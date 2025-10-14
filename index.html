@@ -62,7 +62,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
@@ -74,35 +74,43 @@
 
     <script>
 
-       AFRAME.registerComponent('adjust-avatar', {
-            tick: function () {
-                const camera = document.querySelector('#camera');
-                const anchor  = document.querySelector('#avatarAnchor');
-                if (!camera || !anchor ) return;
+    //    AFRAME.registerComponent('adjust-avatar', {
+    //         tick: function () {
+    //             const camera = document.querySelector('#camera');
+    //             const anchor  = document.querySelector('#avatarAnchor');
+    //             if (!camera || !anchor ) return;
 
-                // const camPos = camera.object3D.position;         
-                // anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
-                
-                const camDir = new THREE.Vector3();
-                camera.object3D.getWorldDirection(camDir);
+    //             // const camPos = camera.object3D.position;         
+    //             // anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
 
-                const avatarPos = new THREE.Vector3();
-                avatar.object3D.getWorldPosition(avatarPos);
+    //         }
+    //         });
 
-                const camPos = new THREE.Vector3();
-                camera.object3D.getWorldPosition(camPos);
+    AFRAME.registerComponent('hide-avatar-behind', {
+        tick: function () {
+            const camera = document.querySelector('#camera');
+            const avatar = document.querySelector('#avatarWrapper');
+            if (!camera || !avatar) return;
 
-                const toAvatar = avatarPos.clone().sub(camPos).normalize();
-                const angle = camDir.angleTo(toAvatar); // in Radians
+            const camDir = new THREE.Vector3();
+            camera.object3D.getWorldDirection(camDir);
 
-                // Umrechnen in Grad
-                const angleDeg = THREE.MathUtils.radToDeg(angle);
+            const avatarPos = new THREE.Vector3();
+            avatar.object3D.getWorldPosition(avatarPos);
 
-                // Avatar nur zeigen, wenn Blickwinkel < 100°
-                avatar.object3D.visible = angleDeg < 120;
+            const camPos = new THREE.Vector3();
+            camera.object3D.getWorldPosition(camPos);
 
-            }
-            });
+            const toAvatar = avatarPos.clone().sub(camPos).normalize();
+
+            // Statt Winkel: Skalarprodukt → > 0 = vor dir, < 0 = hinter dir
+            const dot = camDir.dot(toAvatar);
+
+            // Avatar nur zeigen, wenn er im vorderen Sichtfeld liegt
+            avatar.object3D.visible = dot > 0.2; // 0.2 ≈ ~78° Sichtfeld nach vorne
+        }
+        });
+
 
 
 
