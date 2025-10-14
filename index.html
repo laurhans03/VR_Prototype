@@ -90,22 +90,21 @@
 
         AFRAME.registerComponent('adjust-avatar', {
             schema: {
-                offsetX: { type: 'number', default: -0.2 }, // links(+)/rechts(-)
-                offsetY: { type: 'number', default: -1.25 }, // unterhalb der Augen
-                offsetZ: { type: 'number', default: -0.7 } // vor der Kamera (negative Z = vor)
+                offsetX: { type: 'number', default: 0 },       // seitlich
+                offsetY: { type: 'number', default: -1.0 },    // unterhalb der Augen
+                offsetZ: { type: 'number', default: -0.7 }     // vor der Kamera
             },
             init: function () {
-                // store initial yaw of the camera as "body" orientation
                 const camera = document.querySelector('#camera');
                 if (!camera) {
                 console.warn('adjust-avatar: #camera not found');
                 return;
                 }
-                // Get world quaternion & extract yaw (rotation around Y) at init
+
+                // Fixiere die Körperausrichtung (Yaw) beim Start
                 const q = camera.object3D.getWorldQuaternion(new THREE.Quaternion());
                 const e = new THREE.Euler().setFromQuaternion(q, 'YXZ');
-                this.bodyYaw = e.y; // fix this as body yaw baseline
-                // Precompute quaternion for body yaw
+                this.bodyYaw = e.y;
                 this.bodyQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, this.bodyYaw, 0));
                 this.tmpVec = new THREE.Vector3();
             },
@@ -114,23 +113,19 @@
                 const anchor = document.querySelector('#avatarAnchor');
                 if (!camera || !anchor || !this.bodyQuat) return;
 
-                // get camera world position
                 const camWorldPos = camera.object3D.getWorldPosition(new THREE.Vector3());
 
-                // desired offset in body-local space
+                // Offset relativ zur fixierten Körperausrichtung
                 this.tmpVec.set(this.data.offsetX, this.data.offsetY, this.data.offsetZ);
-
-                // rotate offset by fixed body yaw to world
                 this.tmpVec.applyQuaternion(this.bodyQuat);
 
-                // set anchor position to camera position + rotated offset
+                // AvatarAnchor = KameraPosition + Offset
                 anchor.object3D.position.copy(camWorldPos).add(this.tmpVec);
 
-                // make avatar face the body yaw direction (so it doesn't spin with head)
+                // Rotation bleibt fixiert – Avatar schwingt nicht mit
                 anchor.object3D.rotation.set(0, this.bodyYaw, 0);
             }
             });
-
 
 
         // window.onload = async () => {
