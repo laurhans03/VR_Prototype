@@ -62,7 +62,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
@@ -80,8 +80,8 @@
                 const anchor  = document.querySelector('#avatarAnchor');
                 if (!camera || !anchor ) return;
 
-                // const camPos = camera.object3D.position;         
-                // anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
+                const camPos = camera.object3D.position;         
+                anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
 
             }
             });
