@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -197,7 +197,7 @@
         // Räume bereinigen
         rooms.querySelectorAll('.room').forEach(r => r.remove());
 
-        document.querySelectorAll('.clickable').forEach(el => {
+        menu.querySelectorAll('.clickable').forEach(el => {
             el.setAttribute('visible', true);
             el.classList.add('clickable');
         });
@@ -312,10 +312,6 @@
                     progressRing.object3D.visible = false;
                     progressRing.removeAttribute('animation__fill');
                     progressRing.setAttribute('theta-length', 0);
-                });
-
-                returnZone.addEventListener('click', () => {
-                    showMenu();
                 });
                 }
 
