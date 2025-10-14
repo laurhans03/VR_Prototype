@@ -89,10 +89,16 @@
                 const camPos = camera.object3D.position;
 
                 // relative Position (vor & unter Kamera)
+                // const offset = {
+                // x: -0.2,   // leicht links
+                // y: -1.25,  // etwa 1.25m unter Augenhöhe
+                // z: -0.7    // 70cm vor der Kamera (damit du den Schoß siehst)
+                // };
+
                 const offset = {
-                x: -0.2,   // leicht links
-                y: -1.25,  // etwa 1.25m unter Augenhöhe
-                z: -0.7    // 70cm vor der Kamera (damit du den Schoß siehst)
+                x: -2.1,   // leicht links
+                y: -1.3,  // etwa 1.25m unter Augenhöhe
+                z: 0.27    // 70cm vor der Kamera (damit du den Schoß siehst)
                 };
 
                 avatarAnchor.object3D.position.set(
