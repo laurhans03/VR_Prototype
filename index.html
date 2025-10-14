@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -88,47 +88,85 @@ AFRAME.registerComponent('adjust-avatar', {
 AFRAME.registerComponent('room-return', {
   init: function () {
     this.lookTimer = 0;
+    this.cursorShown = false;
   },
   tick: function (time, deltaTime) {
     const camera = document.querySelector('#camera');
     const rooms = document.querySelector('#rooms');
     const menu = document.querySelector('#menu');
     const cursorBase = document.querySelector('#cursorBase');
-    const raycaster = camera.components.raycaster;
+    const progressRing = document.querySelector('#progressRing');
+    const entries = document.querySelectorAll('.clickable');
 
-    if (!camera || !rooms || !menu) return;
+    if (!camera || !rooms || !menu || !cursorBase || !progressRing) return;
 
     const dir = new THREE.Vector3();
     camera.object3D.getWorldDirection(dir);
 
-    // --- Cursor nur im Menü sichtbar ---
+    const inRoom = rooms.getAttribute('visible');
     const inMenu = menu.getAttribute('visible');
-    cursorBase.object3D.visible = inMenu;
-    if (raycaster) raycaster.data.enabled = inMenu;
 
-    // --- Nach oben schauen? ---
-    if (rooms.getAttribute('visible')) {
-      if (dir.y > 0.7) {
-        this.lookTimer += deltaTime;
-        if (this.lookTimer > 5000) { // 5 Sekunden
-          showMenu();
-          this.lookTimer = 0;
-        }
+    // --- Buttons nur aktiv im Menü ---
+    entries.forEach(el => {
+      el.setAttribute('visible', inMenu);
+      if (inMenu) {
+        el.classList.add('clickable');
       } else {
+        el.classList.remove('clickable');
+      }
+    });
+
+    // --- Cursor im Menü immer sichtbar ---
+    if (inMenu) {
+      cursorBase.object3D.visible = true;
+      progressRing.object3D.visible = true;
+      return;
+    }
+
+    // --- Rückblick im Raum aktivieren ---
+    if (inRoom && dir.y > 0.7) {
+      this.lookTimer += deltaTime;
+
+      if (!this.cursorShown) {
+        cursorBase.object3D.visible = true;
+        progressRing.object3D.visible = true;
+        progressRing.removeAttribute('animation__fill');
+        progressRing.setAttribute('animation__fill',
+          'property: theta-length; from: 0; to: 360; dur: 3000; easing: linear');
+        this.cursorShown = true;
+      }
+
+      if (this.lookTimer > 3000) {
+        showMenu();
         this.lookTimer = 0;
+        this.cursorShown = false;
+        progressRing.removeAttribute('animation__fill');
+        progressRing.setAttribute('theta-length', 0);
+      }
+    } else {
+      this.lookTimer = 0;
+      if (this.cursorShown) {
+        cursorBase.object3D.visible = false;
+        progressRing.object3D.visible = false;
+        progressRing.removeAttribute('animation__fill');
+        progressRing.setAttribute('theta-length', 0);
+        this.cursorShown = false;
       }
     }
   }
 });
 
+
 function showMenu() {
   const menu = document.querySelector('#menu');
   const rooms = document.querySelector('#rooms');
   const cursorBase = document.querySelector('#cursorBase');
+  const progressRing = document.querySelector('#progressRing');
 
   menu.setAttribute('visible', true);
   rooms.setAttribute('visible', false);
   cursorBase.object3D.visible = true;
+  progressRing.object3D.visible = true;
 
   // Räume bereinigen
   rooms.querySelectorAll('.room').forEach(r => r.remove());
@@ -138,10 +176,12 @@ function showRooms() {
   const menu = document.querySelector('#menu');
   const rooms = document.querySelector('#rooms');
   const cursorBase = document.querySelector('#cursorBase');
+  const progressRing = document.querySelector('#progressRing');
 
   menu.setAttribute('visible', false);
   rooms.setAttribute('visible', true);
   cursorBase.object3D.visible = false;
+  progressRing.object3D.visible = false;
 }
 
 /* ===== JSON-LADEN UND SZENE AUFBAUEN ===== */
@@ -170,6 +210,8 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
     const entry = document.createElement('a-entity');
     entry.classList.add('clickable');
     entry.id = `to-${video.id}`;
+    entry.setAttribute('visible', true); // explizit sichtbar
+    entry.setAttribute('clickable', true); // eigene Klasse
 
     const [angleYDeg, angleXDeg] = video.position.split(' ').map(Number);
     const radius = 3;
