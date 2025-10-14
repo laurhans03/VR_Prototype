@@ -43,16 +43,8 @@
         </a-entity>
 
 
-        <!-- <a-entity id="avatarAnchor" position="0 0 0">
-            <a-entity id="avatar" gltf-model="#avatarModel"
-                        position="-1.2 -1.3 -1.7"
-                        rotation="0 200 0"
-                        scale="1 1 1">
-            </a-entity>
-        </a-entity> -->
-
         <a-entity id="avatarAnchor">
-            <a-entity id="avatarWrapper" rotation="0 -45 0">
+            <a-entity id="avatarWrapper" hide-avatar-behind rotation="0 -45 0">
                 <a-entity id="avatar" gltf-model="#avatarModel"
                         position="-2 -1.3 0.27"
                         rotation="0 0 0"
@@ -70,7 +62,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
@@ -88,31 +80,26 @@
                 const anchor  = document.querySelector('#avatarAnchor');
                 if (!camera || !anchor ) return;
 
-                const camPos = camera.object3D.position;
+                // const camPos = camera.object3D.position;         
+                // anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
+                
+                const camDir = new THREE.Vector3();
+                camera.object3D.getWorldDirection(camDir);
 
-                // relative Position (vor & unter Kamera)
-                // const offset = {
-                // x: -0.2,   // leicht links
-                // y: -1.25,  // etwa 1.25m unter Augenhöhe
-                // z: -0.7    // 70cm vor der Kamera (damit du den Schoß siehst)
-                // };
+                const avatarPos = new THREE.Vector3();
+                avatar.object3D.getWorldPosition(avatarPos);
 
-                // const offset = {
-                // x: -2.1,   // leicht links
-                // y: -1.3,  // etwa 1.25m unter Augenhöhe
-                // z: 0.27    // 70cm vor der Kamera (damit du den Schoß siehst)
-                // };
+                const camPos = new THREE.Vector3();
+                camera.object3D.getWorldPosition(camPos);
 
-                // avatarAnchor.object3D.position.set(
-                // camPos.x + offset.x,
-                // camPos.y + offset.y,
-                // camPos.z + offset.z
-                // );
+                const toAvatar = avatarPos.clone().sub(camPos).normalize();
+                const angle = camDir.angleTo(toAvatar); // in Radians
 
-                // Avatar soll dich anschauen (nur nötig, wenn er nach vorn sehen soll)
-                // avatarAnchor.object3D.lookAt(camPos.x, camPos.y, camPos.z);
-            
-               anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
+                // Umrechnen in Grad
+                const angleDeg = THREE.MathUtils.radToDeg(angle);
+
+                // Avatar nur zeigen, wenn Blickwinkel < 100°
+                avatar.object3D.visible = angleDeg < 100;
 
             }
             });
