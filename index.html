@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -168,28 +168,29 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
 
     const total = data.videos.length;
 
-    const iconsPerRow = 3;
-    const rowSpacing = 0.9;       // etwas tiefer
-    const colSpacing = 1.2;
-    const baseY = 1.2;            // tieferer Startpunkt
+const iconsPerRow = 3;
+const rowSpacing = 0.9;
+const colSpacing = 1.2;
+const baseY = 1.2;
 
-    const row = Math.floor(index / iconsPerRow);
-    const col = index % iconsPerRow;
+const row = Math.floor(index / iconsPerRow);
+const col = index % iconsPerRow;
 
-    // Wie viele Icons sind in dieser Reihe?
-    const itemsInRow = Math.min(iconsPerRow, total - row * iconsPerRow);
+// Wie viele Icons sind in dieser Reihe?
+const itemsInRow = Math.min(iconsPerRow, total - row * iconsPerRow);
 
-    // Zentrierung: verschiebe die Reihe so, dass sie mittig liegt
-    const offsetX = (itemsInRow - 1) * colSpacing / 2;
+// Zentrierung: verschiebe die Reihe so, dass sie mittig liegt
+const offsetX = (itemsInRow - 1) * colSpacing / 2;
 
-    // Versatz: jede zweite Reihe wird leicht verschoben
-    const shift = (row % 2 === 1 && itemsInRow < iconsPerRow)
-    ? colSpacing / 2
-    : 0;
+// Versatz: jede zweite Reihe wird in die Lücken der oberen geschoben
+const stagger = (row % 2 === 1) ? colSpacing / 2 : 0;
 
-    const x = (col * colSpacing) - offsetX + shift;
-    const y = baseY - (row * rowSpacing);
-    const z = -3;
+// Finaler X-Wert
+const x = (col * colSpacing) - offsetX + stagger;
+const y = baseY - (row * rowSpacing);
+const z = -3;
+
+entry.setAttribute('position', `${x} ${y} ${z}`);
 
 
 
