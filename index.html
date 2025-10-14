@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -102,11 +102,12 @@ AFRAME.registerComponent('room-return', {
 
     const dir = new THREE.Vector3();
     camera.object3D.getWorldDirection(dir);
+    const camPos = camera.object3D.getWorldPosition(new THREE.Vector3());
 
     const inRoom = rooms.getAttribute('visible');
     const inMenu = menu.getAttribute('visible');
 
-    // --- Buttons nur aktiv im Menü ---
+    // 🔹 Buttons nur aktiv im Menü
     entries.forEach(el => {
       el.setAttribute('visible', inMenu);
       if (inMenu) {
@@ -116,23 +117,32 @@ AFRAME.registerComponent('room-return', {
       }
     });
 
-    // --- Cursor im Menü immer sichtbar ---
+    // 🔹 Cursor im Menü immer sichtbar
     if (inMenu) {
       cursorBase.object3D.visible = true;
       progressRing.object3D.visible = true;
       return;
     }
 
-    // --- Rückblick im Raum aktivieren ---
+    // 🔹 Rückblick aktivieren (Kopf nach oben)
     if (inRoom && dir.y > 0.7) {
       this.lookTimer += deltaTime;
 
       if (!this.cursorShown) {
+        // Cursor & Ring sichtbar machen
         cursorBase.object3D.visible = true;
         progressRing.object3D.visible = true;
+
+        // 🔹 Position 0.5 m in Blickrichtung
+        const targetPos = camPos.clone().add(dir.clone().multiplyScalar(0.5));
+        cursorBase.object3D.position.copy(targetPos);
+        progressRing.object3D.position.copy(targetPos);
+
+        // Ring füllen starten
         progressRing.removeAttribute('animation__fill');
         progressRing.setAttribute('animation__fill',
           'property: theta-length; from: 0; to: 360; dur: 3000; easing: linear');
+
         this.cursorShown = true;
       }
 
@@ -167,6 +177,13 @@ function showMenu() {
   rooms.setAttribute('visible', false);
   cursorBase.object3D.visible = true;
   progressRing.object3D.visible = true;
+  progressRing.setAttribute('theta-length', 0);
+
+  // 🔹 Buttons wieder aktivieren
+  document.querySelectorAll('.clickable').forEach(el => {
+    el.setAttribute('visible', true);
+    el.classList.add('clickable');
+  });
 
   // Räume bereinigen
   rooms.querySelectorAll('.room').forEach(r => r.remove());
