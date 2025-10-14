@@ -18,7 +18,7 @@
 
 
     <!-- Main VR scene container -->
-    <a-scene adjust-avatar room-return>
+    <a-scene adjust-avatar>
         <!-- Video assets -->
         <a-assets>
             <img id="menu_img" src="media/menu.png">
@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -66,7 +66,8 @@
                 width="4"
                 height="4"
                 material="color: #00ff00; opacity: 0; transparent: true"
-                class="clickable">
+                class="clickable"
+                visible="false">
             </a-plane>
 
 
@@ -98,73 +99,7 @@
         });
 
 
-        //Rückblick nach 5 Sekunden
-        AFRAME.registerComponent('room-return', {
-  init: function () {
-    this.lookTimer = 0;
-    this.cursorShown = false;
-  },
-  tick: function (time, deltaTime) {
-    const camera = document.querySelector('#camera');
-    const rooms = document.querySelector('#rooms');
-    const menu = document.querySelector('#menu');
-    const cursorBase = document.querySelector('#cursorBase');
-    const progressRing = document.querySelector('#progressRing');
-
-    if (!camera || !rooms || !menu || !cursorBase || !progressRing) return;
-
-    const dir = new THREE.Vector3();
-    camera.object3D.getWorldDirection(dir);
-    const camPos = camera.object3D.getWorldPosition(new THREE.Vector3());
-
-    const inRoom = rooms.getAttribute('visible');
-    const inMenu = menu.getAttribute('visible');
-
-    // Cursor im Menü immer sichtbar
-    if (inMenu) {
-      cursorBase.object3D.visible = true;
-      progressRing.object3D.visible = true;
-      return;
-    }
-
-    // Rückblick aktivieren
-    if (inRoom && dir.y > 0.7) {
-      this.lookTimer += deltaTime;
-
-      if (!this.cursorShown) {
-        cursorBase.object3D.visible = true;
-        progressRing.object3D.visible = true;
-
-        const targetPos = camPos.clone().add(dir.clone().multiplyScalar(0.5));
-        cursorBase.object3D.position.copy(targetPos);
-        progressRing.object3D.position.copy(targetPos);
-
-        progressRing.removeAttribute('animation__fill');
-        progressRing.setAttribute('animation__fill',
-          'property: theta-length; from: 0; to: 360; dur: 5000; easing: linear');
-
-        this.cursorShown = true;
-      }
-
-      if (this.lookTimer > 5000) {
-        showMenu();
-        this.lookTimer = 0;
-        this.cursorShown = false;
-        progressRing.removeAttribute('animation__fill');
-        progressRing.setAttribute('theta-length', 0);
-      }
-    } else {
-      this.lookTimer = 0;
-      if (this.cursorShown) {
-        cursorBase.object3D.visible = false;
-        progressRing.object3D.visible = false;
-        progressRing.removeAttribute('animation__fill');
-        progressRing.setAttribute('theta-length', 0);
-        this.cursorShown = false;
-      }
-    }
-  }
-});
+       
 
 
     //Menü anzeigen
@@ -288,6 +223,38 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
   });
 
   document.getElementById('loading').style.display = 'none';
+
+  const returnZone = document.querySelector('#returnZone');
+const cursorBase = document.querySelector('#cursorBase');
+//const progressRing = document.querySelector('#progressRing');
+
+if (returnZone) {
+  let returnTimer = null;
+
+  returnZone.addEventListener('mouseenter', () => {
+    cursorBase.object3D.visible = true;
+    progressRing.object3D.visible = true;
+    progressRing.removeAttribute('animation__fill');
+    progressRing.setAttribute('animation__fill',
+      'property: theta-length; from: 0; to: 360; dur: 5000; easing: linear');
+
+    returnTimer = setTimeout(() => {
+      showMenu();
+      progressRing.removeAttribute('animation__fill');
+      progressRing.setAttribute('theta-length', 0);
+    }, 5000);
+  });
+
+  returnZone.addEventListener('mouseleave', () => {
+    cursorBase.object3D.visible = false;
+    progressRing.object3D.visible = false;
+    progressRing.removeAttribute('animation__fill');
+    progressRing.setAttribute('theta-length', 0);
+    clearTimeout(returnTimer);
+    returnTimer = null;
+  });
+}
+
 });
 </script>
 
