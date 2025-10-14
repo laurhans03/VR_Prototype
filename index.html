@@ -62,7 +62,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
@@ -95,19 +95,11 @@
             const camDir = new THREE.Vector3();
             camera.object3D.getWorldDirection(camDir);
 
-            const avatarPos = new THREE.Vector3();
-            avatar.object3D.getWorldPosition(avatarPos);
+            // Prüfe, ob Blickrichtung nach unten zeigt
+            const downwardAngle = camDir.y; // y-Komponente des Blickvektors
 
-            const camPos = new THREE.Vector3();
-            camera.object3D.getWorldPosition(camPos);
-
-            const toAvatar = avatarPos.clone().sub(camPos).normalize();
-
-            // Statt Winkel: Skalarprodukt → > 0 = vor dir, < 0 = hinter dir
-            const dot = camDir.dot(toAvatar);
-
-            // Avatar nur zeigen, wenn er im vorderen Sichtfeld liegt
-            avatar.object3D.visible = dot > 0.2; // 0.2 ≈ ~78° Sichtfeld nach vorne
+            // Avatar nur zeigen, wenn Blick leicht nach unten geht
+            avatar.object3D.visible = downwardAngle < -0.2;
         }
         });
 
