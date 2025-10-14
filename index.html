@@ -62,7 +62,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <!-- Enable hand tracking for left and right hands -->
@@ -85,21 +85,31 @@
 
     //         }
     //         });
-
-        AFRAME.registerComponent('adjust-avatar', {
+        AFRAME.registerComponent('hide-avatar-behind', {
+        schema: {
+            threshold: {type: 'number', default: -0.2} // wie weit man nach unten schauen muss
+        },
         tick: function () {
             const camera = document.querySelector('#camera');
-            const anchor = document.querySelector('#avatarAnchor');
-            if (!camera || !anchor) return;
+            const avatar = this.el;
+            if (!camera || !avatar) return;
 
-            // Nur die Position übernehmen (nicht die Rotation)
-            const camPos = camera.object3D.position;
-            anchor.object3D.position.set(camPos.x, camPos.y, camPos.z);
+            const camDir = new THREE.Vector3();
+            camera.object3D.getWorldDirection(camDir);
 
-            // Avatar soll sich NICHT mitdrehen, sondern in Weltkoordinaten fix bleiben
-            anchor.object3D.rotation.set(0, 0, 0);
+            // Sichtbarkeit nur aktiv, wenn Blick nach unten zeigt
+            const shouldBeVisible = camDir.y < this.data.threshold;
+
+            // Sanftes Ein-/Ausblenden
+            const currentOpacity = avatar.getAttribute('material')?.opacity || 1;
+            const targetOpacity = shouldBeVisible ? 1 : 0;
+            const newOpacity = THREE.MathUtils.lerp(currentOpacity, targetOpacity, 0.1);
+
+            avatar.setAttribute('visible', newOpacity > 0.05);
+            avatar.setAttribute('material', 'opacity', newOpacity);
         }
         });
+
 
 
 
