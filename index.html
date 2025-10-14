@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -71,137 +71,158 @@
 
     </a-scene>
 
-    <script>
-        /* ================= COMPONENTS ================= */
-        AFRAME.registerComponent('adjust-avatar', {
-        tick: function () {
-            const camera = document.querySelector('#camera');
-            const anchor = document.querySelector('#avatarAnchor');
-            const rooms = document.querySelector('#rooms');
-            if (!camera || !anchor || !rooms) return;
-
-            // Avatar nur verschieben, wenn Räume aktiv sind
-            if (!rooms.getAttribute('visible')) return;
-
-            const camPos = camera.object3D.position;
-            anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
-        }
-        });
-
-        /* ================= HELPER FUNKTIONEN ================= */
-        const menu = document.querySelector('#menu');
+   <script>
+    /* ================= COMPONENTS ================= */
+    AFRAME.registerComponent('adjust-avatar', {
+      tick: function () {
+        const camera = document.querySelector('#camera');
+        const anchor = document.querySelector('#avatarAnchor');
         const rooms = document.querySelector('#rooms');
-        const assets = document.querySelector('a-assets');
-        const progressRing = document.querySelector('#progressRing');
+        if (!camera || !anchor || !rooms) return;
 
-        function showMenu() {
-        menu.setAttribute('visible', true);
-        rooms.setAttribute('visible', false);
-        // Räume entfernen, um Performance zu sparen
-        rooms.querySelectorAll('.room').forEach(r => r.remove());
+        if (!rooms.getAttribute('visible')) return;
+
+        const camPos = camera.object3D.position;
+        anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
+      }
+    });
+
+    // 👀 Wenn Nutzer lange nach oben schaut → zurück ins Menü
+    AFRAME.registerComponent('room-return', {
+      init: function () {
+        this.timer = 0;
+      },
+      tick: function (time, deltaTime) {
+        const camera = document.querySelector('#camera');
+        const rooms = document.querySelector('#rooms');
+        const menu = document.querySelector('#menu');
+        const cursorBase = document.querySelector('#cursorBase');
+        if (!camera || !rooms || !menu) return;
+
+        const dir = new THREE.Vector3();
+        camera.object3D.getWorldDirection(dir);
+
+        // Nach oben schauen? (y > 0.6 = Blick nach oben)
+        if (rooms.getAttribute('visible') && dir.y > 0.6) {
+          this.timer += deltaTime;
+          if (this.timer > 3000) { // 3 Sekunden nach oben schauen
+            showMenu();
+            this.timer = 0;
+          }
+        } else {
+          this.timer = 0;
         }
 
-        function showRooms() {
-        menu.setAttribute('visible', false);
-        rooms.setAttribute('visible', true);
-        }
+        // Cursor nur im Menü sichtbar
+        cursorBase.object3D.visible = menu.getAttribute('visible');
+      }
+    });
 
-        /* ================= INITIALISIERUNG ================= */
-        document.querySelector('a-scene').addEventListener('loaded', async () => {
-        const response = await fetch('videos.json');
-        const data = await response.json();
+    /* ================= HELPER FUNKTIONEN ================= */
+    const menu = document.querySelector('#menu');
+    const rooms = document.querySelector('#rooms');
+    const assets = document.querySelector('a-assets');
+    const progressRing = document.querySelector('#progressRing');
+    const cursorBase = document.querySelector('#cursorBase');
 
-        data.videos.forEach((video, i) => {
-            // Video-Asset
-            const videoEl = document.createElement('video');
-            videoEl.setAttribute('id', video.id);
-            videoEl.setAttribute('src', video.src);
-            videoEl.setAttribute('autoplay', '');
-            videoEl.setAttribute('loop', '');
-            videoEl.setAttribute('muted', '');
-            videoEl.setAttribute('playsinline', '');
-            videoEl.setAttribute('crossorigin', 'anonymous');
-            assets.appendChild(videoEl);
+    function showMenu() {
+      menu.setAttribute('visible', true);
+      rooms.setAttribute('visible', false);
+      cursorBase.object3D.visible = true;
+      // Räume entfernen
+      rooms.querySelectorAll('.room').forEach(r => r.remove());
+    }
 
-            // Menü-Eintrag
-            const entry = document.createElement('a-entity');
-            entry.classList.add('clickable');
-            entry.setAttribute('id', `to-${video.id}`);
+    function showRooms() {
+      menu.setAttribute('visible', false);
+      rooms.setAttribute('visible', true);
+      cursorBase.object3D.visible = false;
+    }
 
-            // Position auf Kugel berechnen
-            const [angleYDeg, angleXDeg] = video.position.split(' ').map(Number);
-            const radius = 3;
-            const angleY = THREE.MathUtils.degToRad(angleYDeg);
-            const angleX = THREE.MathUtils.degToRad(angleXDeg);
-            const posX = radius * Math.sin(angleY) * Math.cos(angleX);
-            const posY = Math.sin(angleX) * radius * 0.5;
-            const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
-            entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
-            entry.setAttribute('look-at', '[camera]');
+    /* ================= INITIALISIERUNG ================= */
+    document.querySelector('a-scene').addEventListener('loaded', async () => {
+      const response = await fetch('videos.json');
+      const data = await response.json();
 
-            // Icon
-            const icon = document.createElement('a-image');
-            icon.setAttribute('src', 'media/videoicon.png');
-            icon.setAttribute('width', '0.5');
-            icon.setAttribute('height', '0.5');
-            icon.setAttribute('material', 'color: white; opacity: 0.9');
-            entry.appendChild(icon);
+      data.videos.forEach((video) => {
+        const videoEl = document.createElement('video');
+        videoEl.setAttribute('id', video.id);
+        videoEl.setAttribute('src', video.src);
+        videoEl.setAttribute('autoplay', '');
+        videoEl.setAttribute('loop', '');
+        videoEl.setAttribute('muted', '');
+        videoEl.setAttribute('playsinline', '');
+        videoEl.setAttribute('crossorigin', 'anonymous');
+        assets.appendChild(videoEl);
 
-            // Text
-            const text = document.createElement('a-text');
-            text.setAttribute('value', video.title);
-            text.setAttribute('align', 'center');
-            text.setAttribute('position', '0 -0.35 0');
-            text.setAttribute('width', '2');
-            text.setAttribute('color', 'white');
-            entry.appendChild(text);
+        // Menü-Eintrag
+        const entry = document.createElement('a-entity');
+        entry.classList.add('clickable');
+        entry.setAttribute('id', `to-${video.id}`);
 
-            // Menü-Eintrag hinzufügen
-            menu.appendChild(entry);
+        // Position auf Kugel
+        const [angleYDeg, angleXDeg] = video.position.split(' ').map(Number);
+        const radius = 3;
+        const angleY = THREE.MathUtils.degToRad(angleYDeg);
+        const angleX = THREE.MathUtils.degToRad(angleXDeg);
+        const posX = radius * Math.sin(angleY) * Math.cos(angleX);
+        const posY = Math.sin(angleX) * radius * 0.5;
+        const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
+        entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
+        entry.setAttribute('look-at', '[camera]');
 
-            // Cursor-Interaktion
-            entry.addEventListener('mouseenter', () => {
-            progressRing.removeAttribute('animation__fill');
-            progressRing.setAttribute('animation__fill',
-                'property: theta-length; from: 0; to: 360; dur: 2000; easing: linear');
-            });
+        // Icon
+        const icon = document.createElement('a-image');
+        icon.setAttribute('src', 'media/videoicon.png');
+        icon.setAttribute('width', '0.5');
+        icon.setAttribute('height', '0.5');
+        icon.setAttribute('material', 'color: white; opacity: 0.9');
+        entry.appendChild(icon);
 
-            entry.addEventListener('mouseleave', () => {
-            progressRing.removeAttribute('animation__fill');
-            progressRing.setAttribute('theta-length', 0);
-            });
+        // Text
+        const text = document.createElement('a-text');
+        text.setAttribute('value', video.title);
+        text.setAttribute('align', 'center');
+        text.setAttribute('position', '0 -0.35 0');
+        text.setAttribute('width', '2');
+        text.setAttribute('color', 'white');
+        entry.appendChild(text);
 
-            // Klick → Raum öffnen
-            entry.addEventListener('click', () => {
-            showRooms();
-            const room = document.createElement('a-entity');
-            room.classList.add('room');
-            room.setAttribute('id', video.id);
+        // Menü-Eintrag hinzufügen
+        menu.appendChild(entry);
 
-            const sphere = document.createElement('a-videosphere');
-            sphere.setAttribute('src', `#${video.id}`);
-            sphere.setAttribute('rotation', '0 0 0');
-            room.appendChild(sphere);
-
-            // Back-Button
-            const backText = document.createElement('a-text');
-            backText.setAttribute('value', '← Back to Menu');
-            backText.setAttribute('align', 'center');
-            backText.setAttribute('color', '#FFD700');
-            backText.setAttribute('width', '3');
-            backText.setAttribute('position', '0 1.5 -2');
-            backText.classList.add('clickable');
-            backText.addEventListener('click', showMenu);
-            room.appendChild(backText);
-
-            rooms.appendChild(room);
-            videoEl.play();
-            });
+        // Cursor-Effekte
+        entry.addEventListener('mouseenter', () => {
+          progressRing.removeAttribute('animation__fill');
+          progressRing.setAttribute('animation__fill',
+            'property: theta-length; from: 0; to: 360; dur: 2000; easing: linear');
         });
 
-        document.getElementById('loading').style.display = 'none';
+        entry.addEventListener('mouseleave', () => {
+          progressRing.removeAttribute('animation__fill');
+          progressRing.setAttribute('theta-length', 0);
         });
-    </script>
+
+        // Klick → Raum öffnen
+        entry.addEventListener('click', () => {
+          showRooms();
+          const room = document.createElement('a-entity');
+          room.classList.add('room');
+          room.setAttribute('id', video.id);
+
+          const sphere = document.createElement('a-videosphere');
+          sphere.setAttribute('src', `#${video.id}`);
+          sphere.setAttribute('rotation', '0 0 0');
+          room.appendChild(sphere);
+
+          rooms.appendChild(room);
+          videoEl.play();
+        });
+      });
+
+      document.getElementById('loading').style.display = 'none';
+    });
+  </script>
 
     <!-- <script>
 
