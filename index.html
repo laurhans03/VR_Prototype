@@ -28,9 +28,7 @@
         <!-- Kamera: unabhängig vom Avatar, wird vom Headset gesteuert -->
         <a-entity id="cameraRig" position="0 0 0">
             <a-entity id="camera" camera look-controls wasd-controls="enabled: false" raycaster="objects: .clickable">
-                <!-- Display a welcome message floating in front of the user -->
-                <!-- <a-text value="Welcome!" align="center" position="0 2.5 -2" color="#ffffff" width="3"></a-text> -->
-      
+                     
                 <a-entity id="cursorBase" cursor="fuse: true; fuseTimeout: 2000" position="0 0 -0.5"
                         geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
                         material="color: transparent; shader: flat">
@@ -43,33 +41,28 @@
         </a-entity>
 
 
-        <a-entity id="avatarAnchor">
-            <a-entity id="avatarWrapper" hide-avatar-behind rotation="0 -45 0">
-                <a-entity id="avatar" gltf-model="#avatarModel"
-                        position="-2 -1.3 0.27"
-                        rotation="0 0 0"
-                        scale="1 1 1">
-                </a-entity>
-            </a-entity>
-        </a-entity>
-        <!-- <a-entity id="avatarAnchor">
-            <a-entity id="avatarWrapper" show-on-lookdown="threshold: -0.25" visible="false">
-                <a-entity id="avatar" gltf-model="#avatarModel"
-                        position="0 0 0"
-                        rotation="0 0 0"
-                        scale="1 1 1">
-                </a-entity>
-            </a-entity>
-        </a-entity> -->
-
-
-
-        <!-- Menu 1 -->
+           <!-- Menu 1 -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
+
+        <a-entity id="rooms" visible="false">
+            <!-- Avatar sichtbar nur hier -->
+           <a-entity id="avatarAnchor">
+                <a-entity id="avatarWrapper" hide-avatar-behind rotation="0 -45 0">
+                    <a-entity id="avatar" gltf-model="#avatarModel"
+                        position="-2 -1.3 0.27"
+                        rotation="0 0 0"
+                        scale="1 1 1">
+                    </a-entity>
+                </a-entity>
+            </a-entity>
+            <!-- Räume werden dynamisch erzeugt -->
+        </a-entity>
+
+   
 
         <!-- Enable hand tracking for left and right hands -->
         <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
@@ -79,6 +72,138 @@
     </a-scene>
 
     <script>
+        /* ================= COMPONENTS ================= */
+        AFRAME.registerComponent('adjust-avatar', {
+        tick: function () {
+            const camera = document.querySelector('#camera');
+            const anchor = document.querySelector('#avatarAnchor');
+            const rooms = document.querySelector('#rooms');
+            if (!camera || !anchor || !rooms) return;
+
+            // Avatar nur verschieben, wenn Räume aktiv sind
+            if (!rooms.getAttribute('visible')) return;
+
+            const camPos = camera.object3D.position;
+            anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
+        }
+        });
+
+        /* ================= HELPER FUNKTIONEN ================= */
+        const menu = document.querySelector('#menu');
+        const rooms = document.querySelector('#rooms');
+        const assets = document.querySelector('a-assets');
+        const progressRing = document.querySelector('#progressRing');
+
+        function showMenu() {
+        menu.setAttribute('visible', true);
+        rooms.setAttribute('visible', false);
+        // Räume entfernen, um Performance zu sparen
+        rooms.querySelectorAll('.room').forEach(r => r.remove());
+        }
+
+        function showRooms() {
+        menu.setAttribute('visible', false);
+        rooms.setAttribute('visible', true);
+        }
+
+        /* ================= INITIALISIERUNG ================= */
+        document.querySelector('a-scene').addEventListener('loaded', async () => {
+        const response = await fetch('videos.json');
+        const data = await response.json();
+
+        data.videos.forEach((video, i) => {
+            // Video-Asset
+            const videoEl = document.createElement('video');
+            videoEl.setAttribute('id', video.id);
+            videoEl.setAttribute('src', video.src);
+            videoEl.setAttribute('autoplay', '');
+            videoEl.setAttribute('loop', '');
+            videoEl.setAttribute('muted', '');
+            videoEl.setAttribute('playsinline', '');
+            videoEl.setAttribute('crossorigin', 'anonymous');
+            assets.appendChild(videoEl);
+
+            // Menü-Eintrag
+            const entry = document.createElement('a-entity');
+            entry.classList.add('clickable');
+            entry.setAttribute('id', `to-${video.id}`);
+
+            // Position auf Kugel berechnen
+            const [angleYDeg, angleXDeg] = video.position.split(' ').map(Number);
+            const radius = 3;
+            const angleY = THREE.MathUtils.degToRad(angleYDeg);
+            const angleX = THREE.MathUtils.degToRad(angleXDeg);
+            const posX = radius * Math.sin(angleY) * Math.cos(angleX);
+            const posY = Math.sin(angleX) * radius * 0.5;
+            const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
+            entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
+            entry.setAttribute('look-at', '[camera]');
+
+            // Icon
+            const icon = document.createElement('a-image');
+            icon.setAttribute('src', 'media/videoicon.png');
+            icon.setAttribute('width', '0.5');
+            icon.setAttribute('height', '0.5');
+            icon.setAttribute('material', 'color: white; opacity: 0.9');
+            entry.appendChild(icon);
+
+            // Text
+            const text = document.createElement('a-text');
+            text.setAttribute('value', video.title);
+            text.setAttribute('align', 'center');
+            text.setAttribute('position', '0 -0.35 0');
+            text.setAttribute('width', '2');
+            text.setAttribute('color', 'white');
+            entry.appendChild(text);
+
+            // Menü-Eintrag hinzufügen
+            menu.appendChild(entry);
+
+            // Cursor-Interaktion
+            entry.addEventListener('mouseenter', () => {
+            progressRing.removeAttribute('animation__fill');
+            progressRing.setAttribute('animation__fill',
+                'property: theta-length; from: 0; to: 360; dur: 2000; easing: linear');
+            });
+
+            entry.addEventListener('mouseleave', () => {
+            progressRing.removeAttribute('animation__fill');
+            progressRing.setAttribute('theta-length', 0);
+            });
+
+            // Klick → Raum öffnen
+            entry.addEventListener('click', () => {
+            showRooms();
+            const room = document.createElement('a-entity');
+            room.classList.add('room');
+            room.setAttribute('id', video.id);
+
+            const sphere = document.createElement('a-videosphere');
+            sphere.setAttribute('src', `#${video.id}`);
+            sphere.setAttribute('rotation', '0 0 0');
+            room.appendChild(sphere);
+
+            // Back-Button
+            const backText = document.createElement('a-text');
+            backText.setAttribute('value', '← Back to Menu');
+            backText.setAttribute('align', 'center');
+            backText.setAttribute('color', '#FFD700');
+            backText.setAttribute('width', '3');
+            backText.setAttribute('position', '0 1.5 -2');
+            backText.classList.add('clickable');
+            backText.addEventListener('click', showMenu);
+            room.appendChild(backText);
+
+            rooms.appendChild(room);
+            videoEl.play();
+            });
+        });
+
+        document.getElementById('loading').style.display = 'none';
+        });
+    </script>
+
+    <!-- <script>
 
        AFRAME.registerComponent('adjust-avatar', {
             tick: function () {
@@ -193,7 +318,7 @@
 
             document.getElementById('loading').style.display = 'none';
         });
-        </script>
+        </script> -->
     
 
 
