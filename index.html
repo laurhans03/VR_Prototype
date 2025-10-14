@@ -80,45 +80,17 @@
 
     <script>
 
-    //    AFRAME.registerComponent('adjust-avatar', {
-    //         tick: function () {
-    //             const camera = document.querySelector('#camera');
-    //             const anchor  = document.querySelector('#avatarAnchor');
-    //             if (!camera || !anchor ) return;
+       AFRAME.registerComponent('adjust-avatar', {
+            tick: function () {
+                const camera = document.querySelector('#camera');
+                const anchor  = document.querySelector('#avatarAnchor');
+                if (!camera || !anchor ) return;
 
-    //             const camPos = camera.object3D.position;         
-    //             anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
+                const camPos = camera.object3D.position;         
+                anchor.setAttribute('position', `${camPos.x} ${camPos.y} ${camPos.z}`);
 
-    //         }
-    //         });
-        
-
-
-
-        AFRAME.registerComponent('show-on-lookdown', {
-        schema: {
-            threshold: { type: 'number', default: -0.25 } // kleiner (negativ) = weiter nach unten schauen nötig
-        },
-        init: function () {
-            this.camera = document.querySelector('#camera');
-            this.wrapper = this.el; // apply on wrapper that contains gltf-model
-            if (!this.camera) console.warn('show-on-lookdown: #camera not found');
-        },
-        tick: function () {
-            if (!this.camera || !this.wrapper) return;
-            const dir = new THREE.Vector3();
-            this.camera.object3D.getWorldDirection(dir); // normalized look dir
-            // dir.y is vertical component: negative when looking down
-            const shouldShow = dir.y < this.data.threshold;
-            // Only toggle visible attribute (reliable for GLTF)
-            if (shouldShow !== this.wrapper.getAttribute('visible')) {
-            this.wrapper.setAttribute('visible', shouldShow);
             }
-        }
         });
-
-
-
 
         // window.onload = async () => {
         document.querySelector('a-scene').addEventListener('loaded', async () => {
