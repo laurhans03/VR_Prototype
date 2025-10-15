@@ -45,7 +45,7 @@
         <a-entity id="menu" position="0 0 0" 0visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -109,6 +109,8 @@ initMenu(data);
 // VR Menü + Video Dynamik Script
 // ---------------------------
 
+
+
 AFRAME.registerComponent('adjust-avatar', {
     tick: function () {
         const camera = document.querySelector('#camera');
@@ -127,6 +129,12 @@ const rooms = document.querySelector('#rooms');
 const cursorBase = document.querySelector('#cursorBase');
 const progressRing = document.querySelector('#progressRing');
 const returnZone = document.querySelector('#returnZone');
+const camera = document.querySelector('#camera');
+
+if (camera && menu) {
+  const camPos = camera.object3D.position;
+  menu.setAttribute('position', `${camPos.x} ${camPos.y + 1.3} ${camPos.z - 2}`);
+}
 
 // ---------------------------
 // Menü & Räume
