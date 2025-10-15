@@ -5,23 +5,21 @@
       "title": "Clearing in the forest",
       "src": "media/room1.mp4"
     },
-
     {
-      "id": "room5",
-      "title": "Bymiljövägen",
-      "src": "media/room5.mp4"
+      "id": "room2",
+      "title": "River floating",
+      "src": "media/room2.mp4"
+    },
+    {
+      "id": "room3",
+      "title": "Sea with rocks",
+      "src": "media/room3.mp4"
     },
      {
-      "id": "room1",
-      "title": "Clearing in the forest",
-      "src": "media/room1.mp4"
+      "id": "room4",
+      "title": "Hammarö udde",
+      "src": "media/room4.mp4"
     },
-    {
-      "id": "room1",
-      "title": "Clearing in the forest",
-      "src": "media/room1.mp4"
-    },
-
     {
       "id": "room5",
       "title": "Bymiljövägen",
