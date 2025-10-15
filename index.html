@@ -23,8 +23,6 @@
         <a-assets>
             <img id="menu_img" src="media/menu.png">
             <a-asset-item id="avatarModel" src="models/man_sitting.glb"></a-asset-item>
-
-            <video id="room1Video" src="media/room1.mp4" preload="auto" loop playsinline webkit-playsinline muted crossorigin="anonymous"></video>
         </a-assets>
 
         <!-- Kamera: unabhängig vom Avatar, wird vom Headset gesteuert -->
@@ -47,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -84,62 +82,94 @@
     </a-scene>
 
     <script>
-        function showMenu() {
-            document.querySelector('#menu').setAttribute('visible', true);
-            document.querySelector('#rooms').setAttribute('visible', false);
-        }
-
-        function showRoom1() {
-            const menu = document.querySelector('#menu');
-            const rooms = document.querySelector('#rooms');
-            menu.setAttribute('visible', false);
-            rooms.setAttribute('visible', true);
+// ---------------------------
+// VR Menü + Video Dynamik Script
+// ---------------------------
 
 
-            // Wenn Raum noch nicht existiert: erstellen
-            let room = document.querySelector('#room1');
-            if (!room) {
-            room = document.createElement('a-entity');
-            room.id = 'room1';
+AFRAME.registerComponent('adjust-avatar', {
+tick: function () {
+const camera = document.querySelector('#camera');
+const anchor = document.querySelector('#avatarAnchor');
+const rooms = document.querySelector('#rooms');
+if (!camera || !anchor || !rooms) return;
+if (!rooms.getAttribute('visible')) return;
+anchor.object3D.position.copy(camera.object3D.position);
+}
+});
 
 
-            const sphere = document.createElement('a-videosphere');
-            sphere.setAttribute('src', '#room1Video');
-            room.appendChild(sphere);
+// Global references
+const scene = document.querySelector('a-scene');
+const menu = document.querySelector('#menu');
+const rooms = document.querySelector('#rooms');
+const cursorBase = document.querySelector('#cursorBase');
+const progressRing = document.querySelector('#progressRing');
+const returnZone = document.querySelector('#returnZone');
 
 
-            rooms.appendChild(room);
-            } else {
-            room.setAttribute('visible', 'true');
-            }
+// ---------------------------
+// Menü & Räume
+// ---------------------------
+async function initMenu() {
+const response = await fetch('videos.json');
+const data = await response.json();
+const assets = document.querySelector('a-assets');
 
 
-            // Versuche das Video zu starten — User-Gesten sind oft nötig, deshalb fangen wir Fehler ab
-            const videoEl = document.querySelector('#room1Video');
-            if (videoEl) {
-            // Ensure it's muted (required on many browsers for autoplay)
-            videoEl.muted = true;
-            videoEl.setAttribute('playsinline', 'true');
-            videoEl.setAttribute('webkit-playsinline', 'true');
+// Video Assets erstellen
+data.videos.forEach(video => {
+const videoEl = document.createElement('video');
+videoEl.id = `video-${video.id}`;
+videoEl.src = video.src;
+videoEl.autoplay = true;
+videoEl.loop = true;
+videoEl.muted = true;
+videoEl.playsInline = true;
+videoEl.setAttribute('playsinline', 'true');
+videoEl.setAttribute('webkit-playsinline', 'true');
+videoEl.crossOrigin = 'anonymous';
+assets.appendChild(videoEl);
+});
 
 
-            videoEl.play().then(() => {
-            console.log('Video gestartet.');
-            }).catch((err) => {
-            console.warn('Video start blockiert (erwarte User-Geste):', err);
-            });
-            }
-            }
+// Icons + Text erzeugen
+const radius = 3;
+const horizontalSpread = 60;
+const verticalSpread = 0.8;
+let total = data.videos.length;
+let angles = [];
+for (let i = 0; i < total; i++) angles.push(-horizontalSpread/2 + i*(horizontalSpread/(total-1)));
 
 
-            // Event hookup — DOM-ready schutz
-            document.addEventListener('DOMContentLoaded', () => {
-            const toRoom1 = document.querySelector('#to-room1');
-            const loading = document.getElementById('loading');
+for (let i = 0; i < total; i++) {
+const video = data.videos[i];
+const yawRad = THREE.MathUtils.degToRad(angles[i]);
+const x = radius * Math.sin(yawRad);
+const z = -radius * Math.cos(yawRad);
+const y = 1.5 - Math.floor(i/3)*verticalSpread;
 
 
-            });
-    </script>
+const entry = document.createElement('a-entity');
+entry.classList.add('clickable', 'menu-entry');
+entry.id = `to-${video.id}`;
+entry.setAttribute('position', `${x} ${y} ${z}`);
+entry.setAttribute('look-at', '[camera]');
+
+
+// Icon
+const icon = document.createElement('a-image');
+icon.setAttribute('src', 'media/videoicon.png');
+icon.setAttribute('width', '0.45');
+icon.setAttribute('height', '0.45');
+icon.setAttribute('material', 'color: white; opacity: 0.9');
+entry.appendChild(icon);
+
+
+// Text
+const text = document.createElement('a-text');
+text.setAttribute('value', video.title);
+</script>
 
     </body>
 </html>

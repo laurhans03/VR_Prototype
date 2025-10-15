@@ -1,27 +1,27 @@
 {
   "videos": [
     {
-      "id": "room1",
+      "id": "1",
       "title": "Clearing in the forest",
       "src": "media/room1.mp4"
     },
     {
-      "id": "room2",
+      "id": "2",
       "title": "River floating",
       "src": "media/room2.mp4"
     },
     {
-      "id": "room3",
+      "id": "3",
       "title": "Sea with rocks",
       "src": "media/room3.mp4"
     },
      {
-      "id": "room4",
+      "id": "4",
       "title": "Hammarö udde",
       "src": "media/room4.mp4"
     },
     {
-      "id": "room5",
+      "id": "5",
       "title": "Bymiljövägen",
       "src": "media/room5.mp4"
     }
