@@ -45,7 +45,8 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
-            <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
+            <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
+            <a-text value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -124,6 +125,14 @@ async function initMenu() {
     const data = await response.json();
     const assets = document.querySelector('a-assets');
 
+    const camY = camera.object3D.position.y;      // aktuelle Augenhöhe
+    const iconsBaseY = camY - 0.4;               // Basis für Icons
+    const welcomeY = iconsBaseY + 0.8;           // 0.8m über Icons
+
+    const welcomeText = document.querySelector('#welcomeText');
+    welcomeText.setAttribute('position', `0 ${welcomeY} -3`);
+
+
     // Video Assets erstellen
     data.videos.forEach(video => {
         const videoEl = document.createElement('video');
@@ -143,7 +152,9 @@ async function initMenu() {
 const total = data.videos.length;
 const maxRows = 4;
 const rowHeight = 0.8;
-const baseY = 1.5; // Starthöhe
+// const baseY = 1.5; // Starthöhe
+const baseY = camY - 0.4; // Icons knapp unter Augenhöhe
+
 const rows = Math.min(maxRows, Math.ceil(total / 3));
 
 // Verteile Videos auf Reihen
