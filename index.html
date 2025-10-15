@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -86,18 +86,16 @@
 // VR Menü + Video Dynamik Script
 // ---------------------------
 
-
 AFRAME.registerComponent('adjust-avatar', {
-tick: function () {
-const camera = document.querySelector('#camera');
-const anchor = document.querySelector('#avatarAnchor');
-const rooms = document.querySelector('#rooms');
-if (!camera || !anchor || !rooms) return;
-if (!rooms.getAttribute('visible')) return;
-anchor.object3D.position.copy(camera.object3D.position);
-}
+    tick: function () {
+        const camera = document.querySelector('#camera');
+        const anchor = document.querySelector('#avatarAnchor');
+        const rooms = document.querySelector('#rooms');
+        if (!camera || !anchor || !rooms) return;
+        if (!rooms.getAttribute('visible')) return;
+        anchor.object3D.position.copy(camera.object3D.position);
+    }
 });
-
 
 // Global references
 const scene = document.querySelector('a-scene');
@@ -107,589 +105,152 @@ const cursorBase = document.querySelector('#cursorBase');
 const progressRing = document.querySelector('#progressRing');
 const returnZone = document.querySelector('#returnZone');
 
-
 // ---------------------------
 // Menü & Räume
 // ---------------------------
 async function initMenu() {
-const response = await fetch('videos.json');
-const data = await response.json();
-const assets = document.querySelector('a-assets');
+    const response = await fetch('videos.json');
+    const data = await response.json();
+    const assets = document.querySelector('a-assets');
 
+    // Video Assets erstellen
+    data.videos.forEach(video => {
+        const videoEl = document.createElement('video');
+        videoEl.id = `video-${video.id}`;
+        videoEl.src = video.src;
+        videoEl.autoplay = true;
+        videoEl.loop = true;
+        videoEl.muted = true;
+        videoEl.playsInline = true;
+        videoEl.setAttribute('playsinline', 'true');
+        videoEl.setAttribute('webkit-playsinline', 'true');
+        videoEl.crossOrigin = 'anonymous';
+        assets.appendChild(videoEl);
+    });
 
-// Video Assets erstellen
-data.videos.forEach(video => {
-const videoEl = document.createElement('video');
-videoEl.id = `video-${video.id}`;
-videoEl.src = video.src;
-videoEl.autoplay = true;
-videoEl.loop = true;
-videoEl.muted = true;
-videoEl.playsInline = true;
-videoEl.setAttribute('playsinline', 'true');
-videoEl.setAttribute('webkit-playsinline', 'true');
-videoEl.crossOrigin = 'anonymous';
-assets.appendChild(videoEl);
+    // Icons + Text erzeugen
+    const radius = 3;
+    const horizontalSpread = 60;
+    const verticalSpread = 0.8;
+    let total = data.videos.length;
+    let angles = [];
+    for (let i = 0; i < total; i++) angles.push(-horizontalSpread/2 + i*(horizontalSpread/(total-1)));
+
+    for (let i = 0; i < total; i++) {
+        const video = data.videos[i];
+        const yawRad = THREE.MathUtils.degToRad(angles[i]);
+        const x = radius * Math.sin(yawRad);
+        const z = -radius * Math.cos(yawRad);
+        const y = 1.5 - Math.floor(i/3)*verticalSpread;
+
+        const entry = document.createElement('a-entity');
+        entry.classList.add('clickable', 'menu-entry');
+        entry.id = `to-${video.id}`;
+        entry.setAttribute('position', `${x} ${y} ${z}`);
+        entry.setAttribute('look-at', '[camera]');
+
+        // Icon
+        const icon = document.createElement('a-image');
+        icon.setAttribute('src', 'media/videoicon.png');
+        icon.setAttribute('width', '0.45');
+        icon.setAttribute('height', '0.45');
+        icon.setAttribute('material', 'color: white; opacity: 0.9');
+        entry.appendChild(icon);
+
+        // Text
+        const text = document.createElement('a-text');
+        text.setAttribute('value', video.title);
+        text.setAttribute('align', 'center');
+        text.setAttribute('position', '0 -0.35 0');
+        text.setAttribute('width', '2');
+        text.setAttribute('color', 'white');
+        entry.appendChild(text);
+
+        menu.appendChild(entry);
+
+        // Interaktionen
+        let fuseTimeout = null;
+
+        entry.addEventListener('mouseenter', () => {
+            icon.setAttribute('material', 'color: yellow');
+            progressRing.setAttribute('theta-length', 0);
+            progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: linear');
+            fuseTimeout = setTimeout(() => openRoom(video.id), 3000);
+        });
+
+        entry.addEventListener('mouseleave', () => {
+            icon.setAttribute('material', 'color: white');
+            progressRing.removeAttribute('animation__fill');
+            progressRing.setAttribute('theta-length', 0);
+            clearTimeout(fuseTimeout);
+        });
+    }
+}
+
+// ---------------------------
+// Raum öffnen
+// ---------------------------
+function openRoom(videoId) {
+    menu.setAttribute('visible', false);
+    rooms.setAttribute('visible', true);
+    cursorBase.object3D.visible = false;
+    progressRing.object3D.visible = false;
+
+    document.querySelector('#avatarAnchor').setAttribute('visible', true);
+
+    let room = document.querySelector(`#room-${videoId}`);
+    if (!room) {
+        room = document.createElement('a-entity');
+        room.id = `room-${videoId}`;
+        room.classList.add('room');
+        const sphere = document.createElement('a-videosphere');
+        sphere.setAttribute('src', `#video-${videoId}`);
+        room.appendChild(sphere);
+        rooms.appendChild(room);
+    } else {
+        room.setAttribute('visible', 'true');
+    }
+
+    // Video starten
+    const videoEl = document.querySelector(`#video-${videoId}`);
+    if (videoEl) videoEl.play().catch(err => console.warn('Video konnte nicht starten:', err));
+}
+
+// ---------------------------
+// Rückkehr zum Menü
+// ---------------------------
+let returnTimer = null;
+returnZone.addEventListener('mouseenter', () => {
+    cursorBase.object3D.visible = true;
+    progressRing.object3D.visible = true;
+    progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: linear');
+
+    returnTimer = setTimeout(() => {
+        menu.setAttribute('visible', true);
+        rooms.querySelectorAll('.room').forEach(r => r.remove());
+        rooms.setAttribute('visible', false);
+        progressRing.removeAttribute('animation__fill');
+        progressRing.setAttribute('theta-length', 0);
+        document.querySelector('#avatarAnchor').setAttribute('visible', false);
+    }, 5000);
+});
+returnZone.addEventListener('mouseleave', () => {
+    cursorBase.object3D.visible = false;
+    progressRing.object3D.visible = false;
+    progressRing.removeAttribute('animation__fill');
+    progressRing.setAttribute('theta-length', 0);
+    clearTimeout(returnTimer);
 });
 
-
-// Icons + Text erzeugen
-const radius = 3;
-const horizontalSpread = 60;
-const verticalSpread = 0.8;
-let total = data.videos.length;
-let angles = [];
-for (let i = 0; i < total; i++) angles.push(-horizontalSpread/2 + i*(horizontalSpread/(total-1)));
-
-
-for (let i = 0; i < total; i++) {
-const video = data.videos[i];
-const yawRad = THREE.MathUtils.degToRad(angles[i]);
-const x = radius * Math.sin(yawRad);
-const z = -radius * Math.cos(yawRad);
-const y = 1.5 - Math.floor(i/3)*verticalSpread;
-
-
-const entry = document.createElement('a-entity');
-entry.classList.add('clickable', 'menu-entry');
-entry.id = `to-${video.id}`;
-entry.setAttribute('position', `${x} ${y} ${z}`);
-entry.setAttribute('look-at', '[camera]');
-
-
-// Icon
-const icon = document.createElement('a-image');
-icon.setAttribute('src', 'media/videoicon.png');
-icon.setAttribute('width', '0.45');
-icon.setAttribute('height', '0.45');
-icon.setAttribute('material', 'color: white; opacity: 0.9');
-entry.appendChild(icon);
-
-
-// Text
-const text = document.createElement('a-text');
-text.setAttribute('value', video.title);
+// ---------------------------
+// Szene geladen → Menü initialisieren
+// ---------------------------
+scene.addEventListener('loaded', () => {
+    initMenu();
+    document.getElementById('loading').style.display = 'none';
+});
 </script>
+
 
     </body>
 </html>
-
-
-
-
-<!-- <script>
-    //Avatarpositionierung
-    AFRAME.registerComponent('adjust-avatar', {
-        tick: function () {
-            const camera = document.querySelector('#camera');
-            const anchor = document.querySelector('#avatarAnchor');
-            const rooms = document.querySelector('#rooms');
-            if (!camera || !anchor || !rooms) return;
-            if (!rooms.getAttribute('visible')) return;
-
-            const camPos = camera.object3D.position;
-            anchor.object3D.position.copy(camPos);
-        }
-        });
-
-
-       
-
-
-    //Menü anzeigen
-    function showMenu() {
-  const menu = document.querySelector('#menu');
-  const rooms = document.querySelector('#rooms');
-  const cursorBase = document.querySelector('#cursorBase');
-  const progressRing = document.querySelector('#progressRing');
-  const returnZone = document.querySelector('#returnZone');
-
-  menu.setAttribute('visible', true);
-  rooms.setAttribute('visible', false);
-  cursorBase.object3D.visible = true;
-  progressRing.object3D.visible = true;
-  progressRing.setAttribute('theta-length', 0);
-  returnZone.setAttribute('visible', false);
-
-  // Räume bereinigen
-  rooms.querySelectorAll('.room').forEach(r => r.remove());
-
-  // Icons wieder aktivieren
-  menu.querySelectorAll('[id^="to-"]').forEach(el => {
-    el.setAttribute('visible', true);
-    el.classList.add('clickable');
-  });
-}
-
-
-//Raum anzeigen
-function showRooms() {
-  const menu = document.querySelector('#menu');
-  const rooms = document.querySelector('#rooms');
-  const cursorBase = document.querySelector('#cursorBase');
-  const progressRing = document.querySelector('#progressRing');
-  const returnZone = document.querySelector('#returnZone');
-
-  menu.setAttribute('visible', false);
-  rooms.setAttribute('visible', true);
-  cursorBase.object3D.visible = false;
-  progressRing.object3D.visible = false;
-  returnZone.setAttribute('visible', true);
-}
-
-
-
-//JSON laden und Icons erzeugen
-document.querySelector('a-scene').addEventListener('loaded', async () => {
-  const response = await fetch('videos.json');
-  const data = await response.json();
-
-  const menu = document.querySelector('#menu');
-  const assets = document.querySelector('a-assets');
-  const rooms = document.querySelector('#rooms');
-  const progressRing = document.querySelector('#progressRing');
-  const cursorBase = document.querySelector('#cursorBase');
-  const returnZone = document.querySelector('#returnZone');
-
-  // 🔹 Video-Assets vorbereiten
- // 🔹 Video-Assets vorbereiten
-data.videos.forEach((video) => {
-  const videoEl = document.createElement('video');
-  videoEl.id = video.id;
-  videoEl.src = video.src;
-  videoEl.setAttribute('preload', 'auto');
-  videoEl.setAttribute('autoplay', 'true');
-  videoEl.setAttribute('loop', 'true');
-  videoEl.setAttribute('muted', 'true');
-  videoEl.setAttribute('playsinline', 'true'); // Wichtig für Quest!
-  videoEl.setAttribute('webkit-playsinline', 'true'); // iOS/Meta Compat
-  videoEl.crossOrigin = 'anonymous';
-
-  // Autoplay-Fix für VR: erst starten, wenn User klickt
-  videoEl.addEventListener('loadeddata', () => {
-    videoEl.play().catch(() => {
-      console.log("Autoplay blockiert – wird später per Interaktion gestartet.");
-    });
-  });
-
-  assets.appendChild(videoEl);
-});
-
-
-  // 🔹 Menü-Icons erzeugen (bogenförmig, versetzt)
-  const total = data.videos.length;
-  const maxRows = 4;
-  const radius = 3.2;
-  const horizontalSpread = 60;
-  const verticalSpread = 0.8;
-
-  const rows = Math.min(maxRows, Math.ceil(total / 3));
-  const itemsPerRow = Math.ceil(total / rows);
-  const totalHeight = (rows - 1) * verticalSpread;
-  const baseY = totalHeight / 2;
-
-  let videoIndex = 0;
-  let prevAngles = null;
-
-  for (let row = 0; row < rows; row++) {
-    const remaining = total - videoIndex;
-    const count = Math.min(itemsPerRow, remaining);
-    if (count <= 0) break;
-
-    const y = baseY - row * verticalSpread;
-    let angles = [];
-
-    if (prevAngles && count < prevAngles.length) {
-      const midpoints = [];
-      for (let i = 0; i < prevAngles.length - 1; i++) {
-        midpoints.push((prevAngles[i] + prevAngles[i + 1]) / 2);
-      }
-
-      if (count === midpoints.length) {
-        angles = midpoints.slice();
-      } else if (count === 1) {
-        angles = [midpoints[Math.floor(midpoints.length / 2)]];
-      } else {
-        for (let k = 0; k < count; k++) {
-          const idx = Math.round(k * (midpoints.length - 1) / (count - 1));
-          angles.push(midpoints[idx]);
-        }
-      }
-    } else {
-      const span = (count > 1) ? (horizontalSpread / (count - 1)) : 0;
-      const start = -horizontalSpread / 2;
-      for (let i = 0; i < count; i++) {
-        angles.push(start + i * span);
-      }
-    }
-
-    for (let i = 0; i < angles.length; i++) {
-      if (videoIndex >= total) break;
-      const video = data.videos[videoIndex++];
-
-      const yawDeg = angles[i];
-      const yawRad = THREE.MathUtils.degToRad(yawDeg);
-      const x = radius * Math.sin(yawRad);
-      const z = -radius * Math.cos(yawRad);
-
-      const entry = document.createElement('a-entity');
-      entry.classList.add('clickable', 'menu-entry');
-      entry.id = `to-${video.id}`;
-      entry.setAttribute('position', `${x} ${y} ${z}`);
-      entry.setAttribute('look-at', '[camera]');
-      entry.setAttribute('visible', true);
-
-      const icon = document.createElement('a-image');
-      icon.setAttribute('src', 'media/videoicon.png');
-      icon.setAttribute('width', '0.45');
-      icon.setAttribute('height', '0.45');
-      icon.setAttribute('material', 'color: white; opacity: 0.9');
-      entry.appendChild(icon);
-
-      const text = document.createElement('a-text');
-      text.setAttribute('value', video.title);
-      text.setAttribute('align', 'center');
-      text.setAttribute('position', '0 -0.35 0');
-      text.setAttribute('width', '2');
-      text.setAttribute('color', 'white');
-      entry.appendChild(text);
-
-      menu.appendChild(entry);
-
-      // 🔹 Interaktion
-      entry.addEventListener('mouseenter', () => {
-        progressRing.removeAttribute('animation__fill');
-        progressRing.setAttribute('animation__fill',
-          'property: theta-length; from: 0; to: 360; dur: 2000; easing: linear');
-      });
-
-      entry.addEventListener('mouseleave', () => {
-        progressRing.removeAttribute('animation__fill');
-        progressRing.setAttribute('theta-length', 0);
-      });
-
-     entry.addEventListener('click', () => {
-        showRooms();
-
-        let room = document.querySelector(`#${video.id}`);
-        if (!room) {
-            room = document.createElement('a-entity');
-            room.id = video.id;
-            room.classList.add('room');
-
-            const sphere = document.createElement('a-videosphere');
-            sphere.setAttribute('src', `#${video.id}`);
-            room.appendChild(sphere);
-            rooms.appendChild(room);
-        } else {
-            room.setAttribute('visible', 'true');
-        }
-
-        cursorBase.object3D.visible = false;
-        progressRing.object3D.visible = false;
-
-        returnZone.object3D.position.set(0, 2, -1);
-        returnZone.setAttribute('visible', true);
-
-        // 🔹 **WICHTIG: Video sicher aktivieren**
-        const videoEl = document.querySelector(`#${video.id}`);
-        if (videoEl) {
-            videoEl.setAttribute('muted', 'true');
-            videoEl.setAttribute('playsinline', 'true');
-            videoEl.setAttribute('webkit-playsinline', 'true');
-            videoEl.play().catch(err => console.warn("Video start blockiert:", err));
-        }
-        });
-
-    }
-
-    prevAngles = angles.slice();
-  }
-
-  document.getElementById('loading').style.display = 'none';
-
-  // 🔹 Rückkehrfläche aktivieren
-  if (returnZone) {
-    let returnTimer = null;
-
-    returnZone.addEventListener('mouseenter', () => {
-      cursorBase.object3D.visible = true;
-      progressRing.object3D.visible = true;
-      progressRing.removeAttribute('animation__fill');
-      progressRing.setAttribute('animation__fill',
-        'property: theta-length; from: 0; to: 360; dur: 5000; easing: linear');
-
-      returnTimer = setTimeout(() => {
-        showMenu();
-        progressRing.removeAttribute('animation__fill');
-        progressRing.setAttribute('theta-length', 0);
-      }, 5000);
-    });
-
-    returnZone.addEventListener('mouseleave', () => {
-      cursorBase.object3D.visible = false;
-      progressRing.object3D.visible = false;
-      progressRing.removeAttribute('animation__fill');
-      progressRing.setAttribute('theta-length', 0);
-      clearTimeout(returnTimer);
-      returnTimer = null;
-    });
-  }
-});
-</script> -->
-
-
-
-   <!-- <script>
-        AFRAME.registerComponent('adjust-avatar', {
-        tick: function () {
-            const camera = document.querySelector('#camera');
-            const anchor = document.querySelector('#avatarAnchor');
-            const rooms = document.querySelector('#rooms');
-            if (!camera || !anchor || !rooms) return;
-            if (!rooms.getAttribute('visible')) return;
-
-            const camPos = camera.object3D.position;
-            anchor.object3D.position.copy(camPos);
-        }
-        });
-
-        AFRAME.registerComponent('room-return', {
-        init: function () {
-            this.lookTimer = 0;
-            this.cursorShown = false;
-        },
-        tick: function (time, deltaTime) {
-            const camera = document.querySelector('#camera');
-            const rooms = document.querySelector('#rooms');
-            const menu = document.querySelector('#menu');
-            const cursorBase = document.querySelector('#cursorBase');
-            const progressRing = document.querySelector('#progressRing');
-            const entries = document.querySelectorAll('.clickable');
-
-            if (!camera || !rooms || !menu || !cursorBase || !progressRing) return;
-
-            const dir = new THREE.Vector3();
-            camera.object3D.getWorldDirection(dir);
-            const camPos = camera.object3D.getWorldPosition(new THREE.Vector3());
-
-            const inRoom = rooms.getAttribute('visible');
-            const inMenu = menu.getAttribute('visible');
-
-            // 🔹 Buttons nur aktiv im Menü
-            entries.forEach(el => {
-            el.setAttribute('visible', inMenu);
-            if (inMenu) {
-                el.classList.add('clickable');
-            } else {
-                el.classList.remove('clickable');
-            }
-            });
-
-            // 🔹 Cursor im Menü immer sichtbar
-            if (inMenu) {
-            cursorBase.object3D.visible = true;
-            progressRing.object3D.visible = true;
-            return;
-            }
-
-            // 🔹 Rückblick aktivieren (Kopf nach oben)
-            if (inRoom && dir.y > 0.7) {
-            this.lookTimer += deltaTime;
-
-            if (!this.cursorShown) {
-                // Cursor & Ring sichtbar machen
-                cursorBase.object3D.visible = true;
-                progressRing.object3D.visible = true;
-
-                // 🔹 Position 0.5 m in Blickrichtung
-                const targetPos = camPos.clone().add(dir.clone().multiplyScalar(0.5));
-                cursorBase.object3D.position.copy(targetPos);
-                progressRing.object3D.position.copy(targetPos);
-
-                // Ring füllen starten
-                progressRing.removeAttribute('animation__fill');
-                progressRing.setAttribute('animation__fill',
-                'property: theta-length; from: 0; to: 360; dur: 3000; easing: linear');
-
-                this.cursorShown = true;
-            }
-
-            if (this.lookTimer > 5000) {
-                showMenu();
-                this.lookTimer = 0;
-                this.cursorShown = false;
-                progressRing.removeAttribute('animation__fill');
-                progressRing.setAttribute('theta-length', 0);
-            }
-            } else {
-            this.lookTimer = 0;
-            if (this.cursorShown) {
-                cursorBase.object3D.visible = false;
-                progressRing.object3D.visible = false;
-                progressRing.removeAttribute('animation__fill');
-                progressRing.setAttribute('theta-length', 0);
-                this.cursorShown = false;
-            }
-            }
-        }
-        });
-
-
-        function showMenu() {
-        const menu = document.querySelector('#menu');
-        const rooms = document.querySelector('#rooms');
-        const cursorBase = document.querySelector('#cursorBase');
-        const progressRing = document.querySelector('#progressRing');
-        const returnZone = document.querySelector('#returnZone');
-
-        menu.setAttribute('visible', true);
-        rooms.setAttribute('visible', false);
-        cursorBase.object3D.visible = true;
-        progressRing.object3D.visible = true;
-        progressRing.setAttribute('theta-length', 0);
-
-        // 🔹 Rückkehrfläche deaktivieren
-        returnZone.setAttribute('visible', false);
-
-        // Räume bereinigen
-        rooms.querySelectorAll('.room').forEach(r => r.remove());
-
-        menu.querySelectorAll('.clickable').forEach(el => {
-            el.setAttribute('visible', true);
-            el.classList.add('clickable');
-        });
-        }
-
-
-        function showRooms() {
-        const menu = document.querySelector('#menu');
-        const rooms = document.querySelector('#rooms');
-        const cursorBase = document.querySelector('#cursorBase');
-        const progressRing = document.querySelector('#progressRing');
-        const returnZone = document.querySelector('#returnZone');
-
-        menu.setAttribute('visible', false);
-        rooms.setAttribute('visible', true);
-        cursorBase.object3D.visible = false;
-        progressRing.object3D.visible = false;
-
-        // 🔹 Rückkehrfläche aktivieren
-        returnZone.setAttribute('visible', true);
-        }
-
-
-        /* ===== JSON-LADEN UND SZENE AUFBAUEN ===== */
-        document.querySelector('a-scene').addEventListener('loaded', async () => {
-            // Rückkehr-Zone aktivieren
-            const returnZone = document.querySelector('#returnZone');
-            if (returnZone) {
-            returnZone.addEventListener('click', () => {
-                showMenu();
-            });
-        }
-
-        const response = await fetch('videos.json');
-        const data = await response.json();
-
-        const menu = document.querySelector('#menu');
-        const assets = document.querySelector('a-assets');
-        const rooms = document.querySelector('#rooms');
-        const progressRing = document.querySelector('#progressRing');
-
-        data.videos.forEach((video) => {
-            // Video-Asset
-            const videoEl = document.createElement('video');
-            videoEl.id = video.id;
-            videoEl.src = video.src;
-            videoEl.autoplay = true;
-            videoEl.loop = true;
-            videoEl.muted = true;
-            videoEl.playsInline = true;
-            videoEl.crossOrigin = 'anonymous';
-            assets.appendChild(videoEl);
-
-            // Menü-Icon + Text
-            const entry = document.createElement('a-entity');
-            entry.classList.add('clickable');
-            entry.id = `to-${video.id}`;
-            entry.setAttribute('visible', true); // explizit sichtbar
-            entry.setAttribute('clickable', true); // eigene Klasse
-
-            const [angleYDeg, angleXDeg] = video.position.split(' ').map(Number);
-            const radius = 3;
-            const angleY = THREE.MathUtils.degToRad(angleYDeg);
-            const angleX = THREE.MathUtils.degToRad(angleXDeg);
-
-            const posX = radius * Math.sin(angleY) * Math.cos(angleX);
-            const posY = radius * Math.sin(angleX);
-            const posZ = -radius * Math.cos(angleY) * Math.cos(angleX);
-            entry.setAttribute('position', `${posX} ${posY} ${posZ}`);
-            entry.setAttribute('look-at', '[camera]');
-
-            const icon = document.createElement('a-image');
-            icon.setAttribute('src', 'media/videoicon.png');
-            icon.setAttribute('width', '0.5');
-            icon.setAttribute('height', '0.5');
-            icon.setAttribute('material', 'color: white; opacity: 0.9');
-            entry.appendChild(icon);
-
-            const text = document.createElement('a-text');
-            text.setAttribute('value', video.title);
-            text.setAttribute('align', 'center');
-            text.setAttribute('position', '0 -0.35 0');
-            text.setAttribute('width', '2');
-            text.setAttribute('color', 'white');
-            entry.appendChild(text);
-
-            menu.appendChild(entry);
-
-            // Cursor-Animation
-            entry.addEventListener('mouseenter', () => {
-            progressRing.removeAttribute('animation__fill');
-            progressRing.setAttribute('animation__fill',
-                'property: theta-length; from: 0; to: 360; dur: 2000; easing: linear');
-            });
-
-            entry.addEventListener('mouseleave', () => {
-            progressRing.removeAttribute('animation__fill');
-            progressRing.setAttribute('theta-length', 0);
-            });
-
-            if (returnZone) {
-                returnZone.addEventListener('mouseenter', () => {
-                    cursorBase.object3D.visible = true;
-                    progressRing.object3D.visible = true;
-                    progressRing.removeAttribute('animation__fill');
-                    progressRing.setAttribute('animation__fill',
-                    'property: theta-length; from: 0; to: 360; dur: 5000; easing: linear');
-                });
-
-                returnZone.addEventListener('mouseleave', () => {
-                    cursorBase.object3D.visible = false;
-                    progressRing.object3D.visible = false;
-                    progressRing.removeAttribute('animation__fill');
-                    progressRing.setAttribute('theta-length', 0);
-                });
-                }
-
-            entry.addEventListener('click', () => {
-            showRooms();
-            const room = document.createElement('a-entity');
-            room.classList.add('room');
-            room.id = video.id;
-
-            const sphere = document.createElement('a-videosphere');
-            sphere.setAttribute('src', `#${video.id}`);
-            room.appendChild(sphere);
-            rooms.appendChild(room);
-
-            videoEl.play();
-            });
-        });
-
-        
-
-        document.getElementById('loading').style.display = 'none';
-        });
-        </script> -->
