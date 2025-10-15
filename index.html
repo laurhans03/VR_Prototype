@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -83,7 +83,7 @@
 
     </a-scene>
 
-<!-- <script>
+<script>
     //Avatarpositionierung
     AFRAME.registerComponent('adjust-avatar', {
         tick: function () {
@@ -158,28 +158,29 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
   const returnZone = document.querySelector('#returnZone');
 
   // 🔹 Video-Assets vorbereiten
-  data.videos.forEach((video) => {
-    // const videoEl = document.createElement('video');
-    // videoEl.setAttribute('id', video.id);
-    // videoEl.setAttribute('src', video.src);
-    // videoEl.setAttribute('preload', 'auto');
-    // videoEl.setAttribute('autoplay', true);
-    // videoEl.setAttribute('loop', true);
-    // videoEl.setAttribute('muted', true);
-    // videoEl.setAttribute('playsinline', true);
-    // videoEl.setAttribute('crossorigin', 'anonymous');
-    // assets.appendChild(videoEl);
+ // 🔹 Video-Assets vorbereiten
+data.videos.forEach((video) => {
+  const videoEl = document.createElement('video');
+  videoEl.id = video.id;
+  videoEl.src = video.src;
+  videoEl.setAttribute('preload', 'auto');
+  videoEl.setAttribute('autoplay', 'true');
+  videoEl.setAttribute('loop', 'true');
+  videoEl.setAttribute('muted', 'true');
+  videoEl.setAttribute('playsinline', 'true'); // Wichtig für Quest!
+  videoEl.setAttribute('webkit-playsinline', 'true'); // iOS/Meta Compat
+  videoEl.crossOrigin = 'anonymous';
 
-    const videoEl = document.createElement('video');
-            videoEl.id = video.id;
-            videoEl.src = video.src;
-            videoEl.autoplay = true;
-            videoEl.loop = true;
-            videoEl.muted = true;
-            videoEl.playsInline = true;
-            videoEl.crossOrigin = 'anonymous';
-            assets.appendChild(videoEl);
+  // Autoplay-Fix für VR: erst starten, wenn User klickt
+  videoEl.addEventListener('loadeddata', () => {
+    videoEl.play().catch(() => {
+      console.log("Autoplay blockiert – wird später per Interaktion gestartet.");
+    });
   });
+
+  assets.appendChild(videoEl);
+});
+
 
   // 🔹 Menü-Icons erzeugen (bogenförmig, versetzt)
   const total = data.videos.length;
@@ -297,11 +298,14 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
         returnZone.setAttribute('visible', true);
 
         const videoEl = document.querySelector(`#${video.id}`);
-        if (videoEl && videoEl.readyState >= 2) {
-          videoEl.play();
-        } else {
-          videoEl.addEventListener('canplay', () => videoEl.play());
+
+        if (videoEl) {
+        videoEl.muted = true; // Muss aktiv gesetzt sein, sonst blockiert VR
+        videoEl.play().catch(err => {
+            console.warn("Video konnte nicht automatisch starten:", err);
+        });
         }
+
       });
     }
 
@@ -338,11 +342,11 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
     });
   }
 });
-</script> -->
+</script>
 
 
 
-   <script>
+   <!-- <script>
         AFRAME.registerComponent('adjust-avatar', {
         tick: function () {
             const camera = document.querySelector('#camera');
@@ -594,6 +598,6 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
 
         document.getElementById('loading').style.display = 'none';
         });
-        </script>
+        </script> -->
     </body>
 </html>
