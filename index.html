@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -256,12 +256,6 @@ async function initMenu() {
     const data = await response.json();
     const assets = document.querySelector('a-assets');
 
-    // Kamera-Y für dynamische Platzierung
-    const camY = camera.object3D.position.y;
-    const iconsBaseY = camY - 0.4; // Icons knapp unter Augenhöhe
-    const welcomeText = document.querySelector('#welcomeText');
-    welcomeText.setAttribute('position', `0 ${iconsBaseY + 0.8} -3`);
-
     // Video Assets erstellen
     data.videos.forEach(video => {
         const videoEl = document.createElement('video');
@@ -277,11 +271,28 @@ async function initMenu() {
         assets.appendChild(videoEl);
     });
 
-    // Icons Layout
+    // Kamera-Höhe für Menü-Position ermitteln
+    const camY = camera.object3D.position.y || 1.6; // Fallback für PC
+    const iconsBaseY = camY; // Zentrum der Icons auf Augenhöhe
+    const welcomeTextY = iconsBaseY + 0.6; // Welcome Text leicht darüber
+
+    // Welcome Text
+    let welcome = document.querySelector('#welcomeText');
+    if (!welcome) {
+        welcome = document.createElement('a-text');
+        welcome.id = 'welcomeText';
+        welcome.setAttribute('value', 'Welcome');
+        welcome.setAttribute('align', 'center');
+        welcome.setAttribute('color', 'white');
+        welcome.setAttribute('width', '3');
+        menu.appendChild(welcome);
+    }
+    welcome.setAttribute('position', `0 ${welcomeTextY} -3`);
+
+    // Layout für Icons berechnen
     const total = data.videos.length;
     const maxRows = 4;
     const rowHeight = 0.8;
-    const baseY = iconsBaseY; // Jetzt korrekt für alle Reihen
 
     const rows = Math.min(maxRows, Math.ceil(total / 3));
     let itemsPerRow = [];
@@ -292,32 +303,37 @@ async function initMenu() {
         remaining -= count;
     }
 
-    let videoIndex = 0;
     const rowPositions = [];
+    let videoIndex = 0;
 
     for (let r = 0; r < rows; r++) {
         const count = itemsPerRow[r];
-        const y = baseY - r * rowHeight;
+        const y = iconsBaseY - r * rowHeight;
         const spacing = 1.2;
-        let xPositions = [];
 
+        let xPositions = [];
         if (r === 0) {
             const rowWidth = (count - 1) * spacing;
             const offsetX = -rowWidth / 2;
-            for (let i = 0; i < count; i++) xPositions.push(offsetX + i * spacing);
+            for (let i = 0; i < count; i++) {
+                xPositions.push(offsetX + i * spacing);
+            }
         } else {
+            // Untere Reihen: Positionierung unter Lücken der oberen Reihe
             const prevRow = rowPositions[r - 1];
             const prevCount = prevRow.length;
             for (let i = 0; i < count; i++) {
-                const t = (i + 0.5) / count;
+                const t = (i + 0.5) / count; // mittig zwischen vorherigen Icons
                 const index = Math.floor(t * (prevCount - 1));
                 const nextIndex = Math.min(index + 1, prevCount - 1);
-                xPositions.push((prevRow[index] + prevRow[nextIndex]) / 2);
+                const x = (prevRow[index] + prevRow[nextIndex]) / 2;
+                xPositions.push(x);
             }
         }
 
         rowPositions.push(xPositions);
 
+        // Icons + Texte erzeugen
         for (let i = 0; i < count; i++) {
             const video = data.videos[videoIndex++];
             const x = xPositions[i];
@@ -329,6 +345,7 @@ async function initMenu() {
             entry.setAttribute('position', `${x} ${y} ${z}`);
             entry.setAttribute('look-at', '[camera]');
 
+            // Icon
             const icon = document.createElement('a-image');
             icon.setAttribute('src', 'media/videoicon.png');
             icon.setAttribute('width', '0.45');
@@ -336,6 +353,7 @@ async function initMenu() {
             icon.setAttribute('material', 'color: white; opacity: 0.9');
             entry.appendChild(icon);
 
+            // Text
             const text = document.createElement('a-text');
             text.setAttribute('value', video.title);
             text.setAttribute('align', 'center');
@@ -346,7 +364,7 @@ async function initMenu() {
 
             menu.appendChild(entry);
 
-            // Fuse / Hover
+            // Fuse / Hover Logik
             let fuseTimeout = null;
             entry.addEventListener('mouseenter', () => {
                 icon.setAttribute('material', 'color: yellow');
@@ -363,6 +381,7 @@ async function initMenu() {
         }
     }
 }
+
 
 
 
