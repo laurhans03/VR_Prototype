@@ -45,7 +45,7 @@
         <a-entity id="menu" position="0 0 0" 0visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -85,26 +85,6 @@
 
     <script>
 
-
-// URL-Parameter auslesen
-const urlParams = new URLSearchParams(window.location.search);
-const testCount = parseInt(urlParams.get('count')) || 5; // default 5
-
-// Testdaten erzeugen
-const data = { videos: [] };
-for (let i = 1; i <= testCount; i++) {
-    data.videos.push({
-        id: `${i}`,
-        title: `Test Video ${i}`,
-        src: `media/room${i}.mp4`
-    });
-}
-
-// Menü initialisieren mit Testdaten
-initMenu(data);
-
-
-
 // ---------------------------
 // VR Menü + Video Dynamik Script
 // ---------------------------
@@ -131,10 +111,10 @@ const progressRing = document.querySelector('#progressRing');
 const returnZone = document.querySelector('#returnZone');
 const camera = document.querySelector('#camera');
 
-if (camera && menu) {
-  const camPos = camera.object3D.position;
-  menu.setAttribute('position', `${camPos.x} ${camPos.y + 1.3} ${camPos.z - 2}`);
-}
+// if (camera && menu) {
+//   const camPos = camera.object3D.position;
+//   menu.setAttribute('position', `${camPos.x} ${camPos.y + 1.3} ${camPos.z - 2}`);
+// }
 
 // ---------------------------
 // Menü & Räume
