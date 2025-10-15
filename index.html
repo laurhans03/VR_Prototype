@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -187,8 +187,6 @@ async function initMenu() {
     }
 }
 
-
-
 function showMenuState() {
     menu.setAttribute('visible', true);
     rooms.querySelectorAll('.room').forEach(r => r.remove());
@@ -196,7 +194,7 @@ function showMenuState() {
 
     document.querySelector('#avatarAnchor').setAttribute('visible', false);
 
-    // Cursor + Ring IMMER sichtbar im Menü
+    // Cursor + Ring **immer vor Kamera sichtbar** im Menü
     cursorBase.object3D.visible = true;
     progressRing.object3D.visible = true;
 
@@ -204,23 +202,16 @@ function showMenuState() {
     progressRing.setAttribute('theta-length', 0);
 }
 
-// ---------------------------
-// Raum öffnen
-// ---------------------------
-
-
-
-// Raum öffnen
 function openRoom(videoId) {
     menu.setAttribute('visible', false);
     rooms.setAttribute('visible', true);
     document.querySelector('#avatarAnchor').setAttribute('visible', true);
 
-    // Cursor und Progress-Ring im Raum unsichtbar, außer Return-Zone wird angeschaut
+    // Cursor und Ring standardmäßig im Raum unsichtbar
     cursorBase.object3D.visible = false;
     progressRing.object3D.visible = false;
 
-    // Raum erstellen / Videosphere
+    // Videosphere erzeugen
     let room = document.querySelector(`#room-${videoId}`);
     if (!room) {
         room = document.createElement('a-entity');
@@ -238,31 +229,30 @@ function openRoom(videoId) {
     if (videoEl) videoEl.play().catch(err => console.warn('Video konnte nicht starten:', err));
 }
 
-// ---------------------------
-// Rückkehr zum Menü
-// ---------------------------
-
-// Return-Zone
+// Return-Zone Fuse
 let returnTimer = null;
 returnZone.addEventListener('mouseenter', () => {
-    // Cursor + Ring nur während Fuse sichtbar
+    // Cursor & Ring nur temporär sichtbar während Fuse
     cursorBase.object3D.visible = true;
     progressRing.object3D.visible = true;
-
     progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: linear');
 
     returnTimer = setTimeout(() => {
-        showMenuState();
+        showMenuState(); // Menü zurück → Cursor dauerhaft sichtbar
     }, 5000);
 });
 
 returnZone.addEventListener('mouseleave', () => {
-    cursorBase.object3D.visible = false;
-    progressRing.object3D.visible = false;
+    // Nach Fuse abbrechen: Cursor + Ring wieder unsichtbar im Raum
     progressRing.removeAttribute('animation__fill');
     progressRing.setAttribute('theta-length', 0);
+    if (!menu.getAttribute('visible')) {
+        cursorBase.object3D.visible = false;
+        progressRing.object3D.visible = false;
+    }
     clearTimeout(returnTimer);
 });
+
 
 
 
