@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -167,18 +167,17 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
     assets.appendChild(videoEl);
 
 
- // Dynamische, gleichmäßige Anordnung der Icons auf einer Halbkugel vor dem Nutzer
+// Dynamische, gleichmäßige Anordnung der Icons auf einer Halbkugel vor dem Nutzer
 const total = data.videos.length;
 const maxRows = 4; // maximal 4 Reihen
 const radius = 3.2; // Abstand vom Nutzer
-const horizontalSpread = 60; // WENIGER Abstand → dichter beieinander
+const horizontalSpread = 60; // Breite des Menübogen
 const verticalSpread = 0.8; // vertikaler Abstand zwischen Reihen
 
-// Wie viele Reihen brauchen wir?
-const rows = Math.min(maxRows, Math.ceil(total / 3)); // etwa 3 pro Reihe, wenn viele da sind
+// Anzahl der Reihen bestimmen
+const rows = Math.min(maxRows, Math.ceil(total / 3)); // etwa 3 Icons pro Reihe
 const itemsPerRow = Math.ceil(total / rows);
 
-// Zentrierung: Mittig vor der Kamera
 const totalHeight = (rows - 1) * verticalSpread;
 const baseY = totalHeight / 2;
 
@@ -186,30 +185,31 @@ let videoIndex = 0;
 for (let row = 0; row < rows; row++) {
   const remaining = total - videoIndex;
   const count = Math.min(itemsPerRow, remaining);
+  if (count <= 0) break;
 
-  // 🔹 horizontaler Winkel zwischen Icons (enger gemacht!)
-  const angleStep = count > 1 ? (horizontalSpread / (count - 1)) : 0;
-  const startAngle = -horizontalSpread / 2;
-
-  // 🔹 Vertikale Position dieser Reihe
+  // Höhe dieser Reihe
   const y = baseY - row * verticalSpread;
 
-  // 🔹 Versatz für jede zweite Reihe (damit sie in die Lücken fallen)
-  const rowOffset = (row % 2 === 1) ? angleStep / 2 : 0;
+  // Basiswinkel für gleichmäßige Verteilung
+  const totalRowWidth = (count - 1) * (horizontalSpread / Math.max(count - 1, 1));
+  const startAngle = -totalRowWidth / 2;
+
+  // Versatz bei jeder zweiten Reihe
+  const rowOffset = (row % 2 === 1 && count > 1) ? (horizontalSpread / (itemsPerRow * 2)) : 0;
 
   for (let i = 0; i < count; i++) {
     if (videoIndex >= total) break;
     const video = data.videos[videoIndex++];
 
-    // Winkel berechnen (mit Versatz)
-    const angle = startAngle + i * angleStep + rowOffset;
-    const rad = THREE.MathUtils.degToRad(angle);
+    // Horizontaler Winkel (inkl. Zentrierung + Versatz)
+    const yaw = startAngle + i * (horizontalSpread / Math.max(count - 1, 1)) + rowOffset;
+    const rad = THREE.MathUtils.degToRad(yaw);
 
     // Kugelkoordinaten → XYZ
     const x = radius * Math.sin(rad);
     const z = -radius * Math.cos(rad);
 
-    // Menüeintrag erstellen
+    // Menüeintrag
     const entry = document.createElement('a-entity');
     entry.classList.add('clickable', 'menu-entry');
     entry.id = `to-${video.id}`;
