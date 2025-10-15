@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -167,49 +167,72 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
     assets.appendChild(videoEl);
 
 
-// Dynamische, gleichmäßige Anordnung der Icons auf einer Halbkugel vor dem Nutzer
+// ----- verbesserte, midpoint-basierte Anordnung (setzt in deinem Szenen-loaded-Handler ein) -----
 const total = data.videos.length;
-const maxRows = 4; // maximal 4 Reihen
-const radius = 3.2; // Abstand vom Nutzer
-const horizontalSpread = 60; // Breite des Menübogen
-const verticalSpread = 0.8; // vertikaler Abstand zwischen Reihen
+const maxRows = 4;
+const radius = 3.2;
+const horizontalSpread = 60; // Breite des Menübogen in Grad
+const verticalSpread = 0.8;  // Abstand zwischen Reihen (m)
 
-// Anzahl der Reihen bestimmen
-const rows = Math.min(maxRows, Math.ceil(total / 3)); // etwa 3 Icons pro Reihe
+// Reihenanzahl bestimmen (max 4)
+const rows = Math.min(maxRows, Math.ceil(total / 3));
 const itemsPerRow = Math.ceil(total / rows);
 
+// vertikale Zentrierung
 const totalHeight = (rows - 1) * verticalSpread;
 const baseY = totalHeight / 2;
 
 let videoIndex = 0;
+let prevAngles = null; // Winkel (Grad) der vorherigen Reihe (für Midpoints)
+
 for (let row = 0; row < rows; row++) {
   const remaining = total - videoIndex;
   const count = Math.min(itemsPerRow, remaining);
   if (count <= 0) break;
 
-  // Höhe dieser Reihe
   const y = baseY - row * verticalSpread;
 
-  // Basiswinkel für gleichmäßige Verteilung
-  const totalRowWidth = (count - 1) * (horizontalSpread / Math.max(count - 1, 1));
-  const startAngle = -totalRowWidth / 2;
+  let angles = [];
 
-  // Versatz bei jeder zweiten Reihe
-  const rowOffset = (row % 2 === 1 && count > 1) ? (horizontalSpread / (itemsPerRow * 2)) : 0;
+  if (prevAngles && count < prevAngles.length) {
+    // WENN weniger Elemente als in der oberen Reihe -> benutze Midpoints der oberen Reihe
+    const midpoints = [];
+    for (let i = 0; i < prevAngles.length - 1; i++) {
+      midpoints.push((prevAngles[i] + prevAngles[i + 1]) / 2);
+    }
 
-  for (let i = 0; i < count; i++) {
+    if (count === midpoints.length) {
+      angles = midpoints.slice();
+    } else if (count === 1) {
+      // mittlerer Midpoint
+      angles = [midpoints[Math.floor(midpoints.length / 2)]];
+    } else {
+      // Wähle gleichmäßig verteilte Midpoints (Index-Rundung)
+      for (let k = 0; k < count; k++) {
+        const idx = Math.round(k * (midpoints.length - 1) / (count - 1));
+        angles.push(midpoints[idx]);
+      }
+    }
+  } else {
+    // Normale gleichmäßige Verteilung über horizontalSpread (zentriert um 0)
+    const span = (count > 1) ? (horizontalSpread / (count - 1)) : 0;
+    const start = -horizontalSpread / 2;
+    for (let i = 0; i < count; i++) {
+      angles.push(start + i * span);
+    }
+  }
+
+  // Erzeuge Einträge für diese Reihe
+  for (let i = 0; i < angles.length; i++) {
     if (videoIndex >= total) break;
     const video = data.videos[videoIndex++];
 
-    // Horizontaler Winkel (inkl. Zentrierung + Versatz)
-    const yaw = startAngle + i * (horizontalSpread / Math.max(count - 1, 1)) + rowOffset;
-    const rad = THREE.MathUtils.degToRad(yaw);
+    const yawDeg = angles[i];
+    const yawRad = THREE.MathUtils.degToRad(yawDeg);
 
-    // Kugelkoordinaten → XYZ
-    const x = radius * Math.sin(rad);
-    const z = -radius * Math.cos(rad);
+    const x = radius * Math.sin(yawRad);
+    const z = -radius * Math.cos(yawRad);
 
-    // Menüeintrag
     const entry = document.createElement('a-entity');
     entry.classList.add('clickable', 'menu-entry');
     entry.id = `to-${video.id}`;
@@ -217,7 +240,6 @@ for (let row = 0; row < rows; row++) {
     entry.setAttribute('look-at', '[camera]');
     entry.setAttribute('visible', true);
 
-    // Icon
     const icon = document.createElement('a-image');
     icon.setAttribute('src', 'media/videoicon.png');
     icon.setAttribute('width', '0.45');
@@ -225,7 +247,6 @@ for (let row = 0; row < rows; row++) {
     icon.setAttribute('material', 'color: white; opacity: 0.9');
     entry.appendChild(icon);
 
-    // Text
     const text = document.createElement('a-text');
     text.setAttribute('value', video.title);
     text.setAttribute('align', 'center');
@@ -236,10 +257,10 @@ for (let row = 0; row < rows; row++) {
 
     menu.appendChild(entry);
   }
+
+  // prevAngles für nächste Reihe speichern
+  prevAngles = angles.slice();
 }
-
-
-
 
 
     // const entry = document.createElement('a-entity');
