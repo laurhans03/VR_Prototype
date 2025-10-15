@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -159,16 +159,26 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
 
   // 🔹 Video-Assets vorbereiten
   data.videos.forEach((video) => {
+    // const videoEl = document.createElement('video');
+    // videoEl.setAttribute('id', video.id);
+    // videoEl.setAttribute('src', video.src);
+    // videoEl.setAttribute('preload', 'auto');
+    // videoEl.setAttribute('autoplay', true);
+    // videoEl.setAttribute('loop', true);
+    // videoEl.setAttribute('muted', true);
+    // videoEl.setAttribute('playsinline', true);
+    // videoEl.setAttribute('crossorigin', 'anonymous');
+    // assets.appendChild(videoEl);
+
     const videoEl = document.createElement('video');
-    videoEl.setAttribute('id', video.id);
-    videoEl.setAttribute('src', video.src);
-    videoEl.setAttribute('preload', 'auto');
-    videoEl.setAttribute('autoplay', true);
-    videoEl.setAttribute('loop', true);
-    videoEl.setAttribute('muted', true);
-    videoEl.setAttribute('playsinline', true);
-    videoEl.setAttribute('crossorigin', 'anonymous');
-    assets.appendChild(videoEl);
+            videoEl.id = video.id;
+            videoEl.src = video.src;
+            videoEl.autoplay = true;
+            videoEl.loop = true;
+            videoEl.muted = true;
+            videoEl.playsInline = true;
+            videoEl.crossOrigin = 'anonymous';
+            assets.appendChild(videoEl);
   });
 
   // 🔹 Menü-Icons erzeugen (bogenförmig, versetzt)
