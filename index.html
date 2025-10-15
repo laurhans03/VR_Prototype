@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -105,7 +105,6 @@ const camera = document.querySelector('#camera');
 // Avatar
 // -------
 
-
 AFRAME.registerComponent('adjust-avatar', {
     tick: function () {
         const camera = document.querySelector('#camera');
@@ -120,136 +119,6 @@ AFRAME.registerComponent('adjust-avatar', {
 // ---------------------------
 // Menü & Räume
 // ---------------------------
-// async function initMenu() {
-//     const response = await fetch('videos.json');
-//     const data = await response.json();
-//     const assets = document.querySelector('a-assets');
-
-//     const camY = camera.object3D.position.y;      // aktuelle Augenhöhe
-//     const iconsBaseY = camY - 0.4;               // Basis für Icons
-//     const welcomeY = iconsBaseY + 0.8;           // 0.8m über Icons
-
-//     const welcomeText = document.querySelector('#welcomeText');
-//     welcomeText.setAttribute('position', `0 ${welcomeY} -3`);
-
-
-//     // Video Assets erstellen
-//     data.videos.forEach(video => {
-//         const videoEl = document.createElement('video');
-//         videoEl.id = `video-${video.id}`;
-//         videoEl.src = video.src;
-//         videoEl.autoplay = true;
-//         videoEl.loop = true;
-//         videoEl.muted = true;
-//         videoEl.playsInline = true;
-//         videoEl.setAttribute('playsinline', 'true');
-//         videoEl.setAttribute('webkit-playsinline', 'true');
-//         videoEl.crossOrigin = 'anonymous';
-//         assets.appendChild(videoEl);
-//     });
-
-//     // Berechne Layout
-// const total = data.videos.length;
-// const maxRows = 4;
-// const rowHeight = 0.8;
-// // const baseY = 1.5; // Starthöhe
-// const baseY = camY - 0.4; // Icons knapp unter Augenhöhe
-
-// const rows = Math.min(maxRows, Math.ceil(total / 3));
-
-// // Verteile Videos auf Reihen
-// let itemsPerRow = [];
-// let remaining = total;
-// for (let r = 0; r < rows; r++) {
-//     let count = Math.ceil(remaining / (rows - r));
-//     itemsPerRow.push(count);
-//     remaining -= count;
-// }
-
-// // Berechne maximale Anzahl in den Reihen (maxRowWidth)
-// const maxCount = Math.max(...itemsPerRow);
-
-// let videoIndex = 0;
-// const rowPositions = []; // speichert die x-Positionen jeder Reihe
-
-// for (let r = 0; r < rows; r++) {
-//     const count = itemsPerRow[r];
-//     const y = baseY - r * rowHeight;
-//     const spacing = 1.2;
-
-//     let xPositions = [];
-
-//     if (r === 0) {
-//         // Erste Reihe: normale Verteilung
-//         const rowWidth = (count - 1) * spacing;
-//         const offsetX = -rowWidth / 2;
-//         for (let i = 0; i < count; i++) {
-//             xPositions.push(offsetX + i * spacing);
-//         }
-//     } else {
-//         // Untere Reihen: Positionierung unter Lücken der oberen Reihe
-//         const prevRow = rowPositions[r - 1];
-//         const prevCount = prevRow.length;
-//         for (let i = 0; i < count; i++) {
-//             const t = (i + 0.5) / count; // Mittig in den Lücken
-//             const index = Math.floor(t * (prevCount - 1));
-//             const nextIndex = Math.min(index + 1, prevCount - 1);
-//             const x = (prevRow[index] + prevRow[nextIndex]) / 2;
-//             xPositions.push(x);
-//         }
-//     }
-
-//     // Speichere die Positionen für die nächste Reihe
-//     rowPositions.push(xPositions);
-
-//     // Icons erstellen
-//     for (let i = 0; i < count; i++) {
-//         const video = data.videos[videoIndex++];
-//         const x = xPositions[i];
-//         const z = -3;
-
-//         const entry = document.createElement('a-entity');
-//         entry.classList.add('clickable', 'menu-entry');
-//         entry.id = `to-${video.id}`;
-//         entry.setAttribute('position', `${x} ${y} ${z}`);
-//         entry.setAttribute('look-at', '[camera]');
-
-//         // Icon
-//         const icon = document.createElement('a-image');
-//         icon.setAttribute('src', 'media/videoicon.png');
-//         icon.setAttribute('width', '0.45');
-//         icon.setAttribute('height', '0.45');
-//         icon.setAttribute('material', 'color: white; opacity: 0.9');
-//         entry.appendChild(icon);
-
-//         // Text
-//         const text = document.createElement('a-text');
-//         text.setAttribute('value', video.title);
-//         text.setAttribute('align', 'center');
-//         text.setAttribute('position', '0 -0.35 0');
-//         text.setAttribute('width', '2');
-//         text.setAttribute('color', 'white');
-//         entry.appendChild(text);
-
-//         menu.appendChild(entry);
-
-//         // Fuse / Hover Logik
-//         let fuseTimeout = null;
-//         entry.addEventListener('mouseenter', () => {
-//             icon.setAttribute('material', 'color: yellow');
-//             progressRing.setAttribute('theta-length', 0);
-//             progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: linear');
-//             fuseTimeout = setTimeout(() => openRoom(video.id), 3000);
-//         });
-//         entry.addEventListener('mouseleave', () => {
-//             icon.setAttribute('material', 'color: white');
-//             progressRing.removeAttribute('animation__fill');
-//             progressRing.setAttribute('theta-length', 0);
-//             clearTimeout(fuseTimeout);
-//         });
-//     }
-// }
-// }
 
 async function initMenu() {
     const response = await fetch('videos.json');
@@ -425,26 +294,63 @@ function openRoom(videoId) {
     const videoEl = document.querySelector(`#video-${videoId}`);
     if (videoEl) videoEl.play().catch(err => console.warn('Video konnte nicht starten:', err));
 
-   // Hinweistext als Kind des Kamera-Rigs
-    const hint = document.createElement('a-text');
-    hint.id = 'exitHint';
-    hint.setAttribute('value', 'Schau 5 Sekunden nach oben, um zurück ins Menü zu kommen');
-    hint.setAttribute('align', 'center');
-    const hintY = 0.5; // 0.5m über Kamera-Zentrum
-    hint.setAttribute('position', `0 ${hintY} -1.5`);   
-    // hint.setAttribute('position', '0 0 -1'); // relativ zur Kamera
-    hint.setAttribute('color', 'yellow');
-    hint.setAttribute('width', '2.5');
-    hint.setAttribute('side', 'double');
+//    // Hinweistext als Kind des Kamera-Rigs
+//     const hint = document.createElement('a-text');
+//     hint.id = 'exitHint';
+//     hint.setAttribute('value', 'Look 5 sek to the top, to get back to the menu');
+//     hint.setAttribute('align', 'center');
+//     const hintY = 0.5; // 0.5m über Kamera-Zentrum
+//     hint.setAttribute('position', `0 ${hintY} -1.5`);   
+//     // hint.setAttribute('position', '0 0 -1'); // relativ zur Kamera
+//     hint.setAttribute('color', 'yellow');
+//     hint.setAttribute('width', '2.5');
+//     hint.setAttribute('side', 'double');
 
-    // Füge den Hinweis **als Kind der Kamera** hinzu
-    document.querySelector('#cameraRig').appendChild(hint);
+//     // Füge den Hinweis **als Kind der Kamera** hinzu
+//     document.querySelector('#cameraRig').appendChild(hint);
 
-    // Automatisch nach 4 Sekunden entfernen
-    setTimeout(() => {
-        if (hint && hint.parentNode) hint.parentNode.removeChild(hint);
-    }, 4000);
+//     // Automatisch nach 4 Sekunden entfernen
+//     setTimeout(() => {
+//         if (hint && hint.parentNode) hint.parentNode.removeChild(hint);
+//     }, 4000);
 
+
+// Hinweis-Container
+const hintContainer = document.createElement('a-entity');
+hintContainer.setAttribute('id', 'exitHint');
+hintContainer.setAttribute('position', `0 0.5 -1.5`);
+hintContainer.setAttribute('look-at', '#camera');
+
+// Hintergrundfläche
+const bg = document.createElement('a-plane');
+bg.setAttribute('width', '2.4');
+bg.setAttribute('height', '0.35');
+bg.setAttribute('color', '#222222');
+bg.setAttribute('opacity', '0.6');
+bg.setAttribute('material', 'shader: flat');
+bg.setAttribute('position', '0 0 0');
+hintContainer.appendChild(bg);
+
+// Hinweistext
+const hintText = document.createElement('a-text');
+hintText.setAttribute('value', 'Look 5 sek to the top to get back to the menu');
+hintText.setAttribute('align', 'center');
+hintText.setAttribute('color', '#ffffff');
+hintText.setAttribute('width', '2.2');
+hintText.setAttribute('position', '0 0 0.01'); // leicht vor dem Hintergrund
+hintText.setAttribute('baseline', 'center');
+hintText.setAttribute('side', 'double');
+hintContainer.appendChild(hintText);
+
+// Füge den Hinweis als Kind des Kamera-Rigs hinzu
+document.querySelector('#cameraRig').appendChild(hintContainer);
+
+// Automatisch nach 4 Sekunden entfernen
+setTimeout(() => {
+  if (hintContainer && hintContainer.parentNode) {
+    hintContainer.parentNode.removeChild(hintContainer);
+  }
+}, 4000);
 
     
 }
@@ -474,50 +380,6 @@ returnZone.addEventListener('mouseleave', () => {
     clearTimeout(returnTimer);
 });
 
-
-
-
-// let returnTimer = null;
-// returnZone.addEventListener('mouseenter', () => {
-//     cursorBase.object3D.visible = true;
-//     progressRing.object3D.visible = true;
-//     progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: linear');
-
-//     returnTimer = setTimeout(() => {
-//         // Menü wieder sichtbar
-//         menu.setAttribute('visible', true);
-
-//         // Räume löschen und ausblenden
-//         rooms.querySelectorAll('.room').forEach(r => r.remove());
-//         rooms.setAttribute('visible', false);
-
-//         // Avatar ausblenden
-//         document.querySelector('#avatarAnchor').setAttribute('visible', false);
-
-//         // Cursor + Progress-Ring wieder sichtbar im Menü
-//         cursorBase.object3D.visible = true;
-//         progressRing.object3D.visible = true;
-
-//         // Animation stoppen
-//         progressRing.removeAttribute('animation__fill');
-//         progressRing.setAttribute('theta-length', 0);
-//     }, 5000);
-// });
-
-// returnZone.addEventListener('mouseleave', () => {
-//     cursorBase.object3D.visible = false;
-//     progressRing.object3D.visible = false;
-//     progressRing.removeAttribute('animation__fill');
-//     progressRing.setAttribute('theta-length', 0);
-//     clearTimeout(returnTimer);
-// });
-
-
-
-// scene.addEventListener('loaded', () => {
-//     initMenu();
-//     document.getElementById('loading').style.display = 'none';
-// });
 
 // ---------------------------
 // Szene geladen → Menü initialisieren
