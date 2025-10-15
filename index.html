@@ -45,7 +45,8 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
+                <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
+            <a-text value="Welcome!" align="center" position="0 0.3 0" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -91,6 +92,38 @@
 // ---------------------------
 
 
+// Global references
+const scene = document.querySelector('a-scene');
+const menu = document.querySelector('#menu');
+const rooms = document.querySelector('#rooms');
+const cursorBase = document.querySelector('#cursorBase');
+const progressRing = document.querySelector('#progressRing');
+const returnZone = document.querySelector('#returnZone');
+const camera = document.querySelector('#camera');
+
+
+if (camera && menu) {
+  const camPos = new THREE.Vector3();
+  const camDir = new THREE.Vector3();
+
+  camera.object3D.getWorldPosition(camPos);
+  camera.object3D.getWorldDirection(camDir);
+
+  const distance = 1.2;      // Abstand vor der Kamera
+  const verticalOffset = -0.2; // leicht unter Blickhöhe
+
+  const targetX = camPos.x + camDir.x * distance;
+  const targetY = camPos.y + camDir.y * distance + verticalOffset;
+  const targetZ = camPos.z + camDir.z * distance;
+
+  menu.setAttribute('position', `${targetX} ${targetY} ${targetZ}`);
+  menu.setAttribute('look-at', '#camera');
+}
+
+// -------
+// Avatar
+// -------
+
 
 AFRAME.registerComponent('adjust-avatar', {
     tick: function () {
@@ -102,15 +135,6 @@ AFRAME.registerComponent('adjust-avatar', {
         anchor.object3D.position.copy(camera.object3D.position);
     }
 });
-
-// Global references
-const scene = document.querySelector('a-scene');
-const menu = document.querySelector('#menu');
-const rooms = document.querySelector('#rooms');
-const cursorBase = document.querySelector('#cursorBase');
-const progressRing = document.querySelector('#progressRing');
-const returnZone = document.querySelector('#returnZone');
-const camera = document.querySelector('#camera');
 
 // ---------------------------
 // Menü & Räume
@@ -251,48 +275,6 @@ function showMenuState() {
     progressRing.removeAttribute('animation__fill');
     progressRing.setAttribute('theta-length', 0);
 }
-
-// function openRoom(videoId) {
-//     menu.setAttribute('visible', false);
-//     rooms.setAttribute('visible', true);
-//     document.querySelector('#avatarAnchor').setAttribute('visible', true);
-
-//     // Cursor und Ring standardmäßig im Raum unsichtbar
-//     cursorBase.object3D.visible = false;
-//     progressRing.object3D.visible = false;
-
-//     // Videosphere erzeugen
-//     let room = document.querySelector(`#room-${videoId}`);
-//     if (!room) {
-//         room = document.createElement('a-entity');
-//         room.id = `room-${videoId}`;
-//         room.classList.add('room');
-//         const sphere = document.createElement('a-videosphere');
-//         sphere.setAttribute('src', `#video-${videoId}`);
-//         room.appendChild(sphere);
-//         rooms.appendChild(room);
-//     } else {
-//         room.setAttribute('visible', 'true');
-//     }
-
-//     const videoEl = document.querySelector(`#video-${videoId}`);
-//     if (videoEl) videoEl.play().catch(err => console.warn('Video konnte nicht starten:', err));
-//      // 🔹 Hinweistext für 4 Sekunden
-//     const hint = document.createElement('a-text');
-//     hint.id = 'exitHint';
-//     hint.setAttribute('value', 'Schau 5 Sekunden nach oben, um zurück ins Menü zu kommen');
-//     hint.setAttribute('align', 'center');
-//     hint.setAttribute('position', '0 1.8 -1'); // vor der Kamera
-//     hint.setAttribute('color', 'yellow');
-//     hint.setAttribute('width', '3');
-//     hint.setAttribute('look-at', '#camera'); // zeigt immer zur Kamera
-//     document.querySelector('a-scene').appendChild(hint);
-
-//     // Nach 4 Sekunden automatisch ausblenden
-//     setTimeout(() => {
-//         if (hint && hint.parentNode) hint.parentNode.removeChild(hint);
-//     }, 4000);
-// }
 
 
 function openRoom(videoId) {
