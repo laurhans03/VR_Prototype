@@ -154,226 +154,179 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
   const assets = document.querySelector('a-assets');
   const rooms = document.querySelector('#rooms');
   const progressRing = document.querySelector('#progressRing');
-    // Vor dem forEach:
+  const cursorBase = document.querySelector('#cursorBase');
+  const returnZone = document.querySelector('#returnZone');
 
-  data.videos.forEach((video, index) => {
+  // 🔹 Video-Assets vorbereiten
+  data.videos.forEach((video) => {
     const videoEl = document.createElement('video');
-    videoEl.id = video.id;
-    videoEl.src = video.src;
-    videoEl.autoplay = true;
-    videoEl.loop = true;
-    videoEl.muted = true;
-    videoEl.playsInline = true;
-    videoEl.crossOrigin = 'anonymous';
+    videoEl.setAttribute('id', video.id);
+    videoEl.setAttribute('src', video.src);
+    videoEl.setAttribute('preload', 'auto');
+    videoEl.setAttribute('autoplay', true);
+    videoEl.setAttribute('loop', true);
+    videoEl.setAttribute('muted', true);
+    videoEl.setAttribute('playsinline', true);
+    videoEl.setAttribute('crossorigin', 'anonymous');
     assets.appendChild(videoEl);
+  });
 
+  // 🔹 Menü-Icons erzeugen (bogenförmig, versetzt)
+  const total = data.videos.length;
+  const maxRows = 4;
+  const radius = 3.2;
+  const horizontalSpread = 60;
+  const verticalSpread = 0.8;
 
-// ----- verbesserte, midpoint-basierte Anordnung (setzt in deinem Szenen-loaded-Handler ein) -----
-const total = data.videos.length;
-const maxRows = 4;
-const radius = 3.2;
-const horizontalSpread = 60; // Breite des Menübogen in Grad
-const verticalSpread = 0.8;  // Abstand zwischen Reihen (m)
+  const rows = Math.min(maxRows, Math.ceil(total / 3));
+  const itemsPerRow = Math.ceil(total / rows);
+  const totalHeight = (rows - 1) * verticalSpread;
+  const baseY = totalHeight / 2;
 
-// Reihenanzahl bestimmen (max 4)
-const rows = Math.min(maxRows, Math.ceil(total / 3));
-const itemsPerRow = Math.ceil(total / rows);
+  let videoIndex = 0;
+  let prevAngles = null;
 
-// vertikale Zentrierung
-const totalHeight = (rows - 1) * verticalSpread;
-const baseY = totalHeight / 2;
+  for (let row = 0; row < rows; row++) {
+    const remaining = total - videoIndex;
+    const count = Math.min(itemsPerRow, remaining);
+    if (count <= 0) break;
 
-let videoIndex = 0;
-let prevAngles = null; // Winkel (Grad) der vorherigen Reihe (für Midpoints)
+    const y = baseY - row * verticalSpread;
+    let angles = [];
 
-for (let row = 0; row < rows; row++) {
-  const remaining = total - videoIndex;
-  const count = Math.min(itemsPerRow, remaining);
-  if (count <= 0) break;
+    if (prevAngles && count < prevAngles.length) {
+      const midpoints = [];
+      for (let i = 0; i < prevAngles.length - 1; i++) {
+        midpoints.push((prevAngles[i] + prevAngles[i + 1]) / 2);
+      }
 
-  const y = baseY - row * verticalSpread;
-
-  let angles = [];
-
-  if (prevAngles && count < prevAngles.length) {
-    // WENN weniger Elemente als in der oberen Reihe -> benutze Midpoints der oberen Reihe
-    const midpoints = [];
-    for (let i = 0; i < prevAngles.length - 1; i++) {
-      midpoints.push((prevAngles[i] + prevAngles[i + 1]) / 2);
-    }
-
-    if (count === midpoints.length) {
-      angles = midpoints.slice();
-    } else if (count === 1) {
-      // mittlerer Midpoint
-      angles = [midpoints[Math.floor(midpoints.length / 2)]];
+      if (count === midpoints.length) {
+        angles = midpoints.slice();
+      } else if (count === 1) {
+        angles = [midpoints[Math.floor(midpoints.length / 2)]];
+      } else {
+        for (let k = 0; k < count; k++) {
+          const idx = Math.round(k * (midpoints.length - 1) / (count - 1));
+          angles.push(midpoints[idx]);
+        }
+      }
     } else {
-      // Wähle gleichmäßig verteilte Midpoints (Index-Rundung)
-      for (let k = 0; k < count; k++) {
-        const idx = Math.round(k * (midpoints.length - 1) / (count - 1));
-        angles.push(midpoints[idx]);
+      const span = (count > 1) ? (horizontalSpread / (count - 1)) : 0;
+      const start = -horizontalSpread / 2;
+      for (let i = 0; i < count; i++) {
+        angles.push(start + i * span);
       }
     }
-  } else {
-    // Normale gleichmäßige Verteilung über horizontalSpread (zentriert um 0)
-    const span = (count > 1) ? (horizontalSpread / (count - 1)) : 0;
-    const start = -horizontalSpread / 2;
-    for (let i = 0; i < count; i++) {
-      angles.push(start + i * span);
+
+    for (let i = 0; i < angles.length; i++) {
+      if (videoIndex >= total) break;
+      const video = data.videos[videoIndex++];
+
+      const yawDeg = angles[i];
+      const yawRad = THREE.MathUtils.degToRad(yawDeg);
+      const x = radius * Math.sin(yawRad);
+      const z = -radius * Math.cos(yawRad);
+
+      const entry = document.createElement('a-entity');
+      entry.classList.add('clickable', 'menu-entry');
+      entry.id = `to-${video.id}`;
+      entry.setAttribute('position', `${x} ${y} ${z}`);
+      entry.setAttribute('look-at', '[camera]');
+      entry.setAttribute('visible', true);
+
+      const icon = document.createElement('a-image');
+      icon.setAttribute('src', 'media/videoicon.png');
+      icon.setAttribute('width', '0.45');
+      icon.setAttribute('height', '0.45');
+      icon.setAttribute('material', 'color: white; opacity: 0.9');
+      entry.appendChild(icon);
+
+      const text = document.createElement('a-text');
+      text.setAttribute('value', video.title);
+      text.setAttribute('align', 'center');
+      text.setAttribute('position', '0 -0.35 0');
+      text.setAttribute('width', '2');
+      text.setAttribute('color', 'white');
+      entry.appendChild(text);
+
+      menu.appendChild(entry);
+
+      // 🔹 Interaktion
+      entry.addEventListener('mouseenter', () => {
+        progressRing.removeAttribute('animation__fill');
+        progressRing.setAttribute('animation__fill',
+          'property: theta-length; from: 0; to: 360; dur: 2000; easing: linear');
+      });
+
+      entry.addEventListener('mouseleave', () => {
+        progressRing.removeAttribute('animation__fill');
+        progressRing.setAttribute('theta-length', 0);
+      });
+
+      entry.addEventListener('click', () => {
+        showRooms();
+
+        let room = document.querySelector(`#${video.id}`);
+        if (!room) {
+          room = document.createElement('a-entity');
+          room.id = video.id;
+          room.classList.add('room');
+
+          const sphere = document.createElement('a-videosphere');
+          sphere.setAttribute('src', `#${video.id}`);
+          room.appendChild(sphere);
+          rooms.appendChild(room);
+        } else {
+          room.setAttribute('visible', 'true');
+        }
+
+        cursorBase.object3D.visible = false;
+        progressRing.object3D.visible = false;
+
+        returnZone.object3D.position.set(0, 2, -1);
+        returnZone.setAttribute('visible', true);
+
+        const videoEl = document.querySelector(`#${video.id}`);
+        if (videoEl && videoEl.readyState >= 2) {
+          videoEl.play();
+        } else {
+          videoEl.addEventListener('canplay', () => videoEl.play());
+        }
+      });
     }
+
+    prevAngles = angles.slice();
   }
-
-  // Erzeuge Einträge für diese Reihe
-  for (let i = 0; i < angles.length; i++) {
-    if (videoIndex >= total) break;
-    const video = data.videos[videoIndex++];
-
-    const yawDeg = angles[i];
-    const yawRad = THREE.MathUtils.degToRad(yawDeg);
-
-    const x = radius * Math.sin(yawRad);
-    const z = -radius * Math.cos(yawRad);
-
-    const entry = document.createElement('a-entity');
-    entry.classList.add('clickable', 'menu-entry');
-    entry.id = `to-${video.id}`;
-    entry.setAttribute('position', `${x} ${y} ${z}`);
-    entry.setAttribute('look-at', '[camera]');
-    entry.setAttribute('visible', true);
-
-    const icon = document.createElement('a-image');
-    icon.setAttribute('src', 'media/videoicon.png');
-    icon.setAttribute('width', '0.45');
-    icon.setAttribute('height', '0.45');
-    icon.setAttribute('material', 'color: white; opacity: 0.9');
-    entry.appendChild(icon);
-
-    const text = document.createElement('a-text');
-    text.setAttribute('value', video.title);
-    text.setAttribute('align', 'center');
-    text.setAttribute('position', '0 -0.35 0');
-    text.setAttribute('width', '2');
-    text.setAttribute('color', 'white');
-    entry.appendChild(text);
-
-    menu.appendChild(entry);
-
-    entry.addEventListener('mouseenter', () => {
-      progressRing.removeAttribute('animation__fill');
-      progressRing.setAttribute('animation__fill',
-        'property: theta-length; from: 0; to: 360; dur: 2000; easing: linear');
-    });
-
-    entry.addEventListener('mouseleave', () => {
-      progressRing.removeAttribute('animation__fill');
-      progressRing.setAttribute('theta-length', 0);
-    });
-
-    entry.addEventListener('click', () => {
-      showRooms();
-    //   const room = document.createElement('a-entity');
-    //   room.classList.add('room');
-    //   room.id = video.id;
-
-    //   const sphere = document.createElement('a-videosphere');
-    //   sphere.setAttribute('src', `#${video.id}`);
-    //   room.appendChild(sphere);
-    //   rooms.appendChild(room);
-
-    let room = document.querySelector(`#${video.id}`);
-  if (!room) {
-    room = document.createElement('a-entity');
-    room.id = video.id;
-    room.classList.add('room');
-
-    const sphere = document.createElement('a-videosphere');
-    sphere.setAttribute('src', `#${video.id}`);
-    room.appendChild(sphere);
-    rooms.appendChild(room);
-  } else {
-    room.setAttribute('visible', 'true');
-  }
-
-  // Cursor im Raum unsichtbar
-  const cursorBase = document.querySelector('#cursorBase');
-  const progressRing = document.querySelector('#progressRing');
-  cursorBase.object3D.visible = false;
-  progressRing.object3D.visible = false;
-
-  // Optional: Position returnZone leicht über dem Kopf
-  const returnZone = document.querySelector('#returnZone');
-  returnZone.object3D.position.set(0, 2, -1); // Beispiel: 2 m hoch, 1 m vor Kamera
-  returnZone.setAttribute('visible', true);
-
-      videoEl.play();
-    });
-  }
-
-  // prevAngles für nächste Reihe speichern
-  prevAngles = angles.slice();
-}
-
-
-    // const entry = document.createElement('a-entity');
-    // entry.classList.add('clickable');
-    // entry.id = `to-${video.id}`;
-    // entry.setAttribute('position', `${x} ${y} ${z}`);
-    // entry.setAttribute('look-at', '[camera]');
-    // entry.setAttribute('visible', true);
-
-    // const icon = document.createElement('a-image');
-    // icon.setAttribute('src', 'media/videoicon.png');
-    // icon.setAttribute('width', '0.5');
-    // icon.setAttribute('height', '0.5');
-    // icon.setAttribute('material', 'color: white; opacity: 0.9');
-    // entry.appendChild(icon);
-
-    // const text = document.createElement('a-text');
-    // text.setAttribute('value', video.title);
-    // text.setAttribute('align', 'center');
-    // text.setAttribute('position', '0 -0.35 0');
-    // text.setAttribute('width', '2');
-    // text.setAttribute('color', 'white');
-    // entry.appendChild(text);
-
-    // menu.appendChild(entry);
-
-    
-  });
 
   document.getElementById('loading').style.display = 'none';
 
-  const returnZone = document.querySelector('#returnZone');
-const cursorBase = document.querySelector('#cursorBase');
-//const progressRing = document.querySelector('#progressRing');
+  // 🔹 Rückkehrfläche aktivieren
+  if (returnZone) {
+    let returnTimer = null;
 
-if (returnZone) {
-  let returnTimer = null;
+    returnZone.addEventListener('mouseenter', () => {
+      cursorBase.object3D.visible = true;
+      progressRing.object3D.visible = true;
+      progressRing.removeAttribute('animation__fill');
+      progressRing.setAttribute('animation__fill',
+        'property: theta-length; from: 0; to: 360; dur: 5000; easing: linear');
 
-  returnZone.addEventListener('mouseenter', () => {
-    cursorBase.object3D.visible = true;
-    progressRing.object3D.visible = true;
-    progressRing.removeAttribute('animation__fill');
-    progressRing.setAttribute('animation__fill',
-      'property: theta-length; from: 0; to: 360; dur: 5000; easing: linear');
+      returnTimer = setTimeout(() => {
+        showMenu();
+        progressRing.removeAttribute('animation__fill');
+        progressRing.setAttribute('theta-length', 0);
+      }, 5000);
+    });
 
-    returnTimer = setTimeout(() => {
-      showMenu();
+    returnZone.addEventListener('mouseleave', () => {
+      cursorBase.object3D.visible = false;
+      progressRing.object3D.visible = false;
       progressRing.removeAttribute('animation__fill');
       progressRing.setAttribute('theta-length', 0);
-    }, 5000);
-  });
-
-  returnZone.addEventListener('mouseleave', () => {
-    cursorBase.object3D.visible = false;
-    progressRing.object3D.visible = false;
-    progressRing.removeAttribute('animation__fill');
-    progressRing.setAttribute('theta-length', 0);
-    clearTimeout(returnTimer);
-    returnTimer = null;
-  });
-}
-
+      clearTimeout(returnTimer);
+      returnTimer = null;
+    });
+  }
 });
 </script>
 
