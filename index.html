@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -167,48 +167,48 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
     assets.appendChild(videoEl);
 
 
-    // Dynamische Positionierung der Icons auf der Kugel
+   // Dynamische, gleichmäßige Anordnung der Icons auf einer Halbkugel vor dem Nutzer
 const total = data.videos.length;
 const maxRows = 4; // maximal 4 Reihen
-const radius = 3;  // Abstand vom Nutzer
-const verticalSpread = 10; // vertikaler Winkelabstand zwischen Reihen (in Grad)
-const horizontalFOV = 80; // horizontale Bogenweite pro Reihe in Grad
-const basePitch = 5; // leichte Neigung nach unten
+const radius = 3.2; // Abstand vom Nutzer
+const horizontalSpread = 100; // Gradweite, die der Bogen vor dem Nutzer abdeckt
+const verticalSpread = 0.8; // vertikaler Abstand zwischen Reihen in Metern
 
-// 🔹 Reihen berechnen
-const rows = Math.min(maxRows, total);
-const distribution = [];
-let remaining = total;
-for (let i = 0; i < rows; i++) {
-  const count = Math.ceil(remaining / (rows - i));
-  distribution.push(count);
-  remaining -= count;
-}
+// Wie viele Reihen?
+const rows = Math.min(maxRows, Math.ceil(total / 4));
+const itemsPerRow = Math.ceil(total / rows);
 
-// 🔹 Alle Videos positionieren
+// Vertikalen Offset berechnen, damit das ganze Menü mittig bleibt
+const totalHeight = (rows - 1) * verticalSpread;
+const baseY = totalHeight / 2;
+
+// 🔹 Alle Icons erzeugen
 let videoIndex = 0;
 for (let row = 0; row < rows; row++) {
-  const count = distribution[row];
-  const pitch = basePitch - row * verticalSpread; // Höhe auf Kugel
-  const halfFOV = horizontalFOV / 2;
+  // Wie viele Icons in dieser Reihe?
+  const remaining = total - videoIndex;
+  const count = Math.min(itemsPerRow, remaining);
+
+  // Winkel zwischen Icons (damit sie gleichmäßig auf dem Bogen verteilt sind)
+  const angleStep = count > 1 ? horizontalSpread / (count - 1) : 0;
+  const startAngle = -horizontalSpread / 2;
+
+  // Höhe dieser Reihe
+  const y = baseY - row * verticalSpread;
 
   for (let i = 0; i < count; i++) {
     if (videoIndex >= total) break;
+    const video = data.videos[videoIndex++];
 
-    const video = data.videos[videoIndex];
-    const yaw = (count === 1)
-      ? 0 // mittig, wenn nur 1 Element
-      : ((i / (count - 1)) - 0.5) * horizontalFOV; // sonst verteilen
+    // Winkel in Radiant
+    const angle = startAngle + i * angleStep;
+    const rad = THREE.MathUtils.degToRad(angle);
 
-    const yawRad = THREE.MathUtils.degToRad(yaw);
-    const pitchRad = THREE.MathUtils.degToRad(pitch);
+    // Kugelkoordinaten → XYZ (leicht gebogen)
+    const x = radius * Math.sin(rad);
+    const z = -radius * Math.cos(rad);
 
-    // Kugelkoordinaten → XYZ
-    const x = radius * Math.sin(yawRad) * Math.cos(pitchRad);
-    const y = radius * Math.sin(pitchRad);
-    const z = -radius * Math.cos(yawRad) * Math.cos(pitchRad);
-
-    // 🔹 Menüeintrag erzeugen
+    // 🔹 Menüeintrag erstellen
     const entry = document.createElement('a-entity');
     entry.classList.add('clickable', 'menu-entry');
     entry.id = `to-${video.id}`;
@@ -234,9 +234,9 @@ for (let row = 0; row < rows; row++) {
     entry.appendChild(text);
 
     menu.appendChild(entry);
-    videoIndex++;
   }
 }
+
 
 
 
