@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -257,36 +257,6 @@ for (let row = 0; row < rows; row++) {
     entry.appendChild(text);
 
     menu.appendChild(entry);
-  }
-
-  // prevAngles für nächste Reihe speichern
-  prevAngles = angles.slice();
-}
-
-
-    // const entry = document.createElement('a-entity');
-    // entry.classList.add('clickable');
-    // entry.id = `to-${video.id}`;
-    // entry.setAttribute('position', `${x} ${y} ${z}`);
-    // entry.setAttribute('look-at', '[camera]');
-    // entry.setAttribute('visible', true);
-
-    // const icon = document.createElement('a-image');
-    // icon.setAttribute('src', 'media/videoicon.png');
-    // icon.setAttribute('width', '0.5');
-    // icon.setAttribute('height', '0.5');
-    // icon.setAttribute('material', 'color: white; opacity: 0.9');
-    // entry.appendChild(icon);
-
-    // const text = document.createElement('a-text');
-    // text.setAttribute('value', video.title);
-    // text.setAttribute('align', 'center');
-    // text.setAttribute('position', '0 -0.35 0');
-    // text.setAttribute('width', '2');
-    // text.setAttribute('color', 'white');
-    // entry.appendChild(text);
-
-    // menu.appendChild(entry);
 
     entry.addEventListener('mouseenter', () => {
       progressRing.removeAttribute('animation__fill');
@@ -337,6 +307,38 @@ for (let row = 0; row < rows; row++) {
 
       videoEl.play();
     });
+  }
+
+  // prevAngles für nächste Reihe speichern
+  prevAngles = angles.slice();
+}
+
+
+    // const entry = document.createElement('a-entity');
+    // entry.classList.add('clickable');
+    // entry.id = `to-${video.id}`;
+    // entry.setAttribute('position', `${x} ${y} ${z}`);
+    // entry.setAttribute('look-at', '[camera]');
+    // entry.setAttribute('visible', true);
+
+    // const icon = document.createElement('a-image');
+    // icon.setAttribute('src', 'media/videoicon.png');
+    // icon.setAttribute('width', '0.5');
+    // icon.setAttribute('height', '0.5');
+    // icon.setAttribute('material', 'color: white; opacity: 0.9');
+    // entry.appendChild(icon);
+
+    // const text = document.createElement('a-text');
+    // text.setAttribute('value', video.title);
+    // text.setAttribute('align', 'center');
+    // text.setAttribute('position', '0 -0.35 0');
+    // text.setAttribute('width', '2');
+    // text.setAttribute('color', 'white');
+    // entry.appendChild(text);
+
+    // menu.appendChild(entry);
+
+    
   });
 
   document.getElementById('loading').style.display = 'none';
