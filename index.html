@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -143,6 +143,29 @@ function showRooms() {
   returnZone.setAttribute('visible', true);
 }
 
+// const iconsPerRow = 3;
+//     const rowSpacing = 0.9;
+//     const colSpacing = 1.2;
+//     const baseY = 1.2;
+
+//     const row = Math.floor(index / iconsPerRow);
+//     const col = index % iconsPerRow;
+
+//     // Wie viele Icons sind in dieser Reihe?
+//     const itemsInRow = Math.min(iconsPerRow, data.videos.length - row * iconsPerRow);
+
+//     // Zentrierung: verschiebe die Reihe so, dass sie mittig liegt
+//     const offsetX = (itemsInRow - 1) * colSpacing / 2;
+
+//     // Versatz: jede zweite Reihe wird in die Lücken der oberen geschoben
+//     const stagger = (row % 2 === 1)
+//     ? colSpacing / 2
+//     : 0;
+
+//     const x = (col * colSpacing) - offsetX + stagger;
+//     const y = baseY - (row * rowSpacing);
+//     const z = -3;
+
 
 //JSON laden und Icons erzeugen
 document.querySelector('a-scene').addEventListener('loaded', async () => {
@@ -166,52 +189,97 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
     assets.appendChild(videoEl);
 
 
-  const iconsPerRow = 3;
-const rowSpacing = 0.9;
-const colSpacing = 1.2;
-const baseY = 1.2;
+    // Dynamische Positionierung der Icons auf der Kugel
+    const total = data.videos.length;
+    const maxRows = 4; // maximal 4 Reihen
+    const radius = 3;  // Abstand vom Nutzer
+    const verticalSpread = 1.0; // vertikaler Abstand zwischen Reihen (in Metern)
+    const horizontalFOV = 80; // Bogenweite pro Reihe in Grad
 
-const row = Math.floor(index / iconsPerRow);
-const col = index % iconsPerRow;
+    // Reihen bestimmen (z. B. bei 10 Videos → 3, 3, 2, 2)
+    const rows = Math.min(maxRows, total);
+    const baseYAngle = -10; // Neigung der obersten Reihe
+    const distribution = [];
 
-// Wie viele Icons sind in dieser Reihe?
-const itemsInRow = Math.min(iconsPerRow, data.videos.length - row * iconsPerRow);
+    // Videos möglichst gleichmäßig auf die Reihen verteilen
+    let remaining = total;
+    for (let i = 0; i < rows; i++) {
+    const count = Math.ceil(remaining / (rows - i));
+    distribution.push(count);
+    remaining -= count;
+    }
 
-// Zentrierung: verschiebe die Reihe so, dass sie mittig liegt
-const offsetX = (itemsInRow - 1) * colSpacing / 2;
+    // Positionen berechnen
+    let videoIndex = 0;
+    for (let row = 0; row < rows; row++) {
+    const count = distribution[row];
+    const pitch = baseYAngle - row * verticalSpread * 10; // Höhe auf der Kugel (in Grad)
+    const halfFOV = horizontalFOV / 2;
 
-// Versatz: jede zweite Reihe wird in die Lücken der oberen geschoben
-const stagger = (row % 2 === 1)
-  ? colSpacing / 2
-  : 0;
+    for (let i = 0; i < count; i++) {
+        const yaw = ((i / (count - 1)) - 0.5) * horizontalFOV; // horizontaler Winkel
+        const yawRad = THREE.MathUtils.degToRad(yaw);
+        const pitchRad = THREE.MathUtils.degToRad(pitch);
 
-const x = (col * colSpacing) - offsetX + stagger;
-const y = baseY - (row * rowSpacing);
-const z = -3;
+        // Kugelkoordinaten → XYZ
+        const x = radius * Math.sin(yawRad) * Math.cos(pitchRad);
+        const y = radius * Math.sin(pitchRad);
+        const z = -radius * Math.cos(yawRad) * Math.cos(pitchRad);
 
-    const entry = document.createElement('a-entity');
-    entry.classList.add('clickable');
-    entry.id = `to-${video.id}`;
-    entry.setAttribute('position', `${x} ${y} ${z}`);
-    entry.setAttribute('look-at', '[camera]');
-    entry.setAttribute('visible', true);
+        const video = data.videos[videoIndex];
+        videoIndex++;
 
-    const icon = document.createElement('a-image');
-    icon.setAttribute('src', 'media/videoicon.png');
-    icon.setAttribute('width', '0.5');
-    icon.setAttribute('height', '0.5');
-    icon.setAttribute('material', 'color: white; opacity: 0.9');
-    entry.appendChild(icon);
+        // Icon + Text erzeugen
+        const entry = document.createElement('a-entity');
+        entry.classList.add('clickable', 'menu-entry');
+        entry.id = `to-${video.id}`;
+        entry.setAttribute('position', `${x} ${y} ${z}`);
+        entry.setAttribute('look-at', '[camera]');
+        entry.setAttribute('visible', true);
 
-    const text = document.createElement('a-text');
-    text.setAttribute('value', video.title);
-    text.setAttribute('align', 'center');
-    text.setAttribute('position', '0 -0.35 0');
-    text.setAttribute('width', '2');
-    text.setAttribute('color', 'white');
-    entry.appendChild(text);
+        const icon = document.createElement('a-image');
+        icon.setAttribute('src', 'media/videoicon.png');
+        icon.setAttribute('width', '0.5');
+        icon.setAttribute('height', '0.5');
+        icon.setAttribute('material', 'color: white; opacity: 0.9');
+        entry.appendChild(icon);
 
-    menu.appendChild(entry);
+        const text = document.createElement('a-text');
+        text.setAttribute('value', video.title);
+        text.setAttribute('align', 'center');
+        text.setAttribute('position', '0 -0.35 0');
+        text.setAttribute('width', '2');
+        text.setAttribute('color', 'white');
+        entry.appendChild(text);
+
+        menu.appendChild(entry);
+    }
+    }
+
+
+    // const entry = document.createElement('a-entity');
+    // entry.classList.add('clickable');
+    // entry.id = `to-${video.id}`;
+    // entry.setAttribute('position', `${x} ${y} ${z}`);
+    // entry.setAttribute('look-at', '[camera]');
+    // entry.setAttribute('visible', true);
+
+    // const icon = document.createElement('a-image');
+    // icon.setAttribute('src', 'media/videoicon.png');
+    // icon.setAttribute('width', '0.5');
+    // icon.setAttribute('height', '0.5');
+    // icon.setAttribute('material', 'color: white; opacity: 0.9');
+    // entry.appendChild(icon);
+
+    // const text = document.createElement('a-text');
+    // text.setAttribute('value', video.title);
+    // text.setAttribute('align', 'center');
+    // text.setAttribute('position', '0 -0.35 0');
+    // text.setAttribute('width', '2');
+    // text.setAttribute('color', 'white');
+    // entry.appendChild(text);
+
+    // menu.appendChild(entry);
 
     entry.addEventListener('mouseenter', () => {
       progressRing.removeAttribute('animation__fill');
