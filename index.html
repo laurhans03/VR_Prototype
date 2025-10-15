@@ -23,6 +23,8 @@
         <a-assets>
             <img id="menu_img" src="media/menu.png">
             <a-asset-item id="avatarModel" src="models/man_sitting.glb"></a-asset-item>
+
+            <video id="room1Video" src="media/room1.mp4" preload="auto" loop playsinline webkit-playsinline muted crossorigin="anonymous"></video>
         </a-assets>
 
         <!-- Kamera: unabhängig vom Avatar, wird vom Headset gesteuert -->
@@ -79,11 +81,73 @@
         <!-- Enable hand tracking for left and right hands -->
         <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
         <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
-
-
     </a-scene>
 
-<script>
+    <script>
+        function showMenu() {
+            document.querySelector('#menu').setAttribute('visible', true);
+            document.querySelector('#rooms').setAttribute('visible', false);
+        }
+
+        function showRoom1() {
+            const menu = document.querySelector('#menu');
+            const rooms = document.querySelector('#rooms');
+            menu.setAttribute('visible', false);
+            rooms.setAttribute('visible', true);
+
+
+            // Wenn Raum noch nicht existiert: erstellen
+            let room = document.querySelector('#room1');
+            if (!room) {
+            room = document.createElement('a-entity');
+            room.id = 'room1';
+
+
+            const sphere = document.createElement('a-videosphere');
+            sphere.setAttribute('src', '#room1Video');
+            room.appendChild(sphere);
+
+
+            rooms.appendChild(room);
+            } else {
+            room.setAttribute('visible', 'true');
+            }
+
+
+            // Versuche das Video zu starten — User-Gesten sind oft nötig, deshalb fangen wir Fehler ab
+            const videoEl = document.querySelector('#room1Video');
+            if (videoEl) {
+            // Ensure it's muted (required on many browsers for autoplay)
+            videoEl.muted = true;
+            videoEl.setAttribute('playsinline', 'true');
+            videoEl.setAttribute('webkit-playsinline', 'true');
+
+
+            videoEl.play().then(() => {
+            console.log('Video gestartet.');
+            }).catch((err) => {
+            console.warn('Video start blockiert (erwarte User-Geste):', err);
+            });
+            }
+            }
+
+
+            // Event hookup — DOM-ready schutz
+            document.addEventListener('DOMContentLoaded', () => {
+            const toRoom1 = document.querySelector('#to-room1');
+            const loading = document.getElementById('loading');
+
+
+            });
+    </script>
+
+    </body>
+</html>
+
+
+
+
+<!-- <script>
     //Avatarpositionierung
     AFRAME.registerComponent('adjust-avatar', {
         tick: function () {
@@ -342,7 +406,7 @@ data.videos.forEach((video) => {
     });
   }
 });
-</script>
+</script> -->
 
 
 
@@ -599,5 +663,3 @@ data.videos.forEach((video) => {
         document.getElementById('loading').style.display = 'none';
         });
         </script> -->
-    </body>
-</html>
