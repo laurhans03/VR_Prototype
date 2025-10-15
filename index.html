@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -301,14 +301,39 @@ for (let row = 0; row < rows; row++) {
 
     entry.addEventListener('click', () => {
       showRooms();
-      const room = document.createElement('a-entity');
-      room.classList.add('room');
-      room.id = video.id;
+    //   const room = document.createElement('a-entity');
+    //   room.classList.add('room');
+    //   room.id = video.id;
 
-      const sphere = document.createElement('a-videosphere');
-      sphere.setAttribute('src', `#${video.id}`);
-      room.appendChild(sphere);
-      rooms.appendChild(room);
+    //   const sphere = document.createElement('a-videosphere');
+    //   sphere.setAttribute('src', `#${video.id}`);
+    //   room.appendChild(sphere);
+    //   rooms.appendChild(room);
+
+    let room = document.querySelector(`#${video.id}`);
+  if (!room) {
+    room = document.createElement('a-entity');
+    room.id = video.id;
+    room.classList.add('room');
+
+    const sphere = document.createElement('a-videosphere');
+    sphere.setAttribute('src', `#${video.id}`);
+    room.appendChild(sphere);
+    rooms.appendChild(room);
+  } else {
+    room.setAttribute('visible', 'true');
+  }
+
+  // Cursor im Raum unsichtbar
+  const cursorBase = document.querySelector('#cursorBase');
+  const progressRing = document.querySelector('#progressRing');
+  cursorBase.object3D.visible = false;
+  progressRing.object3D.visible = false;
+
+  // Optional: Position returnZone leicht über dem Kopf
+  const returnZone = document.querySelector('#returnZone');
+  returnZone.object3D.position.set(0, 2, -1); // Beispiel: 2 m hoch, 1 m vor Kamera
+  returnZone.setAttribute('visible', true);
 
       videoEl.play();
     });
