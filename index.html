@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -274,21 +274,21 @@ data.videos.forEach((video) => {
         progressRing.setAttribute('theta-length', 0);
       });
 
-      entry.addEventListener('click', () => {
+     entry.addEventListener('click', () => {
         showRooms();
 
         let room = document.querySelector(`#${video.id}`);
         if (!room) {
-          room = document.createElement('a-entity');
-          room.id = video.id;
-          room.classList.add('room');
+            room = document.createElement('a-entity');
+            room.id = video.id;
+            room.classList.add('room');
 
-          const sphere = document.createElement('a-videosphere');
-          sphere.setAttribute('src', `#${video.id}`);
-          room.appendChild(sphere);
-          rooms.appendChild(room);
+            const sphere = document.createElement('a-videosphere');
+            sphere.setAttribute('src', `#${video.id}`);
+            room.appendChild(sphere);
+            rooms.appendChild(room);
         } else {
-          room.setAttribute('visible', 'true');
+            room.setAttribute('visible', 'true');
         }
 
         cursorBase.object3D.visible = false;
@@ -297,16 +297,16 @@ data.videos.forEach((video) => {
         returnZone.object3D.position.set(0, 2, -1);
         returnZone.setAttribute('visible', true);
 
+        // 🔹 **WICHTIG: Video sicher aktivieren**
         const videoEl = document.querySelector(`#${video.id}`);
-
         if (videoEl) {
-        videoEl.muted = true; // Muss aktiv gesetzt sein, sonst blockiert VR
-        videoEl.play().catch(err => {
-            console.warn("Video konnte nicht automatisch starten:", err);
-        });
+            videoEl.setAttribute('muted', 'true');
+            videoEl.setAttribute('playsinline', 'true');
+            videoEl.setAttribute('webkit-playsinline', 'true');
+            videoEl.play().catch(err => console.warn("Video start blockiert:", err));
         }
+        });
 
-      });
     }
 
     prevAngles = angles.slice();
