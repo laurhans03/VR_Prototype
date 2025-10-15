@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -219,40 +219,76 @@ function openRoom(videoId) {
 // ---------------------------
 // Rückkehr zum Menü
 // ---------------------------
-let returnTimer = null;
-returnZone.addEventListener('mouseenter', () => {
+
+function showMenuState() {
+    menu.setAttribute('visible', true);
+    rooms.querySelectorAll('.room').forEach(r => r.remove());
+    rooms.setAttribute('visible', false);
+
+    // Avatar ausblenden
+    document.querySelector('#avatarAnchor').setAttribute('visible', false);
+
+    // Cursor + Progress-Ring **immer sichtbar im Menü**
     cursorBase.object3D.visible = true;
     progressRing.object3D.visible = true;
+
+    // Animation zurücksetzen
+    progressRing.removeAttribute('animation__fill');
+    progressRing.setAttribute('theta-length', 0);
+}
+
+// Return-Zone Event
+returnZone.addEventListener('mouseenter', () => {
+    // Nur Progress-Ring animieren
     progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: linear');
 
     returnTimer = setTimeout(() => {
-        // Menü wieder sichtbar
-        menu.setAttribute('visible', true);
-
-        // Räume löschen und ausblenden
-        rooms.querySelectorAll('.room').forEach(r => r.remove());
-        rooms.setAttribute('visible', false);
-
-        // Avatar ausblenden
-        document.querySelector('#avatarAnchor').setAttribute('visible', false);
-
-        // Cursor + Progress-Ring wieder sichtbar im Menü
-        cursorBase.object3D.visible = true;
-        progressRing.object3D.visible = true;
-
-        // Animation stoppen
-        progressRing.removeAttribute('animation__fill');
-        progressRing.setAttribute('theta-length', 0);
+        showMenuState();
     }, 5000);
 });
 
 returnZone.addEventListener('mouseleave', () => {
-    cursorBase.object3D.visible = false;
-    progressRing.object3D.visible = false;
+    // Animation stoppen, Timer zurücksetzen
     progressRing.removeAttribute('animation__fill');
     progressRing.setAttribute('theta-length', 0);
     clearTimeout(returnTimer);
 });
+
+
+// let returnTimer = null;
+// returnZone.addEventListener('mouseenter', () => {
+//     cursorBase.object3D.visible = true;
+//     progressRing.object3D.visible = true;
+//     progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: linear');
+
+//     returnTimer = setTimeout(() => {
+//         // Menü wieder sichtbar
+//         menu.setAttribute('visible', true);
+
+//         // Räume löschen und ausblenden
+//         rooms.querySelectorAll('.room').forEach(r => r.remove());
+//         rooms.setAttribute('visible', false);
+
+//         // Avatar ausblenden
+//         document.querySelector('#avatarAnchor').setAttribute('visible', false);
+
+//         // Cursor + Progress-Ring wieder sichtbar im Menü
+//         cursorBase.object3D.visible = true;
+//         progressRing.object3D.visible = true;
+
+//         // Animation stoppen
+//         progressRing.removeAttribute('animation__fill');
+//         progressRing.setAttribute('theta-length', 0);
+//     }, 5000);
+// });
+
+// returnZone.addEventListener('mouseleave', () => {
+//     cursorBase.object3D.visible = false;
+//     progressRing.object3D.visible = false;
+//     progressRing.removeAttribute('animation__fill');
+//     progressRing.setAttribute('theta-length', 0);
+//     clearTimeout(returnTimer);
+// });
 
 
 // ---------------------------
