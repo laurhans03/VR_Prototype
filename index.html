@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -83,7 +83,7 @@
 
     </a-scene>
 
-<script>
+<!-- <script>
     //Avatarpositionierung
     AFRAME.registerComponent('adjust-avatar', {
         tick: function () {
@@ -338,11 +338,11 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
     });
   }
 });
-</script>
+</script> -->
 
 
 
-   <!-- <script>
+   <script>
         AFRAME.registerComponent('adjust-avatar', {
         tick: function () {
             const camera = document.querySelector('#camera');
@@ -594,6 +594,6 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
 
         document.getElementById('loading').style.display = 'none';
         });
-        </script> -->
+        </script>
     </body>
 </html>
