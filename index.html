@@ -150,21 +150,42 @@ for (let r = 0; r < rows; r++) {
 const maxCount = Math.max(...itemsPerRow);
 
 let videoIndex = 0;
+const rowPositions = []; // speichert die x-Positionen jeder Reihe
 
 for (let r = 0; r < rows; r++) {
     const count = itemsPerRow[r];
     const y = baseY - r * rowHeight;
-
     const spacing = 1.2;
-    const rowWidth = (count - 1) * spacing;
-    const maxRowWidth = (r === 0) ? rowWidth : (Math.max(...itemsPerRow.slice(0, r)) - 1) * spacing;
 
-    // Zentriere unter obere Reihe
-    let offsetX = -rowWidth / 2 + (maxRowWidth - rowWidth)/2;
+    let xPositions = [];
 
+    if (r === 0) {
+        // Erste Reihe: normale Verteilung
+        const rowWidth = (count - 1) * spacing;
+        const offsetX = -rowWidth / 2;
+        for (let i = 0; i < count; i++) {
+            xPositions.push(offsetX + i * spacing);
+        }
+    } else {
+        // Untere Reihen: Positionierung unter Lücken der oberen Reihe
+        const prevRow = rowPositions[r - 1];
+        const prevCount = prevRow.length;
+        for (let i = 0; i < count; i++) {
+            const t = (i + 0.5) / count; // Mittig in den Lücken
+            const index = Math.floor(t * (prevCount - 1));
+            const nextIndex = Math.min(index + 1, prevCount - 1);
+            const x = (prevRow[index] + prevRow[nextIndex]) / 2;
+            xPositions.push(x);
+        }
+    }
+
+    // Speichere die Positionen für die nächste Reihe
+    rowPositions.push(xPositions);
+
+    // Icons erstellen
     for (let i = 0; i < count; i++) {
         const video = data.videos[videoIndex++];
-        const x = offsetX + i * spacing;
+        const x = xPositions[i];
         const z = -3;
 
         const entry = document.createElement('a-entity');
@@ -173,7 +194,7 @@ for (let r = 0; r < rows; r++) {
         entry.setAttribute('position', `${x} ${y} ${z}`);
         entry.setAttribute('look-at', '[camera]');
 
-        // Icon + Text
+        // Icon
         const icon = document.createElement('a-image');
         icon.setAttribute('src', 'media/videoicon.png');
         icon.setAttribute('width', '0.45');
@@ -181,6 +202,7 @@ for (let r = 0; r < rows; r++) {
         icon.setAttribute('material', 'color: white; opacity: 0.9');
         entry.appendChild(icon);
 
+        // Text
         const text = document.createElement('a-text');
         text.setAttribute('value', video.title);
         text.setAttribute('align', 'center');
@@ -191,7 +213,7 @@ for (let r = 0; r < rows; r++) {
 
         menu.appendChild(entry);
 
-        // Fuse-Logik unverändert
+        // Fuse / Hover Logik
         let fuseTimeout = null;
         entry.addEventListener('mouseenter', () => {
             icon.setAttribute('material', 'color: yellow');
