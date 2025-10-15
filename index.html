@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -63,23 +63,25 @@
             <a-plane id="returnZone"
                 position="0 3 0"
                 rotation="90 0 0"
-                width="4"
-                height="4"
+                width="2"
+                height="2"
                 material="color: #00ff00; opacity: 0; transparent: true"
                 class="clickable"
                 visible="false">
             </a-plane>
 
-
             <!-- Räume werden dynamisch erzeugt -->
         </a-entity>
 
-   
 
         <!-- Enable hand tracking for left and right hands -->
         <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
         <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
     </a-scene>
+
+
+
+
 
     <script>
 // ---------------------------
