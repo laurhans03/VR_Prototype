@@ -154,6 +154,7 @@ document.querySelector('a-scene').addEventListener('loaded', async () => {
   const assets = document.querySelector('a-assets');
   const rooms = document.querySelector('#rooms');
   const progressRing = document.querySelector('#progressRing');
+    // Vor dem forEach:
 
   data.videos.forEach((video, index) => {
     const videoEl = document.createElement('video');
