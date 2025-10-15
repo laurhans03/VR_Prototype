@@ -10,6 +10,17 @@
       "id": "room5",
       "title": "Bymiljövägen",
       "src": "media/room5.mp4"
+    },
+     {
+      "id": "room1",
+      "title": "Clearing in the forest",
+      "src": "media/room1.mp4"
+    },
+
+    {
+      "id": "room5",
+      "title": "Bymiljövägen",
+      "src": "media/room5.mp4"
     }
   ]
 }
