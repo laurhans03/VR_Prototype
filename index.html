@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -319,21 +319,26 @@ function openRoom(videoId) {
     const videoEl = document.querySelector(`#video-${videoId}`);
     if (videoEl) videoEl.play().catch(err => console.warn('Video konnte nicht starten:', err));
 
-    // 🔹 Hinweistext für 4 Sekunden
+   // Hinweistext als Kind des Kamera-Rigs
     const hint = document.createElement('a-text');
     hint.id = 'exitHint';
     hint.setAttribute('value', 'Schau 5 Sekunden nach oben, um zurück ins Menü zu kommen');
     hint.setAttribute('align', 'center');
-    hint.setAttribute('position', '0 1.8 -0.5'); // näher an der Kamera
+    hint.setAttribute('position', '0 0 -1'); // relativ zur Kamera
     hint.setAttribute('color', 'yellow');
-    hint.setAttribute('width', '3');
-    hint.setAttribute('side', 'double'); // Text sichtbar von beiden Seiten
-    hint.setAttribute('look-at', '#cameraRig'); // sicherer
-    document.querySelector('a-scene').appendChild(hint);
+    hint.setAttribute('width', '2.5');
+    hint.setAttribute('side', 'double');
 
+    // Füge den Hinweis **als Kind der Kamera** hinzu
+    document.querySelector('#cameraRig').appendChild(hint);
+
+    // Automatisch nach 4 Sekunden entfernen
     setTimeout(() => {
         if (hint && hint.parentNode) hint.parentNode.removeChild(hint);
     }, 4000);
+
+
+    
 }
 
 
