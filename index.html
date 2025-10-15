@@ -146,28 +146,24 @@ for (let r = 0; r < rows; r++) {
     remaining -= count;
 }
 
-let videoIndex = 0;
+// Berechne maximale Anzahl in den Reihen (maxRowWidth)
+const maxCount = Math.max(...itemsPerRow);
+
 for (let r = 0; r < rows; r++) {
     const count = itemsPerRow[r];
     const y = baseY - r * rowHeight;
 
-    // Horizontaler Abstand
-    const spacing = 1.2; // Abstand zwischen Icons
-    const totalWidth = (count - 1) * spacing;
-    let offsetX = -totalWidth / 2;
+    const spacing = 1.2;
+    const rowWidth = (count - 1) * spacing;
+    const maxRowWidth = (r === 0) ? rowWidth : (Math.max(...itemsPerRow.slice(0, r)) - 1) * spacing;
 
-    // Versatz für Reihen mit weniger Icons (unter Lücken)
-    if (r > 0 && itemsPerRow[r] < itemsPerRow[r - 1]) {
-        const diff = itemsPerRow[r - 1] - itemsPerRow[r];
-        offsetX += spacing * diff / 2;
-    }
+    // Zentriere unter obere Reihe
+    let offsetX = -rowWidth / 2 + (maxRowWidth - rowWidth)/2;
 
     for (let i = 0; i < count; i++) {
-        if (videoIndex >= total) break;
         const video = data.videos[videoIndex++];
-
         const x = offsetX + i * spacing;
-        const z = -3; // feste Tiefe vor der Kamera
+        const z = -3;
 
         const entry = document.createElement('a-entity');
         entry.classList.add('clickable', 'menu-entry');
@@ -175,7 +171,7 @@ for (let r = 0; r < rows; r++) {
         entry.setAttribute('position', `${x} ${y} ${z}`);
         entry.setAttribute('look-at', '[camera]');
 
-        // Icon + Text hier wie bisher
+        // Icon + Text
         const icon = document.createElement('a-image');
         icon.setAttribute('src', 'media/videoicon.png');
         icon.setAttribute('width', '0.45');
@@ -193,7 +189,7 @@ for (let r = 0; r < rows; r++) {
 
         menu.appendChild(entry);
 
-        // Fuse + Hover Logik bleibt unverändert
+        // Fuse-Logik unverändert
         let fuseTimeout = null;
         entry.addEventListener('mouseenter', () => {
             icon.setAttribute('material', 'color: yellow');
@@ -209,6 +205,7 @@ for (let r = 0; r < rows; r++) {
         });
     }
 }
+
 
 
     // // Icons + Text erzeugen
