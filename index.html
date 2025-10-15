@@ -45,7 +45,7 @@
         <a-entity id="menu" position="0 0 0" 0visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome!" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -241,66 +241,6 @@ for (let r = 0; r < rows; r++) {
 }
 
 
-
-    // // Icons + Text erzeugen
-    // const radius = 3;
-    // const horizontalSpread = 60;
-    // const verticalSpread = 0.8;
-    // let total = data.videos.length;
-    // let angles = [];
-    // for (let i = 0; i < total; i++) angles.push(-horizontalSpread/2 + i*(horizontalSpread/(total-1)));
-
-    // for (let i = 0; i < total; i++) {
-    //     const video = data.videos[i];
-    //     const yawRad = THREE.MathUtils.degToRad(angles[i]);
-    //     const x = radius * Math.sin(yawRad);
-    //     const z = -radius * Math.cos(yawRad);
-    //     const y = 1.5 - Math.floor(i/3)*verticalSpread;
-
-    //     const entry = document.createElement('a-entity');
-    //     entry.classList.add('clickable', 'menu-entry');
-    //     entry.id = `to-${video.id}`;
-    //     entry.setAttribute('position', `${x} ${y} ${z}`);
-    //     entry.setAttribute('look-at', '[camera]');
-
-    //     // Icon
-    //     const icon = document.createElement('a-image');
-    //     icon.setAttribute('src', 'media/videoicon.png');
-    //     icon.setAttribute('width', '0.45');
-    //     icon.setAttribute('height', '0.45');
-    //     icon.setAttribute('material', 'color: white; opacity: 0.9');
-    //     entry.appendChild(icon);
-
-    //     // Text
-    //     const text = document.createElement('a-text');
-    //     text.setAttribute('value', video.title);
-    //     text.setAttribute('align', 'center');
-    //     text.setAttribute('position', '0 -0.35 0');
-    //     text.setAttribute('width', '2');
-    //     text.setAttribute('color', 'white');
-    //     entry.appendChild(text);
-
-    //     menu.appendChild(entry);
-
-    //     // Interaktionen
-    //     let fuseTimeout = null;
-
-    //     entry.addEventListener('mouseenter', () => {
-    //         icon.setAttribute('material', 'color: yellow');
-    //         progressRing.setAttribute('theta-length', 0);
-    //         progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: linear');
-    //         fuseTimeout = setTimeout(() => openRoom(video.id), 3000);
-    //     });
-
-    //     entry.addEventListener('mouseleave', () => {
-    //         icon.setAttribute('material', 'color: white');
-    //         progressRing.removeAttribute('animation__fill');
-    //         progressRing.setAttribute('theta-length', 0);
-    //         clearTimeout(fuseTimeout);
-    //     });
-    // }
-
-
 function showMenuState() {
     menu.setAttribute('visible', true);
     rooms.querySelectorAll('.room').forEach(r => r.remove());
@@ -341,6 +281,21 @@ function openRoom(videoId) {
 
     const videoEl = document.querySelector(`#video-${videoId}`);
     if (videoEl) videoEl.play().catch(err => console.warn('Video konnte nicht starten:', err));
+     // 🔹 Hinweistext für 4 Sekunden
+    const hint = document.createElement('a-text');
+    hint.id = 'exitHint';
+    hint.setAttribute('value', 'Schau 5 Sekunden nach oben, um zurück ins Menü zu kommen');
+    hint.setAttribute('align', 'center');
+    hint.setAttribute('position', '0 1.8 -1'); // vor der Kamera
+    hint.setAttribute('color', 'yellow');
+    hint.setAttribute('width', '3');
+    hint.setAttribute('look-at', '#camera'); // zeigt immer zur Kamera
+    document.querySelector('a-scene').appendChild(hint);
+
+    // Nach 4 Sekunden automatisch ausblenden
+    setTimeout(() => {
+        if (hint && hint.parentNode) hint.parentNode.removeChild(hint);
+    }, 4000);
 }
 
 // Return-Zone Fuse
