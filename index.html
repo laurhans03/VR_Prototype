@@ -45,7 +45,7 @@
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
               <!-- Display a welcome message floating in front of the user -->
-                <a-text value="Welcome" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
+                <a-text value="Welcome!" align="center" position="0 1.5 -2" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -187,17 +187,40 @@ async function initMenu() {
     }
 }
 
+
+
+function showMenuState() {
+    menu.setAttribute('visible', true);
+    rooms.querySelectorAll('.room').forEach(r => r.remove());
+    rooms.setAttribute('visible', false);
+
+    document.querySelector('#avatarAnchor').setAttribute('visible', false);
+
+    // Cursor + Ring IMMER sichtbar im Menü
+    cursorBase.object3D.visible = true;
+    progressRing.object3D.visible = true;
+
+    progressRing.removeAttribute('animation__fill');
+    progressRing.setAttribute('theta-length', 0);
+}
+
 // ---------------------------
 // Raum öffnen
 // ---------------------------
+
+
+
+// Raum öffnen
 function openRoom(videoId) {
     menu.setAttribute('visible', false);
     rooms.setAttribute('visible', true);
+    document.querySelector('#avatarAnchor').setAttribute('visible', true);
+
+    // Cursor und Progress-Ring im Raum unsichtbar, außer Return-Zone wird angeschaut
     cursorBase.object3D.visible = false;
     progressRing.object3D.visible = false;
 
-    document.querySelector('#avatarAnchor').setAttribute('visible', true);
-
+    // Raum erstellen / Videosphere
     let room = document.querySelector(`#room-${videoId}`);
     if (!room) {
         room = document.createElement('a-entity');
@@ -211,7 +234,6 @@ function openRoom(videoId) {
         room.setAttribute('visible', 'true');
     }
 
-    // Video starten
     const videoEl = document.querySelector(`#video-${videoId}`);
     if (videoEl) videoEl.play().catch(err => console.warn('Video konnte nicht starten:', err));
 }
@@ -220,26 +242,13 @@ function openRoom(videoId) {
 // Rückkehr zum Menü
 // ---------------------------
 
-function showMenuState() {
-    menu.setAttribute('visible', true);
-    rooms.querySelectorAll('.room').forEach(r => r.remove());
-    rooms.setAttribute('visible', false);
-
-    // Avatar ausblenden
-    document.querySelector('#avatarAnchor').setAttribute('visible', false);
-
-    // Cursor + Progress-Ring **immer sichtbar im Menü**
+// Return-Zone
+let returnTimer = null;
+returnZone.addEventListener('mouseenter', () => {
+    // Cursor + Ring nur während Fuse sichtbar
     cursorBase.object3D.visible = true;
     progressRing.object3D.visible = true;
 
-    // Animation zurücksetzen
-    progressRing.removeAttribute('animation__fill');
-    progressRing.setAttribute('theta-length', 0);
-}
-
-// Return-Zone Event
-returnZone.addEventListener('mouseenter', () => {
-    // Nur Progress-Ring animieren
     progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: linear');
 
     returnTimer = setTimeout(() => {
@@ -248,11 +257,13 @@ returnZone.addEventListener('mouseenter', () => {
 });
 
 returnZone.addEventListener('mouseleave', () => {
-    // Animation stoppen, Timer zurücksetzen
+    cursorBase.object3D.visible = false;
+    progressRing.object3D.visible = false;
     progressRing.removeAttribute('animation__fill');
     progressRing.setAttribute('theta-length', 0);
     clearTimeout(returnTimer);
 });
+
 
 
 // let returnTimer = null;
