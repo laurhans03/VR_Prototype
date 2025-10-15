@@ -40,13 +40,13 @@
             </a-entity>
         </a-entity>
 
-
+<a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
            <!-- Menu 1 -->
         <a-entity id="menu" visible="true">
-            <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
+            
               <!-- Display a welcome message floating in front of the user -->
                 <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-            <a-text value="Welcome!" align="center" position="0 0.3 0" color="#ffffff" width="3"></a-text>
+            <a-text value="Welcome" align="center" position="0 0.3 0" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -102,6 +102,7 @@ const returnZone = document.querySelector('#returnZone');
 const camera = document.querySelector('#camera');
 
 
+
 if (camera && menu) {
   const camPos = new THREE.Vector3();
   const camDir = new THREE.Vector3();
@@ -109,8 +110,8 @@ if (camera && menu) {
   camera.object3D.getWorldPosition(camPos);
   camera.object3D.getWorldDirection(camDir);
 
-  const distance = 1.2;      // Abstand vor der Kamera
-  const verticalOffset = -0.2; // leicht unter Blickhöhe
+  const distance = 1.2;
+  const verticalOffset = -0.2;
 
   const targetX = camPos.x + camDir.x * distance;
   const targetY = camPos.y + camDir.y * distance + verticalOffset;
@@ -119,6 +120,7 @@ if (camera && menu) {
   menu.setAttribute('position', `${targetX} ${targetY} ${targetZ}`);
   menu.setAttribute('look-at', '#camera');
 }
+
 
 // -------
 // Avatar
