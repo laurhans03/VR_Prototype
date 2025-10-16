@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -86,6 +86,7 @@
 
     <script>
 
+   
 
 // ---------------------------
 // VR Menü + Video Dynamik Script
@@ -100,6 +101,8 @@ const cursorBase = document.querySelector('#cursorBase');
 const progressRing = document.querySelector('#progressRing');
 const returnZone = document.querySelector('#returnZone');
 const camera = document.querySelector('#camera');
+
+ let menuMusicEntity = null;
 
 // -------
 // Avatar
@@ -173,7 +176,6 @@ async function initMenu() {
     const data = await response.json();
     const assets = document.querySelector('a-assets');
 
-    let menuMusicEntity = null;
 
 
     // Video Assets erstellen
@@ -375,9 +377,6 @@ if (data.menuMusic) {
 
 }
 
-
-
-
 function showMenuState() {
     menu.setAttribute('visible', true);
     rooms.querySelectorAll('.room').forEach(r => r.remove());
@@ -385,18 +384,38 @@ function showMenuState() {
 
     document.querySelector('#avatarAnchor').setAttribute('visible', false);
 
-    // Cursor + Ring **immer vor Kamera sichtbar** im Menü
     cursorBase.object3D.visible = true;
     progressRing.object3D.visible = true;
-
     progressRing.removeAttribute('animation__fill');
     progressRing.setAttribute('theta-length', 0);
 
     // Menü-Musik wieder starten
     if (menuMusicEntity && menuMusicEntity.components.sound) {
-    menuMusicEntity.components.sound.playSound();
+        menuMusicEntity.components.sound.playSound();
+    }
 }
-}
+
+
+
+// function showMenuState() {
+//     menu.setAttribute('visible', true);
+//     rooms.querySelectorAll('.room').forEach(r => r.remove());
+//     rooms.setAttribute('visible', false);
+
+//     document.querySelector('#avatarAnchor').setAttribute('visible', false);
+
+//     // Cursor + Ring **immer vor Kamera sichtbar** im Menü
+//     cursorBase.object3D.visible = true;
+//     progressRing.object3D.visible = true;
+
+//     progressRing.removeAttribute('animation__fill');
+//     progressRing.setAttribute('theta-length', 0);
+
+//     // Menü-Musik wieder starten
+//     if (menuMusicEntity && menuMusicEntity.components.sound) {
+//     menuMusicEntity.components.sound.playSound();
+// }
+// }
 
 
 function openRoom(videoId) {
