@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -128,7 +128,7 @@ AFRAME.registerComponent('adjust-avatar', {
 
         // --- 1. Avatar-Position relative zur Kamera setzen ---
         const offsetY = 0; // Schoßhöhe (feinjustierbar)
-        const offsetZ = 0.3;  // minimal nach vorne, damit du leicht hinter dem Avatar sitzt
+        const offsetZ = 0;  // minimal nach vorne, damit du leicht hinter dem Avatar sitzt
 
         // Position übernehmen + Offset
         const targetX = cam.position.x;
@@ -138,11 +138,22 @@ AFRAME.registerComponent('adjust-avatar', {
         // Direkt setzen (Position wirkt okay, kein smoothing nötig hier)
         anchor.object3D.position.set(targetX, targetY, targetZ);
 
-        // --- 2. Rotation leicht verzögert folgen lassen ---
-        const smoothing = 0.15; // Je kleiner, desto „nachziehender“
-        const targetYRot = cam.rotation.y;
+        // --- 2. Rotation VR-/PC-kompatibel auslesen ---
+        let rotationY = 0;
+        const cameraRig = document.querySelector('#cameraRig');
 
-        anchor.object3D.rotation.y += (targetYRot - anchor.object3D.rotation.y) * smoothing;
+        if (cameraRig && cameraRig.object3D.rotation.y !== 0) {
+            // VR-Headsets aktualisieren oft den Rig
+            rotationY = cameraRig.object3D.rotation.y;
+        } else {
+            // PC oder keine Rig-Rotation → Kamera nutzen
+            rotationY = cam.rotation.y;
+        }
+
+        // Jetzt smooth interpolieren
+        anchor.object3D.rotation.y += (rotationY - anchor.object3D.rotation.y) * smoothing;
+
+
     }
 });
 
