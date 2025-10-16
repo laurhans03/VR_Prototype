@@ -170,8 +170,7 @@ AFRAME.registerComponent('adjust-avatar', {
 // Menü & Räume
 // ---------------------------
 
-//async function initMenu() {
-async function initMenu(testVideos = null) {
+async function initMenu() {
     const response = await fetch('videos.json');
     const data = await response.json();
     const assets = document.querySelector('a-assets');
@@ -529,8 +528,7 @@ returnZone.addEventListener('mouseleave', () => {
 scene.addEventListener('loaded', () => {
     // kleine Verzögerung, damit camera.object3D.position korrekt ist
     setTimeout(() => {
-        //initMenu();
-        initMenu(testVideosSets[0]);
+        initMenu();
         document.getElementById('loading').style.display = 'none';
     }, 100); // 100ms reicht oft aus
 });
