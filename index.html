@@ -50,7 +50,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -151,57 +151,6 @@ AFRAME.registerComponent('adjust-avatar', {
   }
 });
 
-// AFRAME.registerComponent('adjust-avatar', {
-//     tick: function () {
-//         const camera = document.querySelector('#camera');
-//         const anchor = document.querySelector('#avatarAnchor');
-//         const rooms = document.querySelector('#rooms');
-//         if (!camera || !anchor || !rooms) return;
-//         if (!rooms.getAttribute('visible')) return;
-
-//         const cam = camera.object3D;
-
-//         // --- 1. Avatar-Position relative zur Kamera setzen ---
-//         const offsetY = 0; // Schoßhöhe (feinjustierbar)
-//         const offsetZ = 0;  // minimal nach vorne, damit du leicht hinter dem Avatar sitzt
-
-//         // Position übernehmen + Offset
-//         const targetX = cam.position.x;
-//         const targetY = cam.position.y + offsetY;
-//         const targetZ = cam.position.z + offsetZ;
-
-//         // Direkt setzen (Position wirkt okay, kein smoothing nötig hier)
-//         anchor.object3D.position.set(targetX, targetY, targetZ);
-
-//         // --- 2. Rotation leicht verzögert folgen lassen ---
-//         // const smoothing = 0.15; // Je kleiner, desto „nachziehender“
-//         // const targetYRot = cam.rotation.y;
-//         const dir = new THREE.Vector3();
-//         cam.getWorldDirection(dir);
-
-//         // Berechne Zielrotation aus Blickrichtung
-//         const targetYRot = Math.atan2(dir.x, dir.z);
-
-//         // Hole aktuelle Rotation als Quaternion
-//         const currentQuat = anchor.object3D.quaternion.clone();
-//         const currentEuler = new THREE.Euler().setFromQuaternion(currentQuat, 'YXZ');
-//         const currentYRot = currentEuler.y;
-
-//         // Berechne Differenz und wrappe sie
-//         const delta = targetYRot - currentYRot;
-//         const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
-
-//         // Glätte und setze neue Rotation
-//         const newYRot = currentYRot + wrappedDelta * smoothing;
-//         anchor.object3D.rotation.set(0, newYRot, 0);
-//         anchor.object3D.rotation.y += wrappedDelta * smoothing;
-
-//         // anchor.object3D.rotation.y += (targetYRot - anchor.object3D.rotation.y) * smoothing;
-//     }
-// });
-
-
-
 
 // ---------------------------
 // Menü & Räume
@@ -237,6 +186,21 @@ async function initMenu() {
         }
 
     });
+
+    // Menü-Musik laden (falls vorhanden)
+    if (data.menuMusic) {
+    const menuAudio = document.createElement('audio');
+    menuAudio.id = 'menuMusic';
+    menuAudio.src = data.menuMusic;
+    menuAudio.setAttribute('preload', 'auto');
+    menuAudio.setAttribute('crossorigin', 'anonymous');
+    assets.appendChild(menuAudio);
+
+    const soundEntity = document.createElement('a-entity');
+    soundEntity.id = 'menuMusicEntity';
+    soundEntity.setAttribute('sound', 'src: #menuMusic; autoplay: true; loop: true; volume: 0.5');
+    menu.appendChild(soundEntity);
+    }
 
     // Kamera-Höhe für Menü-Position ermitteln
     const camY = camera.object3D.position.y || 1.3; // Fallback für PC
@@ -372,6 +336,12 @@ function openRoom(videoId) {
     menu.setAttribute('visible', false);
     rooms.setAttribute('visible', true);
     document.querySelector('#avatarAnchor').setAttribute('visible', true);
+
+    // Menü-Musik stoppen
+    const menuMusicEntity = document.querySelector('#menuMusicEntity');
+    if (menuMusicEntity && menuMusicEntity.components.sound) {
+    menuMusicEntity.components.sound.stopSound();
+    }
 
     cursorBase.object3D.visible = false;
     progressRing.object3D.visible = false;
