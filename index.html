@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -105,6 +105,17 @@ const camera = document.querySelector('#camera');
 // Avatar
 // -------
 
+// AFRAME.registerComponent('adjust-avatar', {
+//     tick: function () {
+//         const camera = document.querySelector('#camera');
+//         const anchor = document.querySelector('#avatarAnchor');
+//         const rooms = document.querySelector('#rooms');
+//         if (!camera || !anchor || !rooms) return;
+//         if (!rooms.getAttribute('visible')) return;
+//         anchor.object3D.position.copy(camera.object3D.position);
+//     }
+// });
+
 AFRAME.registerComponent('adjust-avatar', {
     tick: function () {
         const camera = document.querySelector('#camera');
@@ -112,9 +123,17 @@ AFRAME.registerComponent('adjust-avatar', {
         const rooms = document.querySelector('#rooms');
         if (!camera || !anchor || !rooms) return;
         if (!rooms.getAttribute('visible')) return;
-        anchor.object3D.position.copy(camera.object3D.position);
+
+        // 1. Avatar immer an Kamera-Position halten (auf Bodenhöhe leicht nach unten offset)
+        const camPos = camera.object3D.position;
+        anchor.object3D.position.set(camPos.x, camPos.y - 1.0, camPos.z);
+
+        // 2. Avatar immer zur Kamera rotieren → nur Y (damit er sich wie dein Körper mitdreht)
+        const camRot = camera.object3D.rotation;
+        anchor.object3D.rotation.set(0, camRot.y, 0);
     }
 });
+
 
 // ---------------------------
 // Menü & Räume
@@ -294,26 +313,6 @@ function openRoom(videoId) {
     const videoEl = document.querySelector(`#video-${videoId}`);
     if (videoEl) videoEl.play().catch(err => console.warn('Video konnte nicht starten:', err));
 
-//    // Hinweistext als Kind des Kamera-Rigs
-//     const hint = document.createElement('a-text');
-//     hint.id = 'exitHint';
-//     hint.setAttribute('value', 'Look 5 sek to the top, to get back to the menu');
-//     hint.setAttribute('align', 'center');
-//     const hintY = 0.5; // 0.5m über Kamera-Zentrum
-//     hint.setAttribute('position', `0 ${hintY} -1.5`);   
-//     // hint.setAttribute('position', '0 0 -1'); // relativ zur Kamera
-//     hint.setAttribute('color', 'yellow');
-//     hint.setAttribute('width', '2.5');
-//     hint.setAttribute('side', 'double');
-
-//     // Füge den Hinweis **als Kind der Kamera** hinzu
-//     document.querySelector('#cameraRig').appendChild(hint);
-
-//     // Automatisch nach 4 Sekunden entfernen
-//     setTimeout(() => {
-//         if (hint && hint.parentNode) hint.parentNode.removeChild(hint);
-//     }, 4000);
-
 
 // Hinweis-Container
 const hintContainer = document.createElement('a-entity');
@@ -333,7 +332,7 @@ hintContainer.appendChild(bg);
 
 // Hinweistext
 const hintText = document.createElement('a-text');
-hintText.setAttribute('value', 'Look 5 sek to the top to get back to the menu');
+hintText.setAttribute('value', 'Look 5 sek to the top, to get back to the menu');
 hintText.setAttribute('align', 'center');
 hintText.setAttribute('color', '#ffffff');
 hintText.setAttribute('width', '2.2');
