@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -215,16 +215,6 @@ async function initMenu() {
 
     }
 
-    // Menü-Musik-Entity sofort für spätere Autoplay-Trigger vorbereiten
-setTimeout(() => {
-  const menuMusicEntity = document.querySelector('#menuMusicEntity');
-  if (menuMusicEntity && menuMusicEntity.components.sound) {
-    menuMusicEntity.components.sound.playSound(); // Stumm vorbereiten
-    menuMusicEntity.components.sound.stopSound();
-  }
-}, 200);
-
-
     // Kamera-Höhe für Menü-Position ermitteln
     const camY = camera.object3D.position.y || 1.3; // Fallback für PC
     const iconsBaseY = camY; // Zentrum der Icons auf Augenhöhe
@@ -334,6 +324,33 @@ setTimeout(() => {
             });
         }
     }
+
+    // Menü-Musik initialisieren (Browser Autoplay fix)
+const menuMusicEntity = document.querySelector('#menuMusicEntity');
+if (menuMusicEntity && menuMusicEntity.components.sound) {
+    // Stumm abspielen & sofort stoppen → AudioContext aktivieren
+    menuMusicEntity.components.sound.playSound();
+    menuMusicEntity.components.sound.stopSound();
+}
+
+// Benutzerinteraktion für Autoplay
+let userInteracted = false;
+function startMenuMusic() {
+    if (userInteracted && menuMusicEntity && menuMusicEntity.components.sound) {
+        menuMusicEntity.components.sound.playSound();
+    }
+}
+const interactionHandler = () => {
+    userInteracted = true;
+    startMenuMusic();
+    window.removeEventListener('mousemove', interactionHandler);
+    window.removeEventListener('click', interactionHandler);
+    window.removeEventListener('touchstart', interactionHandler);
+};
+window.addEventListener('mousemove', interactionHandler);
+window.addEventListener('click', interactionHandler);
+window.addEventListener('touchstart', interactionHandler);
+
 }
 
 
@@ -473,60 +490,15 @@ returnZone.addEventListener('mouseleave', () => {
 // Szene geladen → Menü initialisieren
 // ---------------------------
 
-// scene.addEventListener('loaded', () => {
-//     // kleine Verzögerung, damit camera.object3D.position korrekt ist
-//     setTimeout(() => {
-//         initMenu();
-//         document.getElementById('loading').style.display = 'none';
-//     }, 100); // 100ms reicht oft aus
-// });
-
-let menuMusicReady = false;
-let userInteracted = false;
-
-function tryStartMenuMusic() {
-  if (menuMusicReady && userInteracted) {
-    const menuMusicEntity = document.querySelector('#menuMusicEntity');
-    if (menuMusicEntity && menuMusicEntity.components.sound) {
-      menuMusicEntity.components.sound.playSound();
-    }
-  }
-}
-
 scene.addEventListener('loaded', () => {
-  setTimeout(() => {
-    initMenu();
-    document.getElementById('loading').style.display = 'none';
-
-    const menuMusicEntity = document.querySelector('#menuMusicEntity');
-    if (!menuMusicEntity) return;
-
-    // Wenn Sound geladen ist → Flag setzen
+    // kleine Verzögerung, damit camera.object3D.position korrekt ist
     setTimeout(() => {
-  menuMusicReady = true; // Fallback nach 1s
-  tryStartMenuMusic();
-}, 1000);
-
-menuMusicEntity.components.sound.playSound(); // manche Browser brauchen einen initial "silent" call
-menuMusicEntity.addEventListener('loaded', () => {
-  menuMusicReady = true;
-  tryStartMenuMusic();
+        initMenu();
+        document.getElementById('loading').style.display = 'none';
+    }, 100); // 100ms reicht oft aus
 });
 
-    // Wenn Nutzer interagiert → Flag setzen
-    const interactionHandler = () => {
-      userInteracted = true;
-      tryStartMenuMusic();
-      window.removeEventListener('mousemove', interactionHandler);
-      window.removeEventListener('touchstart', interactionHandler);
-      window.removeEventListener('click', interactionHandler);
-    };
 
-    window.addEventListener('mousemove', interactionHandler);
-    window.addEventListener('touchstart', interactionHandler);
-    window.addEventListener('click', interactionHandler);
-  }, 100);
-});
 
 </script>
 
