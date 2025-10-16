@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -92,11 +92,11 @@ const testVideosSets = [
     [
         { id: 'v1', title: 'Video 1' },
         { id: 'v2', title: 'Video 2' },
-         { id: 'v2', title: 'Video 2' },
-          { id: 'v2', title: 'Video 2' },
-          { id: 'v2', title: 'Video 2' },
-           { id: 'v2', title: 'Video 2' },
-                   { id: 'v2', title: 'Video 2' }
+        { id: 'v2', title: 'Video 3' },
+        { id: 'v2', title: 'Video 4' },
+        { id: 'v2', title: 'Video 5' },
+        { id: 'v2', title: 'Video 6' },
+        { id: 'v2', title: 'Video 7' }
     ]
 ];
 
@@ -271,105 +271,204 @@ if (menuMusicEntity && menuMusicEntity.components.sound) {
     }
     welcome.setAttribute('position', `0 ${welcomeTextY} -3`);
 
-    // Layout für Icons berechnen
-    const total = data.videos.length;
-    const maxRows = 4;
-    const rowHeight = 0.8;
+//     // Layout für Icons berechnen
+//     const total = data.videos.length;
+//     const maxRows = 4;
+//     const rowHeight = 0.8;
 
-    const rows = Math.min(maxRows, Math.ceil(total / 3));
-    let itemsPerRow = [];
-    let remaining = total;
-    for (let r = 0; r < rows; r++) {
-        let count = Math.ceil(remaining / (rows - r));
-        itemsPerRow.push(count);
-        remaining -= count;
-    }
+//     const rows = Math.min(maxRows, Math.ceil(total / 3));
+//     let itemsPerRow = [];
+//     let remaining = total;
+//     for (let r = 0; r < rows; r++) {
+//         let count = Math.ceil(remaining / (rows - r));
+//         itemsPerRow.push(count);
+//         remaining -= count;
+//     }
 
-    const rowPositions = [];
-    let videoIndex = 0;
+//     const rowPositions = [];
+//     let videoIndex = 0;
 
-    for (let r = 0; r < rows; r++) {
-        const count = itemsPerRow[r];
-        const y = iconsBaseY - r * rowHeight;
-        const spacing = 1.2;
+//     for (let r = 0; r < rows; r++) {
+//         const count = itemsPerRow[r];
+//         const y = iconsBaseY - r * rowHeight;
+//         const spacing = 1.2;
 
-        let xPositions = [];
-        if (r === 0) {
-            const rowWidth = (count - 1) * spacing;
-            const offsetX = -rowWidth / 2;
-            for (let i = 0; i < count; i++) {
-                xPositions.push(offsetX + i * spacing);
+//         let xPositions = [];
+//         if (r === 0) {
+//             const rowWidth = (count - 1) * spacing;
+//             const offsetX = -rowWidth / 2;
+//             for (let i = 0; i < count; i++) {
+//                 xPositions.push(offsetX + i * spacing);
+//             }
+//         // } else {
+//         //     // Untere Reihen: Positionierung unter Lücken der oberen Reihe
+//         //     const prevRow = rowPositions[r - 1];
+//         //     const prevCount = prevRow.length;
+//         //     for (let i = 0; i < count; i++) {
+//         //         const t = (i + 0.5) / count; // mittig zwischen vorherigen Icons
+//         //         const index = Math.floor(t * (prevCount - 1));
+//         //         const nextIndex = Math.min(index + 1, prevCount - 1);
+//         //         const x = (prevRow[index] + prevRow[nextIndex]) / 2;
+//         //         xPositions.push(x);
+//         //     }
+//         // }
+//         } else {
+//     const rowWidth = (count - 1) * spacing;
+//     const offsetX = -rowWidth / 2;
+//     for (let i = 0; i < count; i++) {
+//         xPositions.push(offsetX + i * spacing);
+//     }
+// }
+
+
+//         rowPositions.push(xPositions);
+
+//         // Icons + Texte erzeugen
+//         for (let i = 0; i < count; i++) {
+//             const video = data.videos[videoIndex++];
+//             const x = xPositions[i];
+//             const z = -3;
+
+//             const entry = document.createElement('a-entity');
+//             entry.classList.add('clickable', 'menu-entry');
+//             entry.id = `to-${video.id}`;
+//             entry.setAttribute('position', `${x} ${y} ${z}`);
+//             entry.setAttribute('look-at', '[camera]');
+
+//             // Icon
+//             const icon = document.createElement('a-image');
+//             icon.setAttribute('src', 'media/videoicon.png');
+//             icon.setAttribute('width', '0.45');
+//             icon.setAttribute('height', '0.45');
+//             icon.setAttribute('material', 'color: white; opacity: 0.9');
+//             entry.appendChild(icon);
+
+//             // Text
+//             const text = document.createElement('a-text');
+//             text.setAttribute('value', video.title);
+//             text.setAttribute('align', 'center');
+//             text.setAttribute('position', '0 -0.35 0');
+//             text.setAttribute('width', '2');
+//             text.setAttribute('color', 'white');
+//             entry.appendChild(text);
+
+//             menu.appendChild(entry);
+
+//             // Fuse / Hover Logik
+//             let fuseTimeout = null;
+//             entry.addEventListener('mouseenter', () => {
+//                 icon.setAttribute('material', 'color: yellow');
+//                 progressRing.setAttribute('theta-length', 0);
+//                 progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: linear');
+//                 fuseTimeout = setTimeout(() => openRoom(video.id), 3000);
+//             });
+//             entry.addEventListener('mouseleave', () => {
+//                 icon.setAttribute('material', 'color: white');
+//                 progressRing.removeAttribute('animation__fill');
+//                 progressRing.setAttribute('theta-length', 0);
+//                 clearTimeout(fuseTimeout);
+//             });
+//         }
+//     }
+
+// Layout für Icons berechnen
+const total = data.videos.length;
+const rowHeight = 0.8;
+iconsBaseY = camera.object3D.position.y || 1.3;
+
+// Funktion, die die Anzahl der Icons pro Reihe zurückgibt
+function getItemsPerRow(total) {
+    switch (total) {
+        case 1: return [1];
+        case 2: return [2];
+        case 3: return [3];
+        case 4: return [2,2];
+        case 5: return [3,2];
+        case 6: return [3,3];
+        case 7: return [4,3];
+        case 8: return [4,4];
+        case 9: return [3,3,3];
+        case 10: return [4,3,3];
+        case 11: return [4,3,4];
+        case 12: return [4,4,4];
+        default:
+            // Für mehr als 12, max 4 pro Reihe
+            const rows = Math.ceil(total / 4);
+            let result = [];
+            let remaining = total;
+            for (let i = 0; i < rows; i++) {
+                result.push(Math.min(4, remaining));
+                remaining -= 4;
             }
-        // } else {
-        //     // Untere Reihen: Positionierung unter Lücken der oberen Reihe
-        //     const prevRow = rowPositions[r - 1];
-        //     const prevCount = prevRow.length;
-        //     for (let i = 0; i < count; i++) {
-        //         const t = (i + 0.5) / count; // mittig zwischen vorherigen Icons
-        //         const index = Math.floor(t * (prevCount - 1));
-        //         const nextIndex = Math.min(index + 1, prevCount - 1);
-        //         const x = (prevRow[index] + prevRow[nextIndex]) / 2;
-        //         xPositions.push(x);
-        //     }
-        // }
-        } else {
-    const rowWidth = (count - 1) * spacing;
-    const offsetX = -rowWidth / 2;
-    for (let i = 0; i < count; i++) {
-        xPositions.push(offsetX + i * spacing);
+            return result;
     }
 }
 
+const itemsPerRow = getItemsPerRow(total);
+const rowPositions = [];
+let videoIndex = 0;
 
-        rowPositions.push(xPositions);
+for (let r = 0; r < itemsPerRow.length; r++) {
+    const count = itemsPerRow[r];
+    const y = iconsBaseY - r * rowHeight;
+    const spacing = 1.2;
+    const rowWidth = (count - 1) * spacing;
+    const offsetX = -rowWidth / 2;
 
-        // Icons + Texte erzeugen
-        for (let i = 0; i < count; i++) {
-            const video = data.videos[videoIndex++];
-            const x = xPositions[i];
-            const z = -3;
-
-            const entry = document.createElement('a-entity');
-            entry.classList.add('clickable', 'menu-entry');
-            entry.id = `to-${video.id}`;
-            entry.setAttribute('position', `${x} ${y} ${z}`);
-            entry.setAttribute('look-at', '[camera]');
-
-            // Icon
-            const icon = document.createElement('a-image');
-            icon.setAttribute('src', 'media/videoicon.png');
-            icon.setAttribute('width', '0.45');
-            icon.setAttribute('height', '0.45');
-            icon.setAttribute('material', 'color: white; opacity: 0.9');
-            entry.appendChild(icon);
-
-            // Text
-            const text = document.createElement('a-text');
-            text.setAttribute('value', video.title);
-            text.setAttribute('align', 'center');
-            text.setAttribute('position', '0 -0.35 0');
-            text.setAttribute('width', '2');
-            text.setAttribute('color', 'white');
-            entry.appendChild(text);
-
-            menu.appendChild(entry);
-
-            // Fuse / Hover Logik
-            let fuseTimeout = null;
-            entry.addEventListener('mouseenter', () => {
-                icon.setAttribute('material', 'color: yellow');
-                progressRing.setAttribute('theta-length', 0);
-                progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: linear');
-                fuseTimeout = setTimeout(() => openRoom(video.id), 3000);
-            });
-            entry.addEventListener('mouseleave', () => {
-                icon.setAttribute('material', 'color: white');
-                progressRing.removeAttribute('animation__fill');
-                progressRing.setAttribute('theta-length', 0);
-                clearTimeout(fuseTimeout);
-            });
-        }
+    let xPositions = [];
+    for (let i = 0; i < count; i++) {
+        xPositions.push(offsetX + i * spacing);
     }
+    rowPositions.push(xPositions);
+
+    // Icons + Texte erzeugen
+    for (let i = 0; i < count; i++) {
+        const video = data.videos[videoIndex++];
+        const x = xPositions[i];
+        const z = -3;
+
+        const entry = document.createElement('a-entity');
+        entry.classList.add('clickable', 'menu-entry');
+        entry.id = `to-${video.id}`;
+        entry.setAttribute('position', `${x} ${y} ${z}`);
+        entry.setAttribute('look-at', '[camera]');
+
+        // Icon
+        const icon = document.createElement('a-image');
+        icon.setAttribute('src', 'media/videoicon.png');
+        icon.setAttribute('width', '0.45');
+        icon.setAttribute('height', '0.45');
+        icon.setAttribute('material', 'color: white; opacity: 0.9');
+        entry.appendChild(icon);
+
+        // Text
+        const text = document.createElement('a-text');
+        text.setAttribute('value', video.title);
+        text.setAttribute('align', 'center');
+        text.setAttribute('position', '0 -0.35 0');
+        text.setAttribute('width', '2');
+        text.setAttribute('color', 'white');
+        entry.appendChild(text);
+
+        menu.appendChild(entry);
+
+        // Fuse / Hover Logik
+        let fuseTimeout = null;
+        entry.addEventListener('mouseenter', () => {
+            icon.setAttribute('material', 'color: yellow');
+            progressRing.setAttribute('theta-length', 0);
+            progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: linear');
+            fuseTimeout = setTimeout(() => openRoom(video.id), 3000);
+        });
+        entry.addEventListener('mouseleave', () => {
+            icon.setAttribute('material', 'color: white');
+            progressRing.removeAttribute('animation__fill');
+            progressRing.setAttribute('theta-length', 0);
+            clearTimeout(fuseTimeout);
+        });
+    }
+}
+
 
 // Menü-Musik laden (falls vorhanden)
 if (data.menuMusic) {
