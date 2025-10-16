@@ -1,98 +1,102 @@
 <!doctype html>
-<html lang="de">
-
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VR Prototype</title>
 
-    <title>Mein VR-Prototyp</title>
-
-    <!-- Load the A-Frame framework for building WebVR scenes -->
+    <!-- A-Frame library and helper components -->
     <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
 </head>
-
 <body>
-    <!-- Display a loading message before the scene is fully initialized -->
-    <div id="loading">Loading scene...</div>
 
+<!--
+  Loading message
+  Visible while the scene and assets initialize. Hidden after initMenu runs.
+  Purpose: give feedback to the user that the scene is loading and avoid a blank screen.
+-->
+<div id="loading">Loading scene...</div>
 
-    <!-- Main VR scene container -->
-    <a-scene adjust-avatar>
-        <!-- Video assets -->
-        <a-assets>
-            <img id="menu_img" src="media/menu.png">
-            <a-asset-item id="avatarModel" src="models/man_sitting.glb"></a-asset-item>
-        </a-assets>
+<!--
+  Main VR scene
+  adjust-avatar component is attached to the <a-scene> so the avatar logic runs every frame.
+  The scene contains assets, camera rig, menu, rooms and optional hand tracking entities.
+-->
+<a-scene adjust-avatar>
 
-        <!-- Kamera: unabhängig vom Avatar, wird vom Headset gesteuert -->
-        <a-entity id="cameraRig" position="0 0 0">
-            <a-entity id="camera" camera look-controls wasd-controls="enabled: false" raycaster="objects: .clickable">
-                     
-                <a-entity id="cursorBase" cursor="fuse: true; fuseTimeout: 2000" position="0 0 -0.5"
-                        geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
-                        material="color: transparent; shader: flat">
+    <!--
+      Asset container
+      Preloads image and model elements before runtime. We add video and audio assets
+      dynamically inside initMenu to keep the HTML compact and to support different JSON inputs.
+    -->
+    <a-assets>
+        <img id="menu_img" src="media/menu.png">
+        <a-asset-item id="avatarModel" src="models/man_sitting.glb"></a-asset-item>
+    </a-assets>
+
+    <!--
+      Camera rig
+      cameraRig is the parent of the camera. The camera is controlled by the headset.
+      cursorBase is a ring geometry used as a gaze cursor. The cursor is a child of the camera
+      so it always appears in front of the user's view when visible.
+      progressRing is a separate ring used as a circular progress indicator for fuse actions.
+    -->
+    <a-entity id="cameraRig" position="0 0 0">
+        <a-entity id="camera" camera look-controls wasd-controls="enabled: false" raycaster="objects: .clickable">
+            <!-- gaze cursor base. Default: fuse cursor, hidden or shown by script -->
+            <a-entity id="cursorBase" cursor="fuse: true; fuseTimeout: 2000" position="0 0 -0.5"
+                      geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
+                      material="color: transparent; shader: flat">
             </a-entity>
 
+            <!-- progress ring is rendered at the same place as cursor and animated when needed -->
             <a-ring id="progressRing" radius-inner="0.011" radius-outer="0.02" position="0 0 -0.5" color="#FFD700"
                     theta-start="0" theta-length="0">
             </a-ring>
+        </a-entity>
+    </a-entity>
+
+    <!--
+      Menu scene (default visible)
+      Contains the menu background (videosphere) and a welcome text.
+      The welcome text and icons are positioned in initMenu based on the camera height.
+      This guarantees similar layout for headset and desktop.
+    -->
+    <a-entity id="menu" visible="true">
+        <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
+        <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
+    </a-entity>
+
+    <!--
+      Rooms container
+      Hidden by default. When a video room is opened the code creates an a-videosphere inside this
+      container. The avatar anchor and returnZone live here because they are only needed inside rooms.
+    -->
+    <a-entity id="rooms" visible="false">
+        <!-- Avatar anchor. We update its position to the camera position when a room is active -->
+        <a-entity id="avatarAnchor">
+            <a-entity id="avatarWrapper" hide-avatar-behind rotation="0 -45 0">
+                <a-entity id="avatar" gltf-model="#avatarModel" position="-2 -1.3 0.27" rotation="0 0 0" scale="1 1 1"></a-entity>
             </a-entity>
         </a-entity>
 
+        <!-- Invisible plane used for returning to the menu by gaze (fuse) -->
+        <a-plane id="returnZone" position="0 3 0" rotation="90 0 0" width="2" height="2" material="color: #00ff00; opacity: 0; transparent: true" class="clickable" visible="false"></a-plane>
+    </a-entity>
 
-           <!-- Menu 1 -->
-        <a-entity id="menu" visible="true">
-            <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <!-- Display a welcome message floating in front of the user -->
-            <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
-        </a-entity> 
+    <!-- Optional hand tracking entities for Meta Quest. They do not affect the menu logic -->
+    <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
+    <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
 
-        <a-entity id="rooms" visible="false">
-            <!-- Avatar sichtbar nur hier -->
-           <a-entity id="avatarAnchor">
-                <a-entity id="avatarWrapper" hide-avatar-behind rotation="0 -45 0">
-                    <a-entity id="avatar" gltf-model="#avatarModel"
-                        position="-2 -1.3 0.27"
-                        rotation="0 0 0"
-                        scale="1 1 1">
-                    </a-entity>
-                </a-entity>
-            </a-entity>
+</a-scene>
 
-            <a-plane id="returnZone"
-                position="0 3 0"
-                rotation="90 0 0"
-                width="2"
-                height="2"
-                material="color: #00ff00; opacity: 0; transparent: true"
-                class="clickable"
-                visible="false">
-            </a-plane>
+<script>
 
-            <!-- Räume werden dynamisch erzeugt -->
-        </a-entity>
-
-
-        <!-- Enable hand tracking for left and right hands -->
-        <a-entity id="leftHand" hand-tracking-controls="hand: left"></a-entity>
-        <a-entity id="rightHand" hand-tracking-controls="hand: right"></a-entity>
-    </a-scene>
-
-
-
-
-
-    <script>
-
-
-// ---------------------------
-// VR Menü + Video Dynamik Script
-// ---------------------------
-
-
-// Global references
+// ==========================================================
+// Global references and shared state
+// These variables are used across functions and event handlers.
+// ==========================================================
 const scene = document.querySelector('a-scene');
 const menu = document.querySelector('#menu');
 const rooms = document.querySelector('#rooms');
@@ -101,140 +105,162 @@ const progressRing = document.querySelector('#progressRing');
 const returnZone = document.querySelector('#returnZone');
 const camera = document.querySelector('#camera');
 
- let menuMusicEntity = null;
+// menuMusicEntity holds the a-entity that plays menu music through A-Frame's sound component.
+// It is declared here so showMenuState and other functions can access it.
+let menuMusicEntity = null;
 
-// -------
-// Avatar
-// -------
 
+// ==========================================================
+// Avatar behaviour component: adjust-avatar
+// Purpose
+//  Keeps a sitting avatar aligned with the user's head position while inside a room.
+//  It updates the avatar anchor position every frame and rotates the avatar slowly to follow
+//  the user's looking direction. The rotation is smoothed to avoid sudden jumps. This gives the
+//  impression that the user's lap and upper body remain under the headset but the avatar can
+//  gently turn when the user moves their head.
+//  The component only runs while rooms container is visible so it does not affect the menu.
+// ==========================================================
 AFRAME.registerComponent('adjust-avatar', {
-  init: function () {
-    this.lastYRot = 0;
-    this.frameCount = 0;
-    this.isVR = false;
+    init: function () {
+        this.lastYRot = 0;        // last applied yaw to allow smoothing
+        this.frameCount = 0;      // frame counter to control update frequency in VR
+        this.isVR = false;        // tracks whether we are in VR mode
 
-    // Prüfe VR-Modus nach Szenenstart
-    this.el.sceneEl.addEventListener('enter-vr', () => {
-      this.isVR = true;
-    });
-    this.el.sceneEl.addEventListener('exit-vr', () => {
-      this.isVR = false;
-    });
-  },
+        // Listen for enter/exit VR so behaviour can change between headset and desktop
+        this.el.sceneEl.addEventListener('enter-vr', () => { this.isVR = true; });
+        this.el.sceneEl.addEventListener('exit-vr', () => { this.isVR = false; });
+    },
 
-  tick: function () {
-    const camera = document.querySelector('#camera');
-    const anchor = document.querySelector('#avatarAnchor');
-    const rooms = document.querySelector('#rooms');
-    if (!camera || !anchor || !rooms) return;
-    if (!rooms.getAttribute('visible')) return;
+    tick: function () {
+        // Do not run when required elements are missing or when rooms are not visible
+        const cameraEl = document.querySelector('#camera');
+        const anchor = document.querySelector('#avatarAnchor');
+        if (!cameraEl || !anchor || !rooms.getAttribute('visible')) return;
 
-    const cam = camera.object3D;
-    const anchorObj = anchor.object3D;
-    if (!cam || !anchorObj) return;
+        const cam = cameraEl.object3D;
+        const anchorObj = anchor.object3D;
+        if (!cam || !anchorObj) return;
 
-    // --- Position setzen ---
-    anchorObj.position.set(cam.position.x, cam.position.y, cam.position.z);
+        // Copy camera position so the avatar anchor sits where the user's head is.
+        anchorObj.position.set(cam.position.x, cam.position.y, cam.position.z);
 
-    // --- Blickrichtung berechnen ---
-    const dir = new THREE.Vector3();
-    cam.getWorldDirection(dir);
-    const targetYRot = Math.atan2(dir.x, dir.z);
+        // Calculate camera forward direction to derive a yaw rotation
+        const dir = new THREE.Vector3();
+        cam.getWorldDirection(dir);
+        const targetYRot = Math.atan2(dir.x, dir.z);
 
-    // --- Verhalten je nach Gerät ---
-    if (this.isVR) {
-      // Sanftes Nachziehen in VR
-      this.frameCount++;
-      const updateInterval = 10;
-      if (this.frameCount % updateInterval === 0) {
-        const delta = targetYRot - this.lastYRot;
-        const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
-        const threshold = 0.1;
-        if (Math.abs(wrappedDelta) > threshold) {
-          this.lastYRot += wrappedDelta * 0.3;
-          anchorObj.rotation.set(0, this.lastYRot, 0);
+        // Smooth rotation behaviour
+        if (this.isVR) {
+            // In VR do updates less often and apply a small fraction of the delta
+            this.frameCount++;
+            const updateInterval = 10; // run smoothing every 10 frames
+            if (this.frameCount % updateInterval === 0) {
+                const delta = targetYRot - this.lastYRot;
+                // wrap delta to -PI..PI
+                const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
+                const threshold = 0.1; // small threshold to ignore micro movements
+                if (Math.abs(wrappedDelta) > threshold) {
+                    // apply 30 percent of the delta so rotation lags slightly behind the head
+                    this.lastYRot += wrappedDelta * 0.3;
+                    anchorObj.rotation.set(0, this.lastYRot, 0);
+                }
+            }
+        } else {
+            // On desktop follow the camera more responsively but still smooth the motion
+            const smoothing = 0.3;
+            const delta = targetYRot - anchorObj.rotation.y;
+            const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
+            anchorObj.rotation.y += wrappedDelta * smoothing;
         }
-      }
-    } else {
-      // Direktes Folgen auf PC
-      const smoothing = 0.3;
-      const delta = targetYRot - anchorObj.rotation.y;
-      const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
-      anchorObj.rotation.y += wrappedDelta * smoothing;
     }
-  }
 });
 
 
-// ---------------------------
-// Menü & Räume
-// ---------------------------
-
+// ==========================================================
+// initMenu
+// Purpose
+//  Loads videos.json, creates video assets and builds the menu layout.
+//  Positions welcome text and creates clickable icons for each video.
+//  The layout is camera-aware: icon vertical center is based on the camera height so the menu
+//  appears at a comfortable height both in headset and on desktop.
+// Details
+//  - Video elements are appended to <a-assets> so A-Frame can use them as sources.
+//  - The function builds a flexible row layout using getItemsPerRow to decide how many
+//    icons to place on each row. The function supports 1-12 custom presets and a default
+//    that distributes icons evenly into up to 4 rows. Rows may contain many items if needed.
+//  - The welcome text is set once and later repositioned when the camera height is known.
+// ==========================================================
 async function initMenu() {
     const response = await fetch('videos.json');
     const data = await response.json();
     const assets = document.querySelector('a-assets');
 
-
-
-    // Video Assets erstellen
+    // Create HTML video and optional audio assets for each entry in the JSON file
     data.videos.forEach(video => {
         const videoEl = document.createElement('video');
         videoEl.id = `video-${video.id}`;
         videoEl.src = video.src;
+        // We keep the video muted and autoplay to prepare the media element.
         videoEl.autoplay = true;
         videoEl.loop = true;
         videoEl.muted = true;
         videoEl.playsInline = true;
-        videoEl.setAttribute('playsinline', 'true');
-        videoEl.setAttribute('webkit-playsinline', 'true');
         videoEl.crossOrigin = 'anonymous';
         assets.appendChild(videoEl);
 
-        // Musik-Asset (falls vorhanden)
         if (video.music) {
+            // If the video entry contains a music file create an audio asset too
             const audioEl = document.createElement('audio');
             audioEl.id = `music-${video.id}`;
             audioEl.src = video.music;
             audioEl.setAttribute('preload', 'auto');
-            audioEl.setAttribute('crossorigin', 'anonymous');
+            audioEl.crossOrigin = 'anonymous';
             assets.appendChild(audioEl);
         }
-
     });
 
-    // Menü-Musik laden (falls vorhanden)
+    // If menuMusic is provided in the JSON, create a sound entity for it.
     if (data.menuMusic) {
-    const menuAudio = document.createElement('audio');
-    menuAudio.id = 'menuMusic';
-    menuAudio.src = data.menuMusic;
-    menuAudio.setAttribute('preload', 'auto');
-    menuAudio.setAttribute('crossorigin', 'anonymous');
-    assets.appendChild(menuAudio);
+        const menuAudio = document.createElement('audio');
+        menuAudio.id = 'menuMusic';
+        menuAudio.src = data.menuMusic;
+        menuAudio.setAttribute('preload', 'auto');
+        menuAudio.crossOrigin = 'anonymous';
+        assets.appendChild(menuAudio);
 
-    const soundEntity = document.createElement('a-entity');
-    soundEntity.id = 'menuMusicEntity';
-    soundEntity.setAttribute('sound', 'src: #menuMusic; loop: true; volume: 0.5'); // autoplay entfernt
-    menu.appendChild(soundEntity);
+        // Create the A-Frame entity that wraps the sound component
+        menuMusicEntity = document.createElement('a-entity');
+        menuMusicEntity.id = 'menuMusicEntity';
+        menuMusicEntity.setAttribute('sound', 'src: #menuMusic; loop: true; volume: 0.5');
+        menu.appendChild(menuMusicEntity);
 
-    // Menü-Musik-Entity sofort für erstes Abspielen vorbereiten
-const menuMusicEntity = document.querySelector('#menuMusicEntity');
-if (menuMusicEntity && menuMusicEntity.components.sound) {
-    // Verzögerung, damit die Sound-Komponente vollständig geladen ist
-    setTimeout(() => {
-        menuMusicEntity.components.sound.playSound(); // hörbar starten
-    }, 100); 
-}
+        // Activate audio context silently once sound is loaded so browsers allow future playback
+        menuMusicEntity.addEventListener('sound-loaded', () => {
+            // Play then stop immediately to initialise audio context without audible output
+            menuMusicEntity.components.sound.playSound();
+            menuMusicEntity.components.sound.stopSound();
+        });
 
-
+        // Wait for a user interaction to actually start audible playback due to browser autoplay rules
+        const startMenuMusic = () => {
+            if (menuMusicEntity && menuMusicEntity.components.sound) {
+                menuMusicEntity.components.sound.playSound();
+            }
+            window.removeEventListener('click', startMenuMusic);
+            window.removeEventListener('touchstart', startMenuMusic);
+            window.removeEventListener('mousemove', startMenuMusic);
+        };
+        window.addEventListener('click', startMenuMusic);
+        window.addEventListener('touchstart', startMenuMusic);
+        window.addEventListener('mousemove', startMenuMusic);
     }
 
-    // Kamera-Höhe für Menü-Position ermitteln
-    const camY = (camera.object3D.position.y  || 1.0) + 0.5 ; // Fallback für PC
-    const iconsBaseY = camY; // Zentrum der Icons auf Augenhöhe
-    const welcomeTextY = iconsBaseY + 0.6; // Welcome Text leicht darüber
+    // Determine a comfortable vertical base for the icons based on camera height
+    // We add a small offset so the icons sit slightly below the eyes when seated
+    const iconsBaseY = (camera.object3D.position.y || 1.0) + 0.5; // center of icon grid
+    const welcomeTextY = iconsBaseY + 0.6; // welcome text appears above the icons
 
-    // Welcome Text
+    // Ensure the welcome text element exists and position it
     let welcome = document.querySelector('#welcomeText');
     if (!welcome) {
         welcome = document.createElement('a-text');
@@ -247,185 +273,168 @@ if (menuMusicEntity && menuMusicEntity.components.sound) {
     }
     welcome.setAttribute('position', `0 ${welcomeTextY} -3`);
 
+    // Layout calculation
+    const total = data.videos.length;
+    const rowHeight = 0.8; // vertical spacing between rows
 
-
-// Layout für Icons berechnen
-const total = data.videos.length;
-const rowHeight = 0.8;
-
-
-// Funktion, die die Anzahl der Icons pro Reihe zurückgibt
-function getItemsPerRow(total) {
-    switch (total) {
-        case 1: return [1];
-        case 2: return [2];
-        case 3: return [3];
-        case 4: return [2,2];
-        case 5: return [3,2];
-        case 6: return [3,3];
-        case 7: return [4,3];
-        case 8: return [4,4];
-        case 9: return [3,3,3];
-        case 10: return [4,3,3];
-        case 11: return [4,3,4];
-        case 12: return [4,4,4];
-        default:
-    const maxRows = 4;
-    const rows = Math.min(maxRows, total); // Maximal 4 Reihen
-    const itemsPerRow = [];
-    const baseCount = Math.floor(total / rows); // Gleichmäßig verteilen
-    let remainder = total % rows;
-
-    for (let i = 0; i < rows; i++) {
-        // Die ersten Reihen bekommen je ein Icon mehr, falls remainder > 0
-        const count = baseCount + (remainder > 0 ? 1 : 0);
-        itemsPerRow.push(count);
-        if (remainder > 0) remainder--;
-    }
-
-    return itemsPerRow;
-
-    }
-}
-
-const itemsPerRow = getItemsPerRow(total);
-const rowPositions = [];
-let videoIndex = 0;
-
-for (let r = 0; r < itemsPerRow.length; r++) {
-    const count = itemsPerRow[r];
-    const y = iconsBaseY - r * rowHeight;
-    const spacing = 1.2;
-    const rowWidth = (count - 1) * spacing;
-    const offsetX = -rowWidth / 2;
-
-    let xPositions = [];
-    for (let i = 0; i < count; i++) {
-        xPositions.push(offsetX + i * spacing);
-    }
-    rowPositions.push(xPositions);
-
-    // Icons + Texte erzeugen
-    for (let i = 0; i < count; i++) {
-        const video = data.videos[videoIndex++];
-        const x = xPositions[i];
-        const z = -3;
-
-        const entry = document.createElement('a-entity');
-        entry.classList.add('clickable', 'menu-entry');
-        entry.id = `to-${video.id}`;
-        entry.setAttribute('position', `${x} ${y} ${z}`);
-        entry.setAttribute('look-at', '[camera]');
-
-        // Icon
-        const icon = document.createElement('a-image');
-        icon.setAttribute('src', 'media/videoicon.png');
-        icon.setAttribute('width', '0.45');
-        icon.setAttribute('height', '0.45');
-        icon.setAttribute('material', 'color: white; opacity: 0.9');
-        entry.appendChild(icon);
-
-        // Text
-        const text = document.createElement('a-text');
-        text.setAttribute('value', video.title);
-        text.setAttribute('align', 'center');
-        text.setAttribute('position', '0 -0.35 0');
-        text.setAttribute('width', '2');
-        text.setAttribute('color', 'white');
-        entry.appendChild(text);
-
-        menu.appendChild(entry);
-
-        // Fuse / Hover Logik
-        let fuseTimeout = null;
-        entry.addEventListener('mouseenter', () => {
-            icon.setAttribute('material', 'color: yellow');
-            progressRing.setAttribute('theta-length', 0);
-            progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: linear');
-            fuseTimeout = setTimeout(() => openRoom(video.id), 3000);
-        });
-        entry.addEventListener('mouseleave', () => {
-            icon.setAttribute('material', 'color: white');
-            progressRing.removeAttribute('animation__fill');
-            progressRing.setAttribute('theta-length', 0);
-            clearTimeout(fuseTimeout);
-        });
-    }
-}
-
-
-// Menü-Musik laden (falls vorhanden)
-if (data.menuMusic) {
-    const menuAudio = document.createElement('audio');
-    menuAudio.id = 'menuMusic';
-    menuAudio.src = data.menuMusic;
-    menuAudio.setAttribute('preload', 'auto');
-    menuAudio.setAttribute('crossorigin', 'anonymous');
-    assets.appendChild(menuAudio);
-
-    // Musik-Entity erstellen
-    menuMusicEntity = document.createElement('a-entity');
-    menuMusicEntity.id = 'menuMusicEntity';
-    menuMusicEntity.setAttribute('sound', 'src: #menuMusic; loop: true; volume: 0.5');
-    menu.appendChild(menuMusicEntity);
-
-    // AudioContext aktivieren, sobald Sound-Komponente geladen ist
-    menuMusicEntity.addEventListener('sound-loaded', () => {
-        menuMusicEntity.components.sound.playSound();
-        menuMusicEntity.components.sound.stopSound();
-    });
-
-    // User-Interaktion zum ersten hörbaren Start
-    const startMenuMusic = () => {
-        if (menuMusicEntity && menuMusicEntity.components.sound) {
-            menuMusicEntity.components.sound.playSound();
+    // getItemsPerRow returns an array where each element is the number of icons on that row
+    // The function is tuned to provide the custom presets you requested for 1..12 icons
+    // and to produce a reasonable distribution for larger numbers while keeping a maximum of 4 rows.
+    function getItemsPerRow(total) {
+        switch (total) {
+            case 1: return [1];
+            case 2: return [2];
+            case 3: return [3];
+            case 4: return [2,2];
+            case 5: return [3,2];
+            case 6: return [3,3];
+            case 7: return [4,3];
+            case 8: return [4,4];
+            case 9: return [3,3,3];
+            case 10: return [4,3,3];
+            case 11: return [4,3,4];
+            case 12: return [4,4,4];
+            default:
+                // For totals above 12 distribute items into up to 4 rows.
+                // Rows can contain many items. We compute a balanced distribution where
+                // the counts differ by at most one between rows.
+                const maxRows = 4;
+                const rows = Math.min(maxRows, total);
+                const itemsPerRow = [];
+                const baseCount = Math.floor(total / rows);
+                let remainder = total % rows;
+                for (let i = 0; i < rows; i++) {
+                    const count = baseCount + (remainder > 0 ? 1 : 0);
+                    itemsPerRow.push(count);
+                    if (remainder > 0) remainder--;
+                }
+                return itemsPerRow;
         }
-        window.removeEventListener('click', startMenuMusic);
-        window.removeEventListener('touchstart', startMenuMusic);
-        window.removeEventListener('mousemove', startMenuMusic);
-    };
-    window.addEventListener('click', startMenuMusic);
-    window.addEventListener('touchstart', startMenuMusic);
-    window.addEventListener('mousemove', startMenuMusic);
+    }
+
+    const itemsPerRow = getItemsPerRow(total);
+
+    // Create rows and icons
+    const rowPositions = [];
+    let videoIndex = 0;
+
+    for (let r = 0; r < itemsPerRow.length; r++) {
+        const count = itemsPerRow[r];
+        const y = iconsBaseY - r * rowHeight; // vertical position for this row
+        const spacing = 1.2; // horizontal spacing between icons
+
+        // compute centered x positions for this row
+        const rowWidth = (count - 1) * spacing;
+        const offsetX = -rowWidth / 2;
+        const xPositions = [];
+
+        for (let i = 0; i < count; i++) {
+            xPositions.push(offsetX + i * spacing);
+        }
+        rowPositions.push(xPositions);
+
+        // create entity for each icon and a small label below it
+        for (let i = 0; i < count; i++) {
+            const video = data.videos[videoIndex++];
+            const x = xPositions[i];
+            const z = -3; // distance from camera
+
+            const entry = document.createElement('a-entity');
+            entry.classList.add('clickable', 'menu-entry');
+            entry.id = `to-${video.id}`;
+            entry.setAttribute('position', `${x} ${y} ${z}`);
+            entry.setAttribute('look-at', '[camera]'); // ensure icons face the camera
+
+            const icon = document.createElement('a-image');
+            icon.setAttribute('src', 'media/videoicon.png');
+            icon.setAttribute('width', '0.45');
+            icon.setAttribute('height', '0.45');
+            icon.setAttribute('material', 'color: white; opacity: 0.9');
+            entry.appendChild(icon);
+
+            const text = document.createElement('a-text');
+            text.setAttribute('value', video.title);
+            text.setAttribute('align', 'center');
+            text.setAttribute('position', '0 -0.35 0');
+            text.setAttribute('width', '2');
+            text.setAttribute('color', 'white');
+            entry.appendChild(text);
+
+            menu.appendChild(entry);
+
+            // Fuse hover logic
+            let fuseTimeout = null;
+            entry.addEventListener('mouseenter', () => {
+                // Highlight the icon and start the circular progress animation for 3 seconds
+                icon.setAttribute('material', 'color: yellow');
+                progressRing.setAttribute('theta-length', 0);
+                progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: linear');
+                fuseTimeout = setTimeout(() => openRoom(video.id), 3000);
+            });
+            entry.addEventListener('mouseleave', () => {
+                // Cancel fuse and reset visuals
+                icon.setAttribute('material', 'color: white');
+                progressRing.removeAttribute('animation__fill');
+                progressRing.setAttribute('theta-length', 0);
+                clearTimeout(fuseTimeout);
+            });
+        }
+    }
 }
 
-}
 
+// ==========================================================
+// showMenuState
+// Purpose
+//  Reset the scene to the menu state. Remove room entities, hide the avatar
+//  and ensure the cursor and progress ring are visible in the menu.
+// Details
+//  If menu music is available the function attempts to restart playback.
+// ==========================================================
 function showMenuState() {
     menu.setAttribute('visible', true);
+    // Remove existing rooms to free memory and reset state
     rooms.querySelectorAll('.room').forEach(r => r.remove());
     rooms.setAttribute('visible', false);
-
     document.querySelector('#avatarAnchor').setAttribute('visible', false);
 
+    // Make the gaze cursor and ring visible while the user is in the menu
     cursorBase.object3D.visible = true;
     progressRing.object3D.visible = true;
     progressRing.removeAttribute('animation__fill');
     progressRing.setAttribute('theta-length', 0);
 
-    // Menü-Musik wieder starten
+    // Restart menu music if entity exists
     if (menuMusicEntity && menuMusicEntity.components.sound) {
         menuMusicEntity.components.sound.playSound();
     }
 }
 
 
-
-
+// ==========================================================
+// openRoom
+// Purpose
+//  Show a videosphere for the selected video and prepare room state.
+//  This function hides the menu, shows the avatar anchor and stops menu music.
+// Details
+//  The function creates a room entity with a videosphere and optional sound entity for
+//  background music. The actual HTML video element is played if ready.
+// ==========================================================
 function openRoom(videoId) {
     menu.setAttribute('visible', false);
     rooms.setAttribute('visible', true);
     document.querySelector('#avatarAnchor').setAttribute('visible', true);
 
-    // Menü-Musik stoppen
-    const menuMusicEntity = document.querySelector('#menuMusicEntity');
+    // Stop menu music safely
     if (menuMusicEntity && menuMusicEntity.components.sound) {
-    menuMusicEntity.components.sound.stopSound();
+        menuMusicEntity.components.sound.stopSound();
     }
 
+    // Hide gaze cursor and progress ring inside the room
     cursorBase.object3D.visible = false;
     progressRing.object3D.visible = false;
 
+    // Create room only once and reuse later
     let room = document.querySelector(`#room-${videoId}`);
     if (!room) {
         room = document.createElement('a-entity');
@@ -435,114 +444,87 @@ function openRoom(videoId) {
         sphere.setAttribute('src', `#video-${videoId}`);
         room.appendChild(sphere);
 
-        // Musik einfügen (falls vorhanden)
+        // If an audio asset for the room exists create a sound entity that auto plays
         const musicEl = document.querySelector(`#music-${videoId}`);
         if (musicEl) {
-        const soundEntity = document.createElement('a-entity');
-        soundEntity.setAttribute('sound', `src: #music-${videoId}; autoplay: true; loop: true; volume: 0.5`);
-        room.appendChild(soundEntity);
+            const soundEntity = document.createElement('a-entity');
+            soundEntity.setAttribute('sound', `src: #music-${videoId}; autoplay: true; loop: true; volume: 0.5`);
+            room.appendChild(soundEntity);
         }
-
-        
         rooms.appendChild(room);
     } else {
         room.setAttribute('visible', 'true');
     }
 
+    // Play the underlying HTML video element if available
     const videoEl = document.querySelector(`#video-${videoId}`);
-    if (videoEl) videoEl.play().catch(err => console.warn('Video konnte nicht starten:', err));
+    if (videoEl) videoEl.play().catch(err => console.warn('Video could not start', err));
 
+    // Show a short floating hint that informs the user how to return
+    const hintContainer = document.createElement('a-entity');
+    hintContainer.setAttribute('id', 'exitHint');
+    hintContainer.setAttribute('position', `0 0.5 -1.5`);
+    hintContainer.setAttribute('look-at', '#camera');
 
-// Hinweis-Container
-const hintContainer = document.createElement('a-entity');
-hintContainer.setAttribute('id', 'exitHint');
-hintContainer.setAttribute('position', `0 0.5 -1.5`);
-hintContainer.setAttribute('look-at', '#camera');
+    const bg = document.createElement('a-plane');
+    bg.setAttribute('width', '2.4');
+    bg.setAttribute('height', '0.35');
+    bg.setAttribute('color', '#222222');
+    bg.setAttribute('opacity', '0.6');
+    bg.setAttribute('material', 'shader: flat');
+    bg.setAttribute('position', '0 0 0');
+    hintContainer.appendChild(bg);
 
-// Hintergrundfläche
-const bg = document.createElement('a-plane');
-bg.setAttribute('width', '2.4');
-bg.setAttribute('height', '0.35');
-bg.setAttribute('color', '#222222');
-bg.setAttribute('opacity', '0.6');
-bg.setAttribute('material', 'shader: flat');
-bg.setAttribute('position', '0 0 0');
-hintContainer.appendChild(bg);
+    const hintText = document.createElement('a-text');
+    hintText.setAttribute('value', 'Look 5 seconds to the top to return to menu');
+    hintText.setAttribute('align', 'center');
+    hintText.setAttribute('color', '#ffffff');
+    hintText.setAttribute('width', '2.2');
+    hintText.setAttribute('position', '0 0 0.01');
+    hintText.setAttribute('baseline', 'center');
+    hintText.setAttribute('side', 'double');
+    hintContainer.appendChild(hintText);
 
-// Hinweistext
-const hintText = document.createElement('a-text');
-hintText.setAttribute('value', 'Look 5 sek to the top, to get back to the menu');
-hintText.setAttribute('align', 'center');
-hintText.setAttribute('color', '#ffffff');
-hintText.setAttribute('width', '2.2');
-hintText.setAttribute('position', '0 0 0.01'); // leicht vor dem Hintergrund
-hintText.setAttribute('baseline', 'center');
-hintText.setAttribute('side', 'double');
-hintContainer.appendChild(hintText);
+    document.querySelector('#cameraRig').appendChild(hintContainer);
 
-// Füge den Hinweis als Kind des Kamera-Rigs hinzu
-document.querySelector('#cameraRig').appendChild(hintContainer);
-
-// Automatisch nach 4 Sekunden entfernen
-setTimeout(() => {
-  if (hintContainer && hintContainer.parentNode) {
-    hintContainer.parentNode.removeChild(hintContainer);
-  }
-}, 4000);
-
-    
+    // Remove the hint after 4 seconds so it does not stay forever
+    setTimeout(() => {
+        if (hintContainer && hintContainer.parentNode) {
+            hintContainer.parentNode.removeChild(hintContainer);
+        }
+    }, 4000);
 }
 
 
-// // Return-Zone Fuse
-// let returnTimer = null;
-// returnZone.addEventListener('mouseenter', () => {
-//     // Cursor & Ring nur temporär sichtbar während Fuse
-//     cursorBase.object3D.visible = true;
-//     progressRing.object3D.visible = true;
-//     progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: linear');
-
-//     returnTimer = setTimeout(() => {
-//         showMenuState(); // Menü zurück → Cursor dauerhaft sichtbar
-//     }, 5000);
-// });
-
-// returnZone.addEventListener('mouseleave', () => {
-//     // Nach Fuse abbrechen: Cursor + Ring wieder unsichtbar im Raum
-//     progressRing.removeAttribute('animation__fill');
-//     progressRing.setAttribute('theta-length', 0);
-//     if (!menu.getAttribute('visible')) {
-//         cursorBase.object3D.visible = false;
-//         progressRing.object3D.visible = false;
-//     }
-//     clearTimeout(returnTimer);
-// });
-
-// Return-Zone Fuse mit verzögert sichtbarem Fortschrittsring
+// ==========================================================
+// Return zone fuse logic
+// Purpose
+//  The user looks into the invisible returnZone to go back to the menu.
+//  Behavior:
+//   - As soon as the user enters the zone the 5 second return timer starts.
+//   - The cursor and progress ring remain hidden for the first 2 seconds.
+//   - At t = 2s the cursor and visible progress animation appear and run for the remaining 3s.
+//   - If the user looks away before 5s both timers are cancelled and visuals are reset.
+// ==========================================================
 let returnTimer = null;
 let progressDelayTimer = null;
 
 returnZone.addEventListener('mouseenter', () => {
-    // 5 Sekunden bis Menü-Wechsel
-    returnTimer = setTimeout(() => {
-        showMenuState(); // Menü zurück
-    }, 5000);
+    // Start the 5 second countdown to return
+    returnTimer = setTimeout(() => { showMenuState(); }, 5000);
 
-    // Fortschrittsring + Cursor ERST nach 2 Sekunden sichtbar machen
+    // After 2 seconds show cursor and progress ring and start the 3s animation
     progressDelayTimer = setTimeout(() => {
         cursorBase.object3D.visible = true;
         progressRing.object3D.visible = true;
-
-        // Ladeanimation für 3 Sekunden (5000ms - 2000ms Verzögerung)
         progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: linear');
     }, 2000);
 });
 
 returnZone.addEventListener('mouseleave', () => {
-    // Bei Verlassen: ALLES sofort abbrechen/resetten
+    // Cancel timers and reset visuals
     clearTimeout(returnTimer);
     clearTimeout(progressDelayTimer);
-
     progressRing.removeAttribute('animation__fill');
     progressRing.setAttribute('theta-length', 0);
 
@@ -553,25 +535,19 @@ returnZone.addEventListener('mouseleave', () => {
 });
 
 
-
-
-
-// ---------------------------
-// Szene geladen → Menü initialisieren
-// ---------------------------
-
+// ==========================================================
+// Scene loaded event
+// Purpose
+//  Initialize the menu after the A-Frame scene is ready.
+//  Small timeout helps ensuring camera.object3D is available and correct when we read its position.
+// ==========================================================
 scene.addEventListener('loaded', () => {
-    // kleine Verzögerung, damit camera.object3D.position korrekt ist
     setTimeout(() => {
         initMenu();
         document.getElementById('loading').style.display = 'none';
-    }, 100); // 100ms reicht oft aus
+    }, 100);
 });
 
-
-
 </script>
-
-
-    </body>
+</body>
 </html>
