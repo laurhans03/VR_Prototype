@@ -50,7 +50,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -110,6 +110,10 @@ const camera = document.querySelector('#camera');
 // -------
 
 AFRAME.registerComponent('adjust-avatar', {
+  schema: {},
+  init: function () {
+    this.lastTargetYRot = 0;
+  },
   tick: function () {
     const camera = document.querySelector('#camera');
     const anchor = document.querySelector('#avatarAnchor');
@@ -120,34 +124,29 @@ AFRAME.registerComponent('adjust-avatar', {
     const cam = camera.object3D;
     const anchorObj = anchor.object3D;
 
-    // Sicherheitsprüfung: Objekt existiert und ist nicht null
-    if (!cam || !cam.position || !anchorObj || !anchorObj.position || !anchorObj.rotation) return;
+    if (!cam || !anchorObj) return;
 
-    // --- 1. Avatar-Position setzen ---
-    const offsetY = 0;
-    const offsetZ = 0;
-    anchorObj.position.set(cam.position.x, cam.position.y + offsetY, cam.position.z + offsetZ);
+    // --- Position setzen ---
+    anchorObj.position.set(cam.position.x, cam.position.y, cam.position.z);
 
-    // --- 2. Rotation robust berechnen ---
+    // --- Blickrichtung berechnen ---
     const dir = new THREE.Vector3();
     cam.getWorldDirection(dir);
+    const rawTargetYRot = Math.atan2(dir.x, dir.z);
 
-    // Berechne Zielrotation
-    const targetYRot = Math.atan2(dir.x, dir.z);
-
-    // Hole aktuelle Rotation
-    const currentYRot = anchorObj.rotation.y;
-
-    // Berechne Differenz und wrappe sie
-    const delta = targetYRot - currentYRot;
+    // --- Nur bei größeren Änderungen aktualisieren ---
+    const threshold = 0.05; // ~3°
+    const delta = rawTargetYRot - this.lastTargetYRot;
     const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
 
-    // Glättung anwenden
-    const smoothing = 0.15;
-    anchorObj.rotation.y = currentYRot + wrappedDelta * smoothing;
+    if (Math.abs(wrappedDelta) > threshold) {
+      this.lastTargetYRot += wrappedDelta * 0.1; // langsame Annäherung
+    }
+
+    // --- Rotation setzen ---
+    anchorObj.rotation.set(0, this.lastTargetYRot, 0);
   }
 });
-
 
 // AFRAME.registerComponent('adjust-avatar', {
 //     tick: function () {
