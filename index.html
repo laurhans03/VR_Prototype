@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -405,15 +405,21 @@ function getItemsPerRow(total) {
         case 11: return [4,3,4];
         case 12: return [4,4,4];
         default:
-            // Für mehr als 12, max 4 pro Reihe
-            const rows = Math.ceil(total / 4);
-            let result = [];
-            let remaining = total;
-            for (let i = 0; i < rows; i++) {
-                result.push(Math.min(4, remaining));
-                remaining -= 4;
-            }
-            return result;
+    const maxRows = 4;
+    const rows = Math.min(maxRows, total); // Maximal 4 Reihen
+    const itemsPerRow = [];
+    const baseCount = Math.floor(total / rows); // Gleichmäßig verteilen
+    let remainder = total % rows;
+
+    for (let i = 0; i < rows; i++) {
+        // Die ersten Reihen bekommen je ein Icon mehr, falls remainder > 0
+        const count = baseCount + (remainder > 0 ? 1 : 0);
+        itemsPerRow.push(count);
+        if (remainder > 0) remainder--;
+    }
+
+    return itemsPerRow;
+
     }
 }
 
