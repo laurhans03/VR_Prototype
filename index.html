@@ -23,11 +23,7 @@
         <a-assets>
             <img id="menu_img" src="media/menu.png">
             <a-asset-item id="avatarModel" src="models/man_sitting.glb"></a-asset-item>
-             <audio id="music" src="media/background.mp3" preload="auto" crossorigin="anonymous"></audio>
         </a-assets>
-
-        <a-entity sound="src: #music; autoplay: true; loop: true; volume: 0.5" position="0 0 0"></a-entity>
-
 
         <!-- Kamera: unabhängig vom Avatar, wird vom Headset gesteuert -->
         <a-entity id="cameraRig" position="0 0 0">
@@ -50,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
