@@ -50,7 +50,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -137,9 +137,23 @@ AFRAME.registerComponent('adjust-avatar', {
         // const targetYRot = cam.rotation.y;
         const dir = new THREE.Vector3();
         cam.getWorldDirection(dir);
+
+        // Berechne Zielrotation in Radiant
         const targetYRot = Math.atan2(dir.x, dir.z);
 
-        anchor.object3D.rotation.y += (targetYRot - anchor.object3D.rotation.y) * smoothing;
+        // Hole aktuelle Rotation als Euler
+        const currentRot = anchor.object3D.rotation.y;
+
+        // Berechne Differenz und glätte
+        const delta = targetYRot - currentRot;
+
+        // Optional: Wrap-around verhindern (damit er nicht „springt“ bei 180° ↔ -180°)
+        const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
+
+        // Glättung anwenden
+        anchor.object3D.rotation.y += wrappedDelta * smoothing;
+
+        // anchor.object3D.rotation.y += (targetYRot - anchor.object3D.rotation.y) * smoothing;
     }
 });
 
