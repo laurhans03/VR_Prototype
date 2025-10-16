@@ -50,7 +50,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -112,7 +112,8 @@ const camera = document.querySelector('#camera');
 AFRAME.registerComponent('adjust-avatar', {
   schema: {},
   init: function () {
-    this.lastTargetYRot = 0;
+    this.lastYRot = 0;
+    this.frameCount = 0;
   },
   tick: function () {
     const camera = document.querySelector('#camera');
@@ -123,7 +124,6 @@ AFRAME.registerComponent('adjust-avatar', {
 
     const cam = camera.object3D;
     const anchorObj = anchor.object3D;
-
     if (!cam || !anchorObj) return;
 
     // --- Position setzen ---
@@ -132,19 +132,22 @@ AFRAME.registerComponent('adjust-avatar', {
     // --- Blickrichtung berechnen ---
     const dir = new THREE.Vector3();
     cam.getWorldDirection(dir);
-    const rawTargetYRot = Math.atan2(dir.x, dir.z);
+    const targetYRot = Math.atan2(dir.x, dir.z);
 
-    // --- Nur bei größeren Änderungen aktualisieren ---
-    const threshold = 0.05; // ~3°
-    const delta = rawTargetYRot - this.lastTargetYRot;
-    const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
+    // --- Nur alle X Frames prüfen ---
+    this.frameCount++;
+    const updateInterval = 10; // alle 10 Frames (~6x pro Sekunde)
 
-    if (Math.abs(wrappedDelta) > threshold) {
-      this.lastTargetYRot += wrappedDelta * 0.1; // langsame Annäherung
+    if (this.frameCount % updateInterval === 0) {
+      const delta = targetYRot - this.lastYRot;
+      const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
+
+      const threshold = 0.1; // nur bei > ~6° drehen
+      if (Math.abs(wrappedDelta) > threshold) {
+        this.lastYRot += wrappedDelta * 0.3; // leicht geglättet
+        anchorObj.rotation.set(0, this.lastYRot, 0);
+      }
     }
-
-    // --- Rotation setzen ---
-    anchorObj.rotation.set(0, this.lastTargetYRot, 0);
   }
 });
 
