@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -494,29 +494,64 @@ setTimeout(() => {
 }
 
 
-// Return-Zone Fuse
-let returnTimer = null;
-returnZone.addEventListener('mouseenter', () => {
-    // Cursor & Ring nur temporär sichtbar während Fuse
-    cursorBase.object3D.visible = true;
-    progressRing.object3D.visible = true;
-    progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: linear');
+// // Return-Zone Fuse
+// let returnTimer = null;
+// returnZone.addEventListener('mouseenter', () => {
+//     // Cursor & Ring nur temporär sichtbar während Fuse
+//     cursorBase.object3D.visible = true;
+//     progressRing.object3D.visible = true;
+//     progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: linear');
 
+//     returnTimer = setTimeout(() => {
+//         showMenuState(); // Menü zurück → Cursor dauerhaft sichtbar
+//     }, 5000);
+// });
+
+// returnZone.addEventListener('mouseleave', () => {
+//     // Nach Fuse abbrechen: Cursor + Ring wieder unsichtbar im Raum
+//     progressRing.removeAttribute('animation__fill');
+//     progressRing.setAttribute('theta-length', 0);
+//     if (!menu.getAttribute('visible')) {
+//         cursorBase.object3D.visible = false;
+//         progressRing.object3D.visible = false;
+//     }
+//     clearTimeout(returnTimer);
+// });
+
+// Return-Zone Fuse mit verzögert sichtbarem Fortschrittsring
+let returnTimer = null;
+let progressDelayTimer = null;
+
+returnZone.addEventListener('mouseenter', () => {
+    // 5 Sekunden bis Menü-Wechsel
     returnTimer = setTimeout(() => {
-        showMenuState(); // Menü zurück → Cursor dauerhaft sichtbar
+        showMenuState(); // Menü zurück
     }, 5000);
+
+    // Fortschrittsring + Cursor ERST nach 2 Sekunden sichtbar machen
+    progressDelayTimer = setTimeout(() => {
+        cursorBase.object3D.visible = true;
+        progressRing.object3D.visible = true;
+
+        // Ladeanimation für 3 Sekunden (5000ms - 2000ms Verzögerung)
+        progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: linear');
+    }, 2000);
 });
 
 returnZone.addEventListener('mouseleave', () => {
-    // Nach Fuse abbrechen: Cursor + Ring wieder unsichtbar im Raum
+    // Bei Verlassen: ALLES sofort abbrechen/resetten
+    clearTimeout(returnTimer);
+    clearTimeout(progressDelayTimer);
+
     progressRing.removeAttribute('animation__fill');
     progressRing.setAttribute('theta-length', 0);
+
     if (!menu.getAttribute('visible')) {
         cursorBase.object3D.visible = false;
         progressRing.object3D.visible = false;
     }
-    clearTimeout(returnTimer);
 });
+
 
 
 
