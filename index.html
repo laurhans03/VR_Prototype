@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -124,15 +124,28 @@ AFRAME.registerComponent('adjust-avatar', {
         if (!camera || !anchor || !rooms) return;
         if (!rooms.getAttribute('visible')) return;
 
-        // 1. Avatar immer an Kamera-Position halten (auf Bodenhöhe leicht nach unten offset)
-        const camPos = camera.object3D.position;
-        anchor.object3D.position.set(camPos.x, camPos.y - 1.0, camPos.z);
+        const cam = camera.object3D;
 
-        // 2. Avatar immer zur Kamera rotieren → nur Y (damit er sich wie dein Körper mitdreht)
-        const camRot = camera.object3D.rotation;
-        anchor.object3D.rotation.set(0, camRot.y, 0);
+        // --- 1. Avatar-Position relative zur Kamera setzen ---
+        const offsetY = -0.7; // Schoßhöhe (feinjustierbar)
+        const offsetZ = 0.3;  // minimal nach vorne, damit du leicht hinter dem Avatar sitzt
+
+        // Position übernehmen + Offset
+        const targetX = cam.position.x;
+        const targetY = cam.position.y + offsetY;
+        const targetZ = cam.position.z + offsetZ;
+
+        // Direkt setzen (Position wirkt okay, kein smoothing nötig hier)
+        anchor.object3D.position.set(targetX, targetY, targetZ);
+
+        // --- 2. Rotation leicht verzögert folgen lassen ---
+        const smoothing = 0.15; // Je kleiner, desto „nachziehender“
+        const targetYRot = cam.rotation.y;
+
+        anchor.object3D.rotation.y += (targetYRot - anchor.object3D.rotation.y) * smoothing;
     }
 });
+
 
 
 // ---------------------------
