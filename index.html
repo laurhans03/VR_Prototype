@@ -50,7 +50,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -109,16 +109,6 @@ const camera = document.querySelector('#camera');
 // Avatar
 // -------
 
-// AFRAME.registerComponent('adjust-avatar', {
-//     tick: function () {
-//         const camera = document.querySelector('#camera');
-//         const anchor = document.querySelector('#avatarAnchor');
-//         const rooms = document.querySelector('#rooms');
-//         if (!camera || !anchor || !rooms) return;
-//         if (!rooms.getAttribute('visible')) return;
-//         anchor.object3D.position.copy(camera.object3D.position);
-//     }
-// });
 
 AFRAME.registerComponent('adjust-avatar', {
     tick: function () {
@@ -131,8 +121,8 @@ AFRAME.registerComponent('adjust-avatar', {
         const cam = camera.object3D;
 
         // --- 1. Avatar-Position relative zur Kamera setzen ---
-        const offsetY = -0.7; // Schoßhöhe (feinjustierbar)
-        const offsetZ = 0.3;  // minimal nach vorne, damit du leicht hinter dem Avatar sitzt
+        const offsetY = 0; // Schoßhöhe (feinjustierbar)
+        const offsetZ = 0;  // minimal nach vorne, damit du leicht hinter dem Avatar sitzt
 
         // Position übernehmen + Offset
         const targetX = cam.position.x;
@@ -175,6 +165,17 @@ async function initMenu() {
         videoEl.setAttribute('webkit-playsinline', 'true');
         videoEl.crossOrigin = 'anonymous';
         assets.appendChild(videoEl);
+
+        // Musik-Asset (falls vorhanden)
+        if (video.music) {
+            const audioEl = document.createElement('audio');
+            audioEl.id = `music-${video.id}`;
+            audioEl.src = video.music;
+            audioEl.setAttribute('preload', 'auto');
+            audioEl.setAttribute('crossorigin', 'anonymous');
+            assets.appendChild(audioEl);
+        }
+
     });
 
     // Kamera-Höhe für Menü-Position ermitteln
@@ -323,6 +324,16 @@ function openRoom(videoId) {
         const sphere = document.createElement('a-videosphere');
         sphere.setAttribute('src', `#video-${videoId}`);
         room.appendChild(sphere);
+
+        // Musik einfügen (falls vorhanden)
+        const musicEl = document.querySelector(`#music-${videoId}`);
+        if (musicEl) {
+        const soundEntity = document.createElement('a-entity');
+        soundEntity.setAttribute('sound', `src: #music-${videoId}; autoplay: true; loop: true; volume: 0.5`);
+        room.appendChild(soundEntity);
+        }
+
+        
         rooms.appendChild(room);
     } else {
         room.setAttribute('visible', 'true');
