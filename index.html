@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -338,34 +338,40 @@ if (menuMusicEntity && menuMusicEntity.components.sound) {
         }
     }
 
-// Menü-Musik initialisieren (AudioContext aktivieren)
- menuMusicEntity = document.querySelector('#menuMusicEntity');
-if (menuMusicEntity && menuMusicEntity.components.sound) {
-    menuMusicEntity.components.sound.playSound();
-    menuMusicEntity.components.sound.stopSound();
-}
+// Menü-Musik laden (falls vorhanden)
+if (data.menuMusic) {
+    const menuAudio = document.createElement('audio');
+    menuAudio.id = 'menuMusic';
+    menuAudio.src = data.menuMusic;
+    menuAudio.setAttribute('preload', 'auto');
+    menuAudio.setAttribute('crossorigin', 'anonymous');
+    assets.appendChild(menuAudio);
 
-menuMusicEntity = document.createElement('a-entity');
-menuMusicEntity.id = 'menuMusicEntity';
-menuMusicEntity.setAttribute('sound', 'src: #menuMusic; loop: true; volume: 0.5');
-menu.appendChild(menuMusicEntity);
+    // Musik-Entity erstellen
+    menuMusicEntity = document.createElement('a-entity');
+    menuMusicEntity.id = 'menuMusicEntity';
+    menuMusicEntity.setAttribute('sound', 'src: #menuMusic; loop: true; volume: 0.5');
+    menu.appendChild(menuMusicEntity);
 
-
-menuMusicEntity.components.sound.playSound();
-menuMusicEntity.components.sound.stopSound();
-
-const startMenuMusic = () => {
-    if (menuMusicEntity && menuMusicEntity.components.sound) {
+    // AudioContext aktivieren, sobald Sound-Komponente geladen ist
+    menuMusicEntity.addEventListener('sound-loaded', () => {
         menuMusicEntity.components.sound.playSound();
-    }
-    window.removeEventListener('click', startMenuMusic);
-    window.removeEventListener('touchstart', startMenuMusic);
-    window.removeEventListener('mousemove', startMenuMusic);
-};
-window.addEventListener('click', startMenuMusic);
-window.addEventListener('touchstart', startMenuMusic);
-window.addEventListener('mousemove', startMenuMusic);
+        menuMusicEntity.components.sound.stopSound();
+    });
 
+    // User-Interaktion zum ersten hörbaren Start
+    const startMenuMusic = () => {
+        if (menuMusicEntity && menuMusicEntity.components.sound) {
+            menuMusicEntity.components.sound.playSound();
+        }
+        window.removeEventListener('click', startMenuMusic);
+        window.removeEventListener('touchstart', startMenuMusic);
+        window.removeEventListener('mousemove', startMenuMusic);
+    };
+    window.addEventListener('click', startMenuMusic);
+    window.addEventListener('touchstart', startMenuMusic);
+    window.addEventListener('mousemove', startMenuMusic);
+}
 
 }
 
