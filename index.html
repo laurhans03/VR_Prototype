@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -325,31 +325,26 @@ async function initMenu() {
         }
     }
 
-    // Menü-Musik initialisieren (Browser Autoplay fix)
+// Menü-Musik initialisieren (AudioContext aktivieren)
 const menuMusicEntity = document.querySelector('#menuMusicEntity');
 if (menuMusicEntity && menuMusicEntity.components.sound) {
-    // Stumm abspielen & sofort stoppen → AudioContext aktivieren
     menuMusicEntity.components.sound.playSound();
     menuMusicEntity.components.sound.stopSound();
 }
 
-// Benutzerinteraktion für Autoplay
-let userInteracted = false;
-function startMenuMusic() {
-    if (userInteracted && menuMusicEntity && menuMusicEntity.components.sound) {
+// User-Interaktion für Autoplay
+const startMusicOnInteraction = () => {
+    if (menuMusicEntity && menuMusicEntity.components.sound) {
         menuMusicEntity.components.sound.playSound();
     }
-}
-const interactionHandler = () => {
-    userInteracted = true;
-    startMenuMusic();
-    window.removeEventListener('mousemove', interactionHandler);
-    window.removeEventListener('click', interactionHandler);
-    window.removeEventListener('touchstart', interactionHandler);
+    window.removeEventListener('click', startMusicOnInteraction);
+    window.removeEventListener('touchstart', startMusicOnInteraction);
+    window.removeEventListener('mousemove', startMusicOnInteraction);
 };
-window.addEventListener('mousemove', interactionHandler);
-window.addEventListener('click', interactionHandler);
-window.addEventListener('touchstart', interactionHandler);
+window.addEventListener('click', startMusicOnInteraction);
+window.addEventListener('touchstart', startMusicOnInteraction);
+window.addEventListener('mousemove', startMusicOnInteraction);
+
 
 }
 
