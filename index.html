@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -297,18 +297,26 @@ if (menuMusicEntity && menuMusicEntity.components.sound) {
             for (let i = 0; i < count; i++) {
                 xPositions.push(offsetX + i * spacing);
             }
+        // } else {
+        //     // Untere Reihen: Positionierung unter Lücken der oberen Reihe
+        //     const prevRow = rowPositions[r - 1];
+        //     const prevCount = prevRow.length;
+        //     for (let i = 0; i < count; i++) {
+        //         const t = (i + 0.5) / count; // mittig zwischen vorherigen Icons
+        //         const index = Math.floor(t * (prevCount - 1));
+        //         const nextIndex = Math.min(index + 1, prevCount - 1);
+        //         const x = (prevRow[index] + prevRow[nextIndex]) / 2;
+        //         xPositions.push(x);
+        //     }
+        // }
         } else {
-            // Untere Reihen: Positionierung unter Lücken der oberen Reihe
-            const prevRow = rowPositions[r - 1];
-            const prevCount = prevRow.length;
-            for (let i = 0; i < count; i++) {
-                const t = (i + 0.5) / count; // mittig zwischen vorherigen Icons
-                const index = Math.floor(t * (prevCount - 1));
-                const nextIndex = Math.min(index + 1, prevCount - 1);
-                const x = (prevRow[index] + prevRow[nextIndex]) / 2;
-                xPositions.push(x);
-            }
-        }
+    const rowWidth = (count - 1) * spacing;
+    const offsetX = -rowWidth / 2;
+    for (let i = 0; i < count; i++) {
+        xPositions.push(offsetX + i * spacing);
+    }
+}
+
 
         rowPositions.push(xPositions);
 
