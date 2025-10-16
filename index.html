@@ -46,7 +46,7 @@
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
             <!-- Display a welcome message floating in front of the user -->
             <!-- <a-text value="Welcome" align="center" position="0 1.8 -2" color="#ffffff" width="3"></a-text> -->
-             <a-text id="welcomeText" value="Welcome!" align="center" color="#ffffff" width="3"></a-text>
+             <a-text id="welcomeText" value="Welcome" align="center" color="#ffffff" width="3"></a-text>
         </a-entity> 
 
         <a-entity id="rooms" visible="false">
@@ -471,6 +471,18 @@ returnZone.addEventListener('mouseleave', () => {
 //     }, 100); // 100ms reicht oft aus
 // });
 
+let menuMusicReady = false;
+let userInteracted = false;
+
+function tryStartMenuMusic() {
+  if (menuMusicReady && userInteracted) {
+    const menuMusicEntity = document.querySelector('#menuMusicEntity');
+    if (menuMusicEntity && menuMusicEntity.components.sound) {
+      menuMusicEntity.components.sound.playSound();
+    }
+  }
+}
+
 scene.addEventListener('loaded', () => {
   setTimeout(() => {
     initMenu();
@@ -479,24 +491,24 @@ scene.addEventListener('loaded', () => {
     const menuMusicEntity = document.querySelector('#menuMusicEntity');
     if (!menuMusicEntity) return;
 
-    // Starte Musik erst, wenn Sound-Komponente bereit ist
+    // Wenn Sound geladen ist → Flag setzen
     menuMusicEntity.addEventListener('sound-loaded', () => {
-      let started = false;
-
-      function tryStart() {
-        if (started) return;
-        started = true;
-        menuMusicEntity.components.sound.playSound();
-        window.removeEventListener('mousemove', tryStart);
-        window.removeEventListener('touchstart', tryStart);
-        window.removeEventListener('click', tryStart);
-      }
-
-      // Starte bei Mausbewegung, Touch oder Klick
-      window.addEventListener('mousemove', tryStart);
-      window.addEventListener('touchstart', tryStart);
-      window.addEventListener('click', tryStart);
+      menuMusicReady = true;
+      tryStartMenuMusic();
     });
+
+    // Wenn Nutzer interagiert → Flag setzen
+    const interactionHandler = () => {
+      userInteracted = true;
+      tryStartMenuMusic();
+      window.removeEventListener('mousemove', interactionHandler);
+      window.removeEventListener('touchstart', interactionHandler);
+      window.removeEventListener('click', interactionHandler);
+    };
+
+    window.addEventListener('mousemove', interactionHandler);
+    window.addEventListener('touchstart', interactionHandler);
+    window.addEventListener('click', interactionHandler);
   }, 100);
 });
 
