@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -87,9 +87,15 @@
             </a-entity>
 
             <!-- Plattform under the Avatar -->
-            <a-plane id="floorPlatform" position="0 -1.5 0" rotation="-90 0 0" width="2" height="2"
-                material="shader: flat; color: #444444; opacity: 0.6">
-            </a-plane>
+            <!-- <a-plane id="floorPlatform" position="0 -1.5 0" rotation="-90 0 0" width="2" height="2"
+                material="shader: flat; color: #444444; opacity: 1.0">
+            </a-plane> -->
+
+            <a-circle id="floorPlatform" position="0 -1.5 0" rotation="-90 0 0" width="2" height="2"
+                material="shader: flat; color: #444444; opacity: 1.0">
+            </a-circle>
+
+            
 
             <!-- Invisible plane used for returning to the menu by gaze (fuse) -->
             <a-plane id="returnZone" position="0 1.45 -2" rotation="90 0 0" width="0.4" height="2.0"
