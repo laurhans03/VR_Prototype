@@ -484,11 +484,11 @@
             hintContainer.appendChild(bg);
 
             const hintText = document.createElement('a-text');
-            hintText.setAttribute('value', 'Look 5 seconds to the top to return to menu');
+            hintText.setAttribute('value', 'Look 5 seconds to the returnbutton to return to menu');
             hintText.setAttribute('align', 'center');
             hintText.setAttribute('color', '#ffffff');
             hintText.setAttribute('width', '2.2');
-            hintText.setAttribute('position', '0 0 0.01');
+            hintText.setAttribute('position', '0 0 0');
             hintText.setAttribute('baseline', 'center');
             hintText.setAttribute('side', 'double');
             hintContainer.appendChild(hintText);
@@ -500,7 +500,7 @@
                 if (hintContainer && hintContainer.parentNode) {
                     hintContainer.parentNode.removeChild(hintContainer);
                 }
-            }, 4000);
+            }, 6000);
         }
 
 
