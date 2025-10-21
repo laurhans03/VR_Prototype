@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -217,46 +217,53 @@
                 const anchorObj = anchor.object3D;
                 if (!cam || !anchorObj) return;
 
-                // Position folgt Kopf
+                // Position an Kamera binden
                 anchorObj.position.copy(cam.position);
 
-                // Orientierung
+                // Orientierung der Kamera holen
                 const euler = new THREE.Euler().setFromQuaternion(cam.quaternion, 'YXZ');
                 const yaw = euler.y;
-                const pitch = euler.x;
+                const pitch = THREE.MathUtils.radToDeg(euler.x); // Neigung in Grad
 
-                // Neigung in Grad
-                const pitchDeg = THREE.MathUtils.radToDeg(pitch);
+                // Sanfte Dämpfung bei zu starkem Runterschauen oder Zurücklehnen
+                const downMin = 40; // bis hier normal
+                const downMax = 75; // ab hier fast eingefroren
+                const upMin = -30;  // leicht nach hinten kippen noch ok
+                const upMax = -55;  // ab hier komplett stabilisiert
 
-                // Bereich, in dem Bewegung abgeschwächt wird
-                const minPitch = 40;  // bis hier volle Reaktion
-                const maxPitch = 75;  // ab hier fast eingefroren
-
-                // Gewichtung zwischen 1 (normal) und 0 (eingefroren)
                 let pitchFactor = 1.0;
-                if (Math.abs(pitchDeg) > minPitch) {
-                    const t = Math.min((Math.abs(pitchDeg) - minPitch) / (maxPitch - minPitch), 1.0);
-                    pitchFactor = 1.0 - t * 0.95; // bis zu 95% Dämpfung bei starkem Blick nach unten
+
+                // Zu weit nach unten
+                if (pitch > downMin) {
+                    const t = Math.min((pitch - downMin) / (downMax - downMin), 1.0);
+                    pitchFactor = 1.0 - t * 0.95;
                 }
 
-                // Sanftes Nachziehen
+                // Zu weit nach hinten
+                else if (pitch < upMin) {
+                    const t = Math.min((upMin - pitch) / (upMin - upMax), 1.0);
+                    pitchFactor = 1.0 - t * 0.95;
+                }
+
+                // Sanfte, adaptive Nachführung
                 if (this.isVR) {
                     this.frameCount++;
                     const updateInterval = 10;
                     if (this.frameCount % updateInterval === 0) {
                         const delta = yaw - this.lastYRot;
                         const wrapped = Math.atan2(Math.sin(delta), Math.cos(delta));
-                        this.lastYRot += wrapped * 0.3 * pitchFactor; // Dämpfung mit Pitch
+                        this.lastYRot += wrapped * 0.3 * pitchFactor;
                         anchorObj.rotation.set(0, this.lastYRot, 0);
                     }
                 } else {
-                    const smoothing = 0.3 * pitchFactor; // Dämpfung auch am Desktop
+                    const smoothing = 0.3 * pitchFactor;
                     const delta = yaw - anchorObj.rotation.y;
                     const wrapped = Math.atan2(Math.sin(delta), Math.cos(delta));
                     anchorObj.rotation.y += wrapped * smoothing;
                 }
             }
         });
+
 
 
 
