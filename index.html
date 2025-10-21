@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -430,23 +430,23 @@
         function showMenuState() {
             menu.setAttribute('visible', true);
             // Remove existing rooms to free memory and reset state
-            // rooms.querySelectorAll('.room').forEach(r => r.remove());
-            // rooms.setAttribute('visible', false);
+            rooms.querySelectorAll('.room').forEach(r => r.remove());
+            rooms.setAttribute('visible', false);
 
-            rooms.querySelectorAll('.room').forEach(room => {
-                room.setAttribute('visible', false);
-                // Raum-Musik stoppen, falls vorhanden
-                const roomMusic = room.querySelector('[sound]');
-                if (roomMusic && roomMusic.components.sound) {
-                    roomMusic.components.sound.stopSound();
-                }
-                // Videos stumm schalten, falls sie Originalton haben
-                const videoEl = room.querySelector('a-videosphere');
-                if (videoEl) {
-                    const videoDom = document.querySelector(`#${videoEl.getAttribute('src').substring(1)}`);
-                    if (videoDom) videoDom.muted = true;
-                }
-            });
+            // rooms.querySelectorAll('.room').forEach(room => {
+            //     room.setAttribute('visible', false);
+            //     // Raum-Musik stoppen, falls vorhanden
+            //     const roomMusic = room.querySelector('[sound]');
+            //     if (roomMusic && roomMusic.components.sound) {
+            //         roomMusic.components.sound.stopSound();
+            //     }
+            //     // Videos stumm schalten, falls sie Originalton haben
+            //     const videoEl = room.querySelector('a-videosphere');
+            //     if (videoEl) {
+            //         const videoDom = document.querySelector(`#${videoEl.getAttribute('src').substring(1)}`);
+            //         if (videoDom) videoDom.muted = true;
+            //     }
+            // });
 
             document.querySelector('#avatarAnchor').setAttribute('visible', false);
             document.querySelector('#floorPlatform').setAttribute('visible', false);
