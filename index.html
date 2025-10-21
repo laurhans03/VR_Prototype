@@ -385,7 +385,7 @@
                         // Highlight the icon and start the circular progress animation for 3 seconds
                         icon.setAttribute('material', 'color: yellow');
                         progressRing.setAttribute('theta-length', 0);
-                        progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: linear');
+                        progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: easeInOutQuad');
                         fuseTimeout = setTimeout(() => openRoom(video.id), 3000);
                     });
                     entry.addEventListener('mouseleave', () => {
@@ -545,7 +545,7 @@
             progressDelayTimer = setTimeout(() => {
                 cursorBase.object3D.visible = true;
                 progressRing.object3D.visible = true;
-                progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: linear');
+                progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: easeInOutQuad');
             }, 0);
         });
 
