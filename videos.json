@@ -11,7 +11,8 @@
     {
       "id": "2",
       "title": "River floating",
-      "src": "media/room2.mp4"
+      "src": "media/room2.mp4",
+      "music": "media/background.mp3"
     },
     {
       "id": "3",
