@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -220,23 +220,26 @@
                 const videoEl = document.createElement('video');
                 videoEl.id = `video-${video.id}`;
                 videoEl.src = video.src;
-                // We keep the video muted and autoplay to prepare the media element.
                 videoEl.autoplay = true;
                 videoEl.loop = true;
-                videoEl.muted = true;
                 videoEl.playsInline = true;
                 videoEl.crossOrigin = 'anonymous';
-                assets.appendChild(videoEl);
 
+                // Neu: Ton des Videos abhängig davon, ob Musik separat existiert
                 if (video.music) {
-                    // If the video entry contains a music file create an audio asset too
+                    videoEl.muted = true; // stumm, da Musik separat abgespielt wird
+                    // Audio-Asset für Hintergrundmusik erstellen
                     const audioEl = document.createElement('audio');
                     audioEl.id = `music-${video.id}`;
                     audioEl.src = video.music;
                     audioEl.setAttribute('preload', 'auto');
                     audioEl.crossOrigin = 'anonymous';
                     assets.appendChild(audioEl);
+                } else {
+                    videoEl.muted = false; // Originalton des Videos abspielen
                 }
+
+                assets.appendChild(videoEl);
             });
 
             // If menuMusic is provided in the JSON, create a sound entity for it.
