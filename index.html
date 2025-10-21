@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -89,7 +89,7 @@
 
 
             <!-- Invisible plane used for returning to the menu by gaze (fuse) -->
-            <a-plane id="returnZone" position="0 1.5 -2" rotation="90 0 0" width="0.4" height="1.0"
+            <a-plane id="returnZone" position="0 1.5 -2" rotation="90 0 0" width="0.4" height="2.0"
                 material="color: #00ff00; opacity: 0; transparent: true" class="clickable" visible="false"></a-plane>
             <a-image id="returnButton" src="#backbutton" position="0 1.5 -2" width="0.2" height="0.2" visible="true"
                 material="opacity: 0.9; transparent: true"></a-image>
@@ -539,13 +539,13 @@
 
         returnZone.addEventListener('mouseenter', () => {
             // Start the 5 second countdown to return
-            returnTimer = setTimeout(() => { showMenuState(); }, 5000);
+            returnTimer = setTimeout(() => { showMenuState(); }, 3000);
 
             // After 2 seconds show cursor and progress ring and start the 3s animation
             progressDelayTimer = setTimeout(() => {
                 cursorBase.object3D.visible = true;
                 progressRing.object3D.visible = true;
-                progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:5000; easing: easeInOutQuad');
+                progressRing.setAttribute('animation__fill', 'property: theta-length; from:0; to:360; dur:3000; easing: easeInOutQuad');
             }, 0);
         });
 
