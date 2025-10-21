@@ -36,7 +36,7 @@
             <img id="menu_img" src="media/menu.png">
             <img id="videoicon" src="media/videoicon.png">
             <img id="backbutton" src="media/backbutton.png">
-            <a-asset-item id="avatarModel" src="models/man_sitting1.glb"></a-asset-item>
+            <a-asset-item id="avatarModel" src="models/man_sitting2.glb"></a-asset-item>
         </a-assets>
 
         <!--
@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -215,26 +215,23 @@
                 const anchorObj = anchor.object3D;
                 if (!cam || !anchorObj) return;
 
-                // Kamera-Position übernehmen
+                // Avatar folgt der Kamera-Position
                 anchorObj.position.copy(cam.position);
 
                 // Blickrichtung holen
                 const dir = new THREE.Vector3();
                 cam.getWorldDirection(dir);
 
-                // Wenn der Nutzer stark nach unten oder oben schaut, einfrieren:
-                // y = 1 bedeutet: nach oben, y = -1 nach unten.
-                if (Math.abs(dir.y) > 0.7) {
-                    // keine Änderung, um Sprünge zu vermeiden
-                    return;
-                }
+                // Richtung auf horizontale Ebene "abflachen"
+                const horizontalDir = new THREE.Vector3(dir.x, 0, dir.z);
+                horizontalDir.normalize();
 
-                // Vertikalen Anteil eliminieren und Richtung normalisieren
-                dir.y = 0;
-                dir.normalize();
+                // Berechne horizontale Drehung (Yaw)
+                const targetYRot = Math.atan2(horizontalDir.x, horizontalDir.z);
 
-                // Yaw-Winkel berechnen
-                const targetYRot = Math.atan2(dir.x, dir.z);
+                // Stärke des vertikalen Blickwinkels: je mehr du nach unten schaust, desto kleiner die Dämpfung
+                const dampFactor = 1 - Math.min(Math.abs(dir.y), 0.9);
+                // 1.0 wenn du geradeaus schaust, ~0.1 wenn du fast senkrecht runter schaust
 
                 // Glättung / Smoothing
                 if (this.isVR) {
@@ -243,20 +240,24 @@
                     if (this.frameCount % updateInterval === 0) {
                         const delta = targetYRot - this.lastYRot;
                         const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
-                        const threshold = 0.05;
-                        if (Math.abs(wrappedDelta) > threshold) {
-                            this.lastYRot += wrappedDelta * 0.3;
+
+                        // Dämpfung anwenden → verhindert plötzliche Sprünge bei starkem Neigen
+                        const smoothed = wrappedDelta * 0.3 * dampFactor;
+
+                        if (Math.abs(smoothed) > 0.001) {
+                            this.lastYRot += smoothed;
                             anchorObj.rotation.set(0, this.lastYRot, 0);
                         }
                     }
                 } else {
-                    const smoothing = 0.3;
+                    const smoothing = 0.3 * dampFactor;
                     const delta = targetYRot - anchorObj.rotation.y;
                     const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
                     anchorObj.rotation.y += wrappedDelta * smoothing;
                 }
             }
         });
+
 
 
 
