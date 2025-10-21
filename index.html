@@ -221,7 +221,7 @@
             const data = await response.json();
             const assets = document.querySelector('a-assets');
 
-            // Create HTML video and optional audio assets for each entry in the JSON file
+            // --- Videos und optionale Musik vorbereiten ---
             data.videos.forEach(video => {
                 const videoEl = document.createElement('video');
                 videoEl.id = `video-${video.id}`;
@@ -231,10 +231,8 @@
                 videoEl.playsInline = true;
                 videoEl.crossOrigin = 'anonymous';
 
-                // Neu: Ton des Videos abhängig davon, ob Musik separat existiert
                 if (video.music) {
-                    videoEl.muted = true; // stumm, da Musik separat abgespielt wird
-                    // Audio-Asset für Hintergrundmusik erstellen
+                    videoEl.muted = true; // stumm, da separate Musik
                     const audioEl = document.createElement('audio');
                     audioEl.id = `music-${video.id}`;
                     audioEl.src = video.music;
@@ -242,13 +240,13 @@
                     audioEl.crossOrigin = 'anonymous';
                     assets.appendChild(audioEl);
                 } else {
-                    videoEl.muted = false; // Originalton des Videos abspielen
+                    videoEl.muted = false; // Originalton nutzen
                 }
 
                 assets.appendChild(videoEl);
             });
 
-            // If menuMusic is provided in the JSON, create a sound entity for it.
+            // --- MenuMusic vorbereiten ---
             if (data.menuMusic) {
                 const menuAudio = document.createElement('audio');
                 menuAudio.id = 'menuMusic';
@@ -257,22 +255,26 @@
                 menuAudio.crossOrigin = 'anonymous';
                 assets.appendChild(menuAudio);
 
-                // Create the A-Frame entity that wraps the sound component
                 menuMusicEntity = document.createElement('a-entity');
                 menuMusicEntity.id = 'menuMusicEntity';
-                menuMusicEntity.setAttribute('sound', 'src: #menuMusic; loop: true; volume: 0.5');
+                menuMusicEntity.setAttribute('sound', 'src: #menuMusic; loop: true; volume: 0.5; autoplay: false');
                 menu.appendChild(menuMusicEntity);
 
-                // Activate audio context silently once sound is loaded so browsers allow future playback
+                // AudioContext initialisieren
                 menuMusicEntity.addEventListener('sound-loaded', () => {
-                    // Play then stop immediately to initialise audio context without audible output
                     menuMusicEntity.components.sound.playSound();
                     menuMusicEntity.components.sound.stopSound();
                 });
 
-                // Wait for a user interaction to actually start audible playback due to browser autoplay rules
+                // Erst nach User-Interaktion starten
                 const startMenuMusic = () => {
                     if (menuMusicEntity && menuMusicEntity.components.sound) {
+                        // Vorher alle anderen Sounds stoppen
+                        document.querySelectorAll('[sound]').forEach(e => {
+                            if (e !== menuMusicEntity && e.components.sound) {
+                                e.components.sound.stopSound();
+                            }
+                        });
                         menuMusicEntity.components.sound.playSound();
                     }
                     window.removeEventListener('click', startMenuMusic);
