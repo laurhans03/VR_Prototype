@@ -88,7 +88,7 @@
 
             <!-- Plattform under the Avatar -->
             <a-plane id="floorPlatform" position="-2.06 -2 0.16" rotation="-90 0 0" width="4" height="4"
-                    material="shader: flat; color: red; opacity: 1.0" visible="true">
+                    material="shader: flat; color: red; opacity: 1.0">
             </a-plane>
 
             <!-- Invisible plane used for returning to the menu by gaze (fuse) -->
@@ -417,6 +417,7 @@
             rooms.querySelectorAll('.room').forEach(r => r.remove());
             rooms.setAttribute('visible', false);
             document.querySelector('#avatarAnchor').setAttribute('visible', false);
+            document.querySelector('#floorPlatform').setAttribute('visible', false);
 
             // Make the gaze cursor and ring visible while the user is in the menu
             cursorBase.object3D.visible = true;
