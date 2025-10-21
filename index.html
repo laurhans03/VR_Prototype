@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -132,10 +132,14 @@
         AFRAME.registerComponent('adjust-avatar', {
             schema: {},
 
-            init: function () {
-                this.avatar = document.querySelector('#avatar');
-                this.lastValidYRot = 0;
-                this.positionSet = false; // Flag für einmalige Positionierung
+             init: function () {
+                this.lastYRot = 0;        // last applied yaw to allow smoothing
+                this.frameCount = 0;      // frame counter to control update frequency in VR
+                this.isVR = false;        // tracks whether we are in VR mode
+
+                // Listen for enter/exit VR so behaviour can change between headset and desktop
+                this.el.sceneEl.addEventListener('enter-vr', () => { this.isVR = true; });
+                this.el.sceneEl.addEventListener('exit-vr', () => { this.isVR = false; });
             },
             tick: function () {
                 const scene = this.el.sceneEl;
