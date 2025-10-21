@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -132,72 +132,6 @@
         //  The component only runs while rooms container is visible so it does not affect the menu.
         // ==========================================================
 
-
-        // AFRAME.registerComponent('adjust-avatar', {
-        //     init: function () {
-        //         this.lastYRot = 0;        // last applied yaw to allow smoothing
-        //         this.frameCount = 0;      // frame counter to control update frequency in VR
-        //         this.isVR = false;        // tracks whether we are in VR mode
-
-        //         // Listen for enter/exit VR so behaviour can change between headset and desktop
-        //         this.el.sceneEl.addEventListener('enter-vr', () => { this.isVR = true; });
-        //         this.el.sceneEl.addEventListener('exit-vr', () => { this.isVR = false; });
-        //     },
-
-        // tick: function () {
-        //     // Do not run when required elements are missing or when rooms are not visible
-        //     const cameraEl = document.querySelector('#camera');
-        //     const anchor = document.querySelector('#avatarAnchor');
-        //     if (!cameraEl || !anchor || !rooms.getAttribute('visible')) return;
-
-        //     const cam = cameraEl.object3D;
-        //     const anchorObj = anchor.object3D;
-        //     if (!cam || !anchorObj) return;
-
-        //     // Copy camera position so the avatar anchor sits where the user's head is.
-        //     anchorObj.position.set(cam.position.x, cam.position.y, cam.position.z);
-
-        //     // Calculate camera forward direction to derive a yaw rotation
-        //     const dir = new THREE.Vector3();
-        //     // cam.getWorldDirection(dir);
-        //     // const targetYRot = Math.atan2(dir.x, dir.z);
-
-        //     cam.getWorldDirection(dir);
-
-        //     // Ignore vertical (up/down) movement by flattening the direction vector
-        //     dir.y = 0;
-        //     dir.normalize();
-
-        //     // Calculate rotation only on the horizontal plane
-        //     const targetYRot = Math.atan2(dir.x, dir.z);
-
-
-        //     // Smooth rotation behaviour
-        //     if (this.isVR) {
-        //         // In VR do updates less often and apply a small fraction of the delta
-        //         this.frameCount++;
-        //         const updateInterval = 10; // run smoothing every 10 frames
-        //         if (this.frameCount % updateInterval === 0) {
-        //             const delta = targetYRot - this.lastYRot;
-        //             // wrap delta to -PI..PI
-        //             const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
-        //             const threshold = 0.1; // small threshold to ignore micro movements
-        //             if (Math.abs(wrappedDelta) > threshold) {
-        //                 // apply 30 percent of the delta so rotation lags slightly behind the head
-        //                 this.lastYRot += wrappedDelta * 0.3;
-        //                 anchorObj.rotation.set(0, this.lastYRot, 0);
-        //             }
-        //         }
-        //     } else {
-        //         // On desktop follow the camera more responsively but still smooth the motion
-        //         const smoothing = 0.3;
-        //         const delta = targetYRot - anchorObj.rotation.y;
-        //         const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
-        //         anchorObj.rotation.y += wrappedDelta * smoothing;
-        //     }
-        // }
-        // });
-
         AFRAME.registerComponent('adjust-avatar', {
             init: function () {
                 this.lastYRot = 0;
@@ -218,35 +152,29 @@
                 const anchorObj = anchor.object3D;
                 if (!cam || !anchorObj) return;
 
-                // Avatar an Kamera-Position binden
                 anchorObj.position.copy(cam.position);
 
-                // Kamera-Orientierung analysieren
                 const euler = new THREE.Euler().setFromQuaternion(cam.quaternion, 'YXZ');
                 const yaw = euler.y;
                 const pitch = THREE.MathUtils.radToDeg(euler.x);
 
-                // Angepasste Dämpfung — setzt früher ein
-                const downMin = 30;  // früher starten
-                const downMax = 60;  // früher auslaufen
-                const upMin = -20;   // etwas früher nach oben
-                const upMax = -45;   // stärker abfangen
+                const downMin = 30;  
+                const downMax = 60;  
+                const upMin = -20;   
+                const upMax = -45;   
 
                 let pitchFactor = 1.0;
 
-                // Nach unten schauen → Dämpfung
                 if (pitch > downMin) {
                     const t = Math.min((pitch - downMin) / (downMax - downMin), 1.0);
                     pitchFactor = 1.0 - t * 0.98;
                 }
 
-                // Nach hinten lehnen → Dämpfung
                 else if (pitch < upMin) {
                     const t = Math.min((upMin - pitch) / (upMin - upMax), 1.0);
                     pitchFactor = 1.0 - t * 0.98;
                 }
 
-                // Sanfte Nachführung der Y-Rotation
                 if (this.isVR) {
                     this.frameCount++;
                     const updateInterval = 10;
@@ -264,11 +192,6 @@
                 }
             }
         });
-
-
-
-
-
 
 
         // ==========================================================
@@ -526,8 +449,13 @@
             }
 
             // Hide gaze cursor and progress ring inside the room
-            cursorBase.object3D.visible = false;
-            progressRing.object3D.visible = false;
+            // cursorBase.object3D.visible = false;
+            // progressRing.object3D.visible = false;
+
+            // Make cursor invisible but keep it active for raycasting
+            cursorBase.setAttribute('material', 'color: transparent');
+            progressRing.setAttribute('color', 'transparent');
+
 
             // Create room only once and reuse later
             let room = document.querySelector(`#room-${videoId}`);
