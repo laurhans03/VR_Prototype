@@ -139,90 +139,90 @@
                 this.el.sceneEl.addEventListener('exit-vr', () => { this.isVR = false; });
             },
 
-            // tick: function () {
-            //     // Do not run when required elements are missing or when rooms are not visible
-            //     const cameraEl = document.querySelector('#camera');
-            //     const anchor = document.querySelector('#avatarAnchor');
-            //     if (!cameraEl || !anchor || !rooms.getAttribute('visible')) return;
-
-            //     const cam = cameraEl.object3D;
-            //     const anchorObj = anchor.object3D;
-            //     if (!cam || !anchorObj) return;
-
-            //     // Copy camera position so the avatar anchor sits where the user's head is.
-            //     anchorObj.position.set(cam.position.x, cam.position.y, cam.position.z);
-
-            //     // Calculate camera forward direction to derive a yaw rotation
-            //     const dir = new THREE.Vector3();
-            //     // cam.getWorldDirection(dir);
-            //     // const targetYRot = Math.atan2(dir.x, dir.z);
-
-            //     cam.getWorldDirection(dir);
-
-            //     // Ignore vertical (up/down) movement by flattening the direction vector
-            //     dir.y = 0;
-            //     dir.normalize();
-
-            //     // Calculate rotation only on the horizontal plane
-            //     const targetYRot = Math.atan2(dir.x, dir.z);
-
-
-            //     // Smooth rotation behaviour
-            //     if (this.isVR) {
-            //         // In VR do updates less often and apply a small fraction of the delta
-            //         this.frameCount++;
-            //         const updateInterval = 10; // run smoothing every 10 frames
-            //         if (this.frameCount % updateInterval === 0) {
-            //             const delta = targetYRot - this.lastYRot;
-            //             // wrap delta to -PI..PI
-            //             const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
-            //             const threshold = 0.1; // small threshold to ignore micro movements
-            //             if (Math.abs(wrappedDelta) > threshold) {
-            //                 // apply 30 percent of the delta so rotation lags slightly behind the head
-            //                 this.lastYRot += wrappedDelta * 0.3;
-            //                 anchorObj.rotation.set(0, this.lastYRot, 0);
-            //             }
-            //         }
-            //     } else {
-            //         // On desktop follow the camera more responsively but still smooth the motion
-            //         const smoothing = 0.3;
-            //         const delta = targetYRot - anchorObj.rotation.y;
-            //         const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
-            //         anchorObj.rotation.y += wrappedDelta * smoothing;
-            //     }
-            // }
             tick: function () {
-                const cam = this.el.sceneEl.camera.el;
-                if (!cam) return;
+                // Do not run when required elements are missing or when rooms are not visible
+                const cameraEl = document.querySelector('#camera');
+                const anchor = document.querySelector('#avatarAnchor');
+                if (!cameraEl || !anchor || !rooms.getAttribute('visible')) return;
 
+                const cam = cameraEl.object3D;
+                const anchorObj = anchor.object3D;
+                if (!cam || !anchorObj) return;
+
+                // Copy camera position so the avatar anchor sits where the user's head is.
+                anchorObj.position.set(cam.position.x, cam.position.y, cam.position.z);
+
+                // Calculate camera forward direction to derive a yaw rotation
                 const dir = new THREE.Vector3();
-                cam.object3D.getWorldDirection(dir);
+                // cam.getWorldDirection(dir);
+                // const targetYRot = Math.atan2(dir.x, dir.z);
 
-                // Flatten the vector to ignore vertical head movement
+                cam.getWorldDirection(dir);
+
+                // Ignore vertical (up/down) movement by flattening the direction vector
                 dir.y = 0;
                 dir.normalize();
 
-                // Prevent rotation when the user looks almost straight down or up
-                const headDir = new THREE.Vector3();
-                cam.object3D.getWorldDirection(headDir);
+                // Calculate rotation only on the horizontal plane
+                const targetYRot = Math.atan2(dir.x, dir.z);
 
-                // Berechne, wie stark der Blick nach oben/unten geneigt ist
-                const pitch = THREE.MathUtils.radToDeg(Math.asin(headDir.y));
 
-                // Nur drehen, wenn Pitch-Winkel nicht zu extrem ist (z. B. > -70° und < 70°)
-                // So verhindern wir ein Springen oder Drehen beim fast senkrechten Blick
-                if (pitch > -70 && pitch < 70) {
-                    const targetYRot = Math.atan2(dir.x, dir.z);
-                    const currentYRot = this.avatar.object3D.rotation.y;
-                    const smoothYRot = THREE.MathUtils.lerp(currentYRot, targetYRot, 0.05);
-                    this.avatar.object3D.rotation.y = smoothYRot;
+                // Smooth rotation behaviour
+                if (this.isVR) {
+                    // In VR do updates less often and apply a small fraction of the delta
+                    this.frameCount++;
+                    const updateInterval = 10; // run smoothing every 10 frames
+                    if (this.frameCount % updateInterval === 0) {
+                        const delta = targetYRot - this.lastYRot;
+                        // wrap delta to -PI..PI
+                        const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
+                        const threshold = 0.1; // small threshold to ignore micro movements
+                        if (Math.abs(wrappedDelta) > threshold) {
+                            // apply 30 percent of the delta so rotation lags slightly behind the head
+                            this.lastYRot += wrappedDelta * 0.3;
+                            anchorObj.rotation.set(0, this.lastYRot, 0);
+                        }
+                    }
+                } else {
+                    // On desktop follow the camera more responsively but still smooth the motion
+                    const smoothing = 0.3;
+                    const delta = targetYRot - anchorObj.rotation.y;
+                    const wrappedDelta = Math.atan2(Math.sin(delta), Math.cos(delta));
+                    anchorObj.rotation.y += wrappedDelta * smoothing;
                 }
-
-                // Optional: Avatar sanft hinter die Kamera positionieren
-                const camWorldPos = new THREE.Vector3();
-                cam.object3D.getWorldPosition(camWorldPos);
-                this.avatar.object3D.position.set(camWorldPos.x, 0, camWorldPos.z);
             }
+        //     tick: function () {
+        //         const cam = this.el.sceneEl.camera.el;
+        //         if (!cam) return;
+
+        //         const dir = new THREE.Vector3();
+        //         cam.object3D.getWorldDirection(dir);
+
+        //         // Flatten the vector to ignore vertical head movement
+        //         dir.y = 0;
+        //         dir.normalize();
+
+        //         // Prevent rotation when the user looks almost straight down or up
+        //         const headDir = new THREE.Vector3();
+        //         cam.object3D.getWorldDirection(headDir);
+
+        //         // Berechne, wie stark der Blick nach oben/unten geneigt ist
+        //         const pitch = THREE.MathUtils.radToDeg(Math.asin(headDir.y));
+
+        //         // Nur drehen, wenn Pitch-Winkel nicht zu extrem ist (z. B. > -70° und < 70°)
+        //         // So verhindern wir ein Springen oder Drehen beim fast senkrechten Blick
+        //         if (pitch > -70 && pitch < 70) {
+        //             const targetYRot = Math.atan2(dir.x, dir.z);
+        //             const currentYRot = this.avatar.object3D.rotation.y;
+        //             const smoothYRot = THREE.MathUtils.lerp(currentYRot, targetYRot, 0.05);
+        //             this.avatar.object3D.rotation.y = smoothYRot;
+        //         }
+
+        //         // Optional: Avatar sanft hinter die Kamera positionieren
+        //         const camWorldPos = new THREE.Vector3();
+        //         cam.object3D.getWorldPosition(camWorldPos);
+        //         this.avatar.object3D.position.set(camWorldPos.x, 0, camWorldPos.z);
+        //     }
 
         });
 
