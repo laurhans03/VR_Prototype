@@ -55,8 +55,8 @@
                 </a-entity>
 
                 <!-- progress ring is rendered at the same place as cursor and animated when needed -->
-                <a-ring id="progressRing" radius-inner="0.011" radius-outer="0.02" position="0 0 -0.5" color="#FFD700"
-                    theta-start="0" theta-length="0">
+                <a-ring id="progressRing" radius-inner="0.011" radius-outer="0.02" position="0 0 -0.49" color="#FFD700"
+                    theta-start="0" theta-length="0" material="shader: flat; side: double">
                 </a-ring>
             </a-entity>
         </a-entity>
@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
