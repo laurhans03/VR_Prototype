@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -217,35 +217,35 @@
                 const anchorObj = anchor.object3D;
                 if (!cam || !anchorObj) return;
 
-                // Position an Kamera binden
+                // Avatar an Kamera-Position binden
                 anchorObj.position.copy(cam.position);
 
-                // Orientierung der Kamera holen
+                // Kamera-Orientierung analysieren
                 const euler = new THREE.Euler().setFromQuaternion(cam.quaternion, 'YXZ');
                 const yaw = euler.y;
-                const pitch = THREE.MathUtils.radToDeg(euler.x); // Neigung in Grad
+                const pitch = THREE.MathUtils.radToDeg(euler.x);
 
-                // Sanfte Dämpfung bei zu starkem Runterschauen oder Zurücklehnen
-                const downMin = 40; // bis hier normal
-                const downMax = 75; // ab hier fast eingefroren
-                const upMin = -30;  // leicht nach hinten kippen noch ok
-                const upMax = -55;  // ab hier komplett stabilisiert
+                // Angepasste Dämpfung — setzt früher ein
+                const downMin = 30;  // früher starten
+                const downMax = 60;  // früher auslaufen
+                const upMin = -20;   // etwas früher nach oben
+                const upMax = -45;   // stärker abfangen
 
                 let pitchFactor = 1.0;
 
-                // Zu weit nach unten
+                // Nach unten schauen → Dämpfung
                 if (pitch > downMin) {
                     const t = Math.min((pitch - downMin) / (downMax - downMin), 1.0);
-                    pitchFactor = 1.0 - t * 0.95;
+                    pitchFactor = 1.0 - t * 0.98;
                 }
 
-                // Zu weit nach hinten
+                // Nach hinten lehnen → Dämpfung
                 else if (pitch < upMin) {
                     const t = Math.min((upMin - pitch) / (upMin - upMax), 1.0);
-                    pitchFactor = 1.0 - t * 0.95;
+                    pitchFactor = 1.0 - t * 0.98;
                 }
 
-                // Sanfte, adaptive Nachführung
+                // Sanfte Nachführung der Y-Rotation
                 if (this.isVR) {
                     this.frameCount++;
                     const updateInterval = 10;
@@ -263,7 +263,6 @@
                 }
             }
         });
-
 
 
 
