@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -89,8 +89,10 @@
 
 
             <!-- Invisible plane used for returning to the menu by gaze (fuse) -->
-            <a-plane id="returnZone" position="0 1.5 -2" rotation="90 0 0" width="2.0" height="2.0" material="color: #00ff00; opacity: 0; transparent: true" class="clickable" visible="false"></a-plane>
-            <a-image id="returnButton" src="#backbutton" position="0 1.5 -2" width="0.2" height="0.2" visible="true" material="opacity: 0.9; transparent: true"></a-image>
+            <a-plane id="returnZone" position="0 1.5 -2" rotation="90 0 0" width="2.0" height="2.0"
+                material="color: #00ff00; opacity: 0; transparent: true" class="clickable" visible="false"></a-plane>
+            <a-image id="returnButton" src="#backbutton" position="0 1.5 -2" width="0.2" height="0.2" visible="true"
+                material="opacity: 0.9; transparent: true"></a-image>
         </a-entity>
 
         <!-- Optional hand tracking entities for Meta Quest. They do not affect the menu logic -->
@@ -155,10 +157,10 @@
                 const yaw = euler.y;
                 const pitch = THREE.MathUtils.radToDeg(euler.x);
 
-                const downMin = 30;  
-                const downMax = 60;  
-                const upMin = -20;   
-                const upMax = -45;   
+                const downMin = 30;
+                const downMax = 60;
+                const upMin = -20;
+                const upMax = -45;
 
                 let pitchFactor = 1.0;
 
@@ -474,7 +476,17 @@
 
             // Play the underlying HTML video element if available
             const videoEl = document.querySelector(`#video-${videoId}`);
-            if (videoEl) videoEl.play().catch(err => console.warn('Video could not start', err));
+            // if (videoEl) videoEl.play().catch(err => console.warn('Video could not start', err));
+            if (videoEl) {
+                // Make sure the video always loops and doesn't auto-skip
+                videoEl.loop = true;
+                videoEl.addEventListener('ended', () => {
+                    videoEl.currentTime = 0;
+                    videoEl.play().catch(err => console.warn('Loop restart failed:', err));
+                });
+                videoEl.play().catch(err => console.warn('Video could not start', err));
+            }
+
 
             // Show a short floating hint that informs the user how to return
             const hintContainer = document.createElement('a-entity');
