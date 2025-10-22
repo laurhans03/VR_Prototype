@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -100,7 +100,7 @@
             <!-- Invisible plane used for returning to the menu by gaze (fuse) -->
             <a-plane id="returnZone" position="0 1.45 -2" rotation="90 0 0" width="0.4" height="2.0"
                 material="color: #00ff00; opacity: 0; transparent: true" class="clickable" visible="false"></a-plane>
-            <a-image id="returnButton" src="#backbutton" position="0 1.5 -0.7" width="0.1" height="0.1" visible="true"
+            <a-image id="returnButton" src="#backbutton" position="0 1.3 -0.7" width="0.1" height="0.1" visible="true"
                 material="opacity: 0.9; transparent: true"></a-image>
         </a-entity>
 
@@ -429,21 +429,6 @@
             rooms.querySelectorAll('.room').forEach(r => r.remove());
             rooms.setAttribute('visible', false);
 
-            // rooms.querySelectorAll('.room').forEach(room => {
-            //     room.setAttribute('visible', false);
-            //     // Raum-Musik stoppen, falls vorhanden
-            //     const roomMusic = room.querySelector('[sound]');
-            //     if (roomMusic && roomMusic.components.sound) {
-            //         roomMusic.components.sound.stopSound();
-            //     }
-            //     // Videos stumm schalten, falls sie Originalton haben
-            //     const videoEl = room.querySelector('a-videosphere');
-            //     if (videoEl) {
-            //         const videoDom = document.querySelector(`#${videoEl.getAttribute('src').substring(1)}`);
-            //         if (videoDom) videoDom.muted = true;
-            //     }
-            // });
-
             document.querySelector('#avatarAnchor').setAttribute('visible', false);
             document.querySelector('#floorPlatform').setAttribute('visible', false);
 
@@ -513,20 +498,6 @@
                 }
             }
 
-            // // Play the underlying HTML video element if available
-            // const videoEl = document.querySelector(`#video-${videoId}`);
-            // // if (videoEl) videoEl.play().catch(err => console.warn('Video could not start', err));
-            // if (videoEl) {
-            //     // Make sure the video always loops and doesn't auto-skip
-            //     videoEl.loop = true;
-            //     videoEl.addEventListener('ended', () => {
-            //         videoEl.currentTime = 0;
-            //         videoEl.play().catch(err => console.warn('Loop restart failed:', err));
-            //     });
-            //     videoEl.play().catch(err => console.warn('Video could not start', err));
-            // }
-
-            // Video starten, Ton nur, wenn keine externe Musik
             const videoEl = document.querySelector(`#video-${videoId}`);
             if (videoEl) {
                 if (!document.querySelector(`#music-${videoId}`)) {
