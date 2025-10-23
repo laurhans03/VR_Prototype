@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -487,12 +487,6 @@
             document.querySelector('#avatarAnchor').setAttribute('visible', false);
             document.querySelector('#floorPlatform').setAttribute('visible', false);
 
-            const returnZone = document.querySelector('#returnZone');
-            if (returnZone) {
-                returnZone.setAttribute('visible', false);
-                returnZone.classList.remove('clickable'); // deaktiviert Interaktivität
-            }
-
             // Make the gaze cursor and ring visible while the user is in the menu
             cursorBase.object3D.visible = true;
             progressRing.object3D.visible = true;
@@ -520,12 +514,6 @@
             rooms.setAttribute('visible', true);
             document.querySelector('#avatarAnchor').setAttribute('visible', true);
             document.querySelector('#floorPlatform').setAttribute('visible', true);
-
-            const returnZone = document.querySelector('#returnZone');
-            if (returnZone) {
-                //returnZone.setAttribute('visible', true);
-                returnZone.classList.add('clickable'); // macht sie wieder interaktiv
-            }
 
             // Stop menu music safely
             if (menuMusicEntity && menuMusicEntity.components.sound) {
@@ -625,10 +613,10 @@
         let progressDelayTimer = null;
 
         returnZone.addEventListener('mouseenter', () => {
-            // Start the 5 second countdown to return
+            if (menu.getAttribute('visible')) return; // im Menü → abbrechen
+
             returnTimer = setTimeout(() => { showMenuState(); }, 3000);
 
-            // After 2 seconds show cursor and progress ring and start the 3s animation
             progressDelayTimer = setTimeout(() => {
                 cursorBase.object3D.visible = true;
                 progressRing.object3D.visible = true;
