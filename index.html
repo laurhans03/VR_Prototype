@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -147,59 +147,45 @@
 
         AFRAME.registerComponent('adjust-avatar', {
             schema: {
-                shoulderOffset: { type: 'vec3', default: { x: 0, y: -1.1, z: 0.05 } }, // unter dir
-                rotationSmoothing: { type: 'number', default: 0.08 }, // 0.05–0.15 = weiche Reaktion
-                maxTurnSpeed: { type: 'number', default: 1.5 }, // Grad pro Frame
+                rotationSmoothness: { type: 'number', default: 0.08 }, // kleiner = weicher
+                maxYawDelta: { type: 'number', default: 0.03 },        // max Änderung pro Frame (in Rad)
+                pitchLimit: { type: 'number', default: 45 }            // ab diesem Winkel nach unten ignorieren
             },
 
             init: function () {
                 this.lastYaw = 0;
-                this.lastTargetYaw = 0;
+                this.targetYaw = 0;
                 this.tempEuler = new THREE.Euler(0, 0, 0, 'YXZ');
-                this.tempVec = new THREE.Vector3();
             },
 
             tick: function (t, dt) {
-                const camera = document.querySelector('#camera');
-                const avatarAnchor = document.querySelector('#avatarAnchor');
+                const cameraEl = document.querySelector('#camera');
                 const rooms = document.querySelector('#rooms');
-                if (!camera || !avatarAnchor || !rooms.getAttribute('visible')) return;
+                const avatarWrapper = document.querySelector('#avatarWrapper');
+                if (!cameraEl || !rooms.getAttribute('visible') || !avatarWrapper) return;
 
-                const camObj = camera.object3D;
-                const anchorObj = avatarAnchor.object3D;
+                const cam = cameraEl.object3D;
+                const avatarObj = avatarWrapper.object3D;
 
-                // 1️⃣ Position — Avatar direkt unter dir
-                const camWorldPos = new THREE.Vector3();
-                camObj.getWorldPosition(camWorldPos);
-
-                // Zielposition = Kamera + Offset im Kameraraum
-                const offset = this.data.shoulderOffset;
-                const localOffset = new THREE.Vector3(offset.x, offset.y, offset.z);
-                localOffset.applyQuaternion(camObj.quaternion);
-
-                const targetPos = camWorldPos.clone().add(localOffset);
-                anchorObj.position.lerp(targetPos, 0.2); // smoothes Folgen (0.1–0.3 gut)
-
-                // 2️⃣ Rotation — sanftes Folgen deiner Blickrichtung
-                this.tempEuler.setFromQuaternion(camObj.quaternion, 'YXZ');
+                // Hole die Kamerarotation (in Euler)
+                this.tempEuler.setFromQuaternion(cam.quaternion, 'YXZ');
                 const yaw = this.tempEuler.y;
                 const pitch = THREE.MathUtils.radToDeg(this.tempEuler.x);
 
-                // Wenn du zu stark nach unten/hinten schaust, soll Avatar sich nicht drehen
-                if (pitch > 45 || pitch < -50) return;
+                // Wenn du zu stark nach unten/hinten schaust → keine Reaktion
+                if (pitch > this.data.pitchLimit || pitch < -this.data.pitchLimit) return;
 
-                // Zielrotation langsam annähern
-                let delta = yaw - this.lastYaw;
-                delta = Math.atan2(Math.sin(delta), Math.cos(delta)); // Wrap -π..π
-                const targetYaw = this.lastYaw + delta * this.data.rotationSmoothing;
+                // Zielwinkel bestimmen (nur Yaw)
+                const delta = Math.atan2(Math.sin(yaw - this.targetYaw), Math.cos(yaw - this.targetYaw));
+                this.targetYaw += delta * this.data.rotationSmoothness;
 
-                // Begrenze maximale Änderung pro Frame
-                const maxDelta = THREE.MathUtils.degToRad(this.data.maxTurnSpeed);
-                const clamped = THREE.MathUtils.clamp(targetYaw - this.lastYaw, -maxDelta, maxDelta);
+                // Begrenze die Geschwindigkeit
+                const diff = this.targetYaw - this.lastYaw;
+                const clamped = THREE.MathUtils.clamp(diff, -this.data.maxYawDelta, this.data.maxYawDelta);
                 this.lastYaw += clamped;
 
-                // Wende Rotation nur um Y an
-                anchorObj.rotation.set(0, this.lastYaw, 0);
+                // Rotation auf Avatar anwenden (nur Y)
+                avatarObj.rotation.y = this.lastYaw;
             }
         });
 
