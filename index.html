@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -146,54 +146,62 @@
         // ==========================================================
 
         AFRAME.registerComponent('adjust-avatar', {
-            init: function () {
-                this.lastYRot = 0;
-                this.smoothYRot = 0;
-                this.isVR = false;
-                this.anchorYSet = false; // merkt sich, ob die Anfangshöhe gesetzt wurde
-                this.fixedY = 0;         // speichert die feste Avatarhöhe
-
-                this.el.sceneEl.addEventListener('enter-vr', () => { this.isVR = true; });
-                this.el.sceneEl.addEventListener('exit-vr', () => { this.isVR = false; });
+            schema: {
+                shoulderOffset: { type: 'vec3', default: { x: 0, y: -1.1, z: 0.05 } }, // unter dir
+                rotationSmoothing: { type: 'number', default: 0.08 }, // 0.05–0.15 = weiche Reaktion
+                maxTurnSpeed: { type: 'number', default: 1.5 }, // Grad pro Frame
             },
 
-            tick: function () {
-                const cameraEl = document.querySelector('#camera');
-                const anchor = document.querySelector('#avatarAnchor');
+            init: function () {
+                this.lastYaw = 0;
+                this.lastTargetYaw = 0;
+                this.tempEuler = new THREE.Euler(0, 0, 0, 'YXZ');
+                this.tempVec = new THREE.Vector3();
+            },
+
+            tick: function (t, dt) {
+                const camera = document.querySelector('#camera');
+                const avatarAnchor = document.querySelector('#avatarAnchor');
                 const rooms = document.querySelector('#rooms');
-                if (!cameraEl || !anchor || !rooms.getAttribute('visible')) return;
+                if (!camera || !avatarAnchor || !rooms.getAttribute('visible')) return;
 
-                const cam = cameraEl.object3D;
-                const anchorObj = anchor.object3D;
-                if (!cam || !anchorObj) return;
+                const camObj = camera.object3D;
+                const anchorObj = avatarAnchor.object3D;
 
-                // Kamera-Position
-                const camPos = cam.position.clone();
+                // 1️⃣ Position — Avatar direkt unter dir
+                const camWorldPos = new THREE.Vector3();
+                camObj.getWorldPosition(camWorldPos);
 
-                // --- 1️⃣  Feste Avatarhöhe setzen ---
-                if (!this.anchorYSet) {
-                    this.fixedY = camPos.y - 1.2; // Avatar sitzt ca. 1.2m unter der Kamera
-                    this.anchorYSet = true;
-                }
+                // Zielposition = Kamera + Offset im Kameraraum
+                const offset = this.data.shoulderOffset;
+                const localOffset = new THREE.Vector3(offset.x, offset.y, offset.z);
+                localOffset.applyQuaternion(camObj.quaternion);
 
-                // Avatar bleibt unter dem Nutzer, aber mit fixer Höhe
-                const targetPos = new THREE.Vector3(camPos.x, this.fixedY, camPos.z);
-                anchorObj.position.lerp(targetPos, 0.15);
+                const targetPos = camWorldPos.clone().add(localOffset);
+                anchorObj.position.lerp(targetPos, 0.2); // smoothes Folgen (0.1–0.3 gut)
 
-                // --- 2️⃣  Drehung (nur horizontal) ---
-                const euler = new THREE.Euler().setFromQuaternion(cam.quaternion, 'YXZ');
-                const yaw = euler.y;
+                // 2️⃣ Rotation — sanftes Folgen deiner Blickrichtung
+                this.tempEuler.setFromQuaternion(camObj.quaternion, 'YXZ');
+                const yaw = this.tempEuler.y;
+                const pitch = THREE.MathUtils.radToDeg(this.tempEuler.x);
 
-                // Weiche Rotation zur Blickrichtung
-                const delta = yaw - this.smoothYRot;
-                const wrapped = Math.atan2(Math.sin(delta), Math.cos(delta));
-                this.smoothYRot += wrapped * 0.07; // 0.07 = angenehm weich
+                // Wenn du zu stark nach unten/hinten schaust, soll Avatar sich nicht drehen
+                if (pitch > 45 || pitch < -50) return;
 
-                anchorObj.rotation.set(0, this.smoothYRot, 0);
+                // Zielrotation langsam annähern
+                let delta = yaw - this.lastYaw;
+                delta = Math.atan2(Math.sin(delta), Math.cos(delta)); // Wrap -π..π
+                const targetYaw = this.lastYaw + delta * this.data.rotationSmoothing;
+
+                // Begrenze maximale Änderung pro Frame
+                const maxDelta = THREE.MathUtils.degToRad(this.data.maxTurnSpeed);
+                const clamped = THREE.MathUtils.clamp(targetYaw - this.lastYaw, -maxDelta, maxDelta);
+                this.lastYaw += clamped;
+
+                // Wende Rotation nur um Y an
+                anchorObj.rotation.set(0, this.lastYaw, 0);
             }
         });
-
-
 
         // AFRAME.registerComponent('adjust-avatar', {
         //     init: function () {
