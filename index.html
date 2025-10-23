@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -139,84 +139,12 @@
         //  The component only runs while rooms container is visible so it does not affect the menu.
         // ==========================================================
 
-        AFRAME.registerComponent('adjust-avatar', {
-            init: function () {
-                this.lastYRot = 0;
-                this.frameCount = 0;
-                this.isVR = false;
-                this.smoothedPos = new THREE.Vector3();
-
-                this.el.sceneEl.addEventListener('enter-vr', () => { this.isVR = true; });
-                this.el.sceneEl.addEventListener('exit-vr', () => { this.isVR = false; });
-            },
-
-            tick: function () {
-                const cameraEl = document.querySelector('#camera');
-                const anchor = document.querySelector('#avatarAnchor');
-                const avatarWrapper = document.querySelector('#avatarWrapper');
-                const rooms = document.querySelector('#rooms');
-                if (!cameraEl || !anchor || !avatarWrapper || !rooms.getAttribute('visible')) return;
-
-                const cam = cameraEl.object3D;
-                const anchorObj = anchor.object3D;
-                if (!cam || !anchorObj) return;
-
-                // === Blickwinkel auslesen
-                const euler = new THREE.Euler().setFromQuaternion(cam.quaternion, 'YXZ');
-                const yaw = euler.y;
-                const pitch = THREE.MathUtils.radToDeg(euler.x);
-
-                // === Pitch-abhängiger Rückversatz
-                const baseOffset = 0; // Grundabstand hinter dir
-                const pitchOffset = THREE.MathUtils.clamp(pitch / 90, 0, 1) * 0.4; // bis zu 40 cm extra
-                const totalOffset = baseOffset + pitchOffset;
-
-                const offset = new THREE.Vector3(0, 0, -totalOffset);
-                offset.applyQuaternion(cam.quaternion);
-
-                // === Bewegung glätten (X/Z)
-                const camPos = cam.position;
-                this.smoothedPos.lerp(camPos, 0.05);
-
-                const fixedY = 1.0; // feste Höhe für sitzenden Avatar
-                anchorObj.position.set(
-                    this.smoothedPos.x + offset.x,
-                    fixedY,
-                    this.smoothedPos.z + offset.z
-                );
-
-                // === Avatar leicht nach unten neigen
-                const tilt = -0.1; // ≈ -6°
-                avatarWrapper.object3D.rotation.x = tilt;
-
-                // === Avatar bleibt immer sichtbar
-                avatarWrapper.setAttribute('visible', true);
-
-                // === Rotation glätten
-                if (this.isVR) {
-                    this.frameCount++;
-                    const updateInterval = 10;
-                    if (this.frameCount % updateInterval === 0) {
-                        const delta = yaw - this.lastYRot;
-                        const wrapped = Math.atan2(Math.sin(delta), Math.cos(delta));
-                        this.lastYRot += wrapped * 0.3;
-                        anchorObj.rotation.set(0, this.lastYRot, 0);
-                    }
-                } else {
-                    const smoothing = 0.3;
-                    const delta = yaw - anchorObj.rotation.y;
-                    const wrapped = Math.atan2(Math.sin(delta), Math.cos(delta));
-                    anchorObj.rotation.y += wrapped * smoothing;
-                }
-            }
-        });
-
         // AFRAME.registerComponent('adjust-avatar', {
         //     init: function () {
         //         this.lastYRot = 0;
         //         this.frameCount = 0;
         //         this.isVR = false;
-        //         this.smoothedPos = new THREE.Vector3(); // geglättete Position
+        //         this.smoothedPos = new THREE.Vector3();
 
         //         this.el.sceneEl.addEventListener('enter-vr', () => { this.isVR = true; });
         //         this.el.sceneEl.addEventListener('exit-vr', () => { this.isVR = false; });
@@ -225,64 +153,136 @@
         //     tick: function () {
         //         const cameraEl = document.querySelector('#camera');
         //         const anchor = document.querySelector('#avatarAnchor');
+        //         const avatarWrapper = document.querySelector('#avatarWrapper');
         //         const rooms = document.querySelector('#rooms');
-        //         if (!cameraEl || !anchor || !rooms.getAttribute('visible')) return;
+        //         if (!cameraEl || !anchor || !avatarWrapper || !rooms.getAttribute('visible')) return;
 
         //         const cam = cameraEl.object3D;
         //         const anchorObj = anchor.object3D;
         //         if (!cam || !anchorObj) return;
 
-        //         // === Bewegungsglättung ===
-        //         const camPos = cam.position;
-        //         this.smoothedPos.lerp(camPos, 0.05); // 0.05 = Glättungsfaktor
+        //         // === Blickwinkel auslesen
+        //         const euler = new THREE.Euler().setFromQuaternion(cam.quaternion, 'YXZ');
+        //         const yaw = euler.y;
+        //         const pitch = THREE.MathUtils.radToDeg(euler.x);
 
-        //         // === Optionaler Offset nach hinten ===
-        //         const offset = new THREE.Vector3(0, 0, 0); // 30 cm hinter dir
+        //         // === Pitch-abhängiger Rückversatz
+        //         const baseOffset = 0; // Grundabstand hinter dir
+        //         const pitchOffset = THREE.MathUtils.clamp(pitch / 90, 0, 1) * 0.4; // bis zu 40 cm extra
+        //         const totalOffset = baseOffset + pitchOffset;
+
+        //         const offset = new THREE.Vector3(0, 0, -totalOffset);
         //         offset.applyQuaternion(cam.quaternion);
 
-        //         const fixedY = 1.1; // feste Höhe für sitzenden Avatar
+        //         // === Bewegung glätten (X/Z)
+        //         const camPos = cam.position;
+        //         this.smoothedPos.lerp(camPos, 0.05);
+
+        //         const fixedY = 1.0; // feste Höhe für sitzenden Avatar
         //         anchorObj.position.set(
         //             this.smoothedPos.x + offset.x,
         //             fixedY,
         //             this.smoothedPos.z + offset.z
         //         );
 
-        //         // === Blickrichtung auslesen ===
-        //         const euler = new THREE.Euler().setFromQuaternion(cam.quaternion, 'YXZ');
-        //         const yaw = euler.y;
-        //         const pitch = THREE.MathUtils.radToDeg(euler.x);
+        //         // === Avatar leicht nach unten neigen
+        //         const tilt = -0.1; // ≈ -6°
+        //         avatarWrapper.object3D.rotation.x = tilt;
 
-        //         // === Pitch-Filter: zu starkes Neigen ignorieren ===
-        //         const downMin = 30, downMax = 60;
-        //         const upMin = -20, upMax = -45;
-        //         let pitchFactor = 1.0;
+        //         // === Avatar bleibt immer sichtbar
+        //         avatarWrapper.setAttribute('visible', true);
 
-        //         if (pitch > downMin) {
-        //             const t = Math.min((pitch - downMin) / (downMax - downMin), 1.0);
-        //             pitchFactor = 1.0 - t * 0.98;
-        //         } else if (pitch < upMin) {
-        //             const t = Math.min((upMin - pitch) / (upMin - upMax), 1.0);
-        //             pitchFactor = 1.0 - t * 0.98;
-        //         }
-
-        //         // === Rotation glätten ===
+        //         // === Rotation glätten
         //         if (this.isVR) {
         //             this.frameCount++;
         //             const updateInterval = 10;
         //             if (this.frameCount % updateInterval === 0) {
         //                 const delta = yaw - this.lastYRot;
         //                 const wrapped = Math.atan2(Math.sin(delta), Math.cos(delta));
-        //                 this.lastYRot += wrapped * 0.3 * pitchFactor;
+        //                 this.lastYRot += wrapped * 0.3;
         //                 anchorObj.rotation.set(0, this.lastYRot, 0);
         //             }
         //         } else {
-        //             const smoothing = 0.3 * pitchFactor;
+        //             const smoothing = 0.3;
         //             const delta = yaw - anchorObj.rotation.y;
         //             const wrapped = Math.atan2(Math.sin(delta), Math.cos(delta));
         //             anchorObj.rotation.y += wrapped * smoothing;
         //         }
         //     }
         // });
+
+        AFRAME.registerComponent('adjust-avatar', {
+            init: function () {
+                this.lastYRot = 0;
+                this.frameCount = 0;
+                this.isVR = false;
+                this.smoothedPos = new THREE.Vector3(); // geglättete Position
+
+                this.el.sceneEl.addEventListener('enter-vr', () => { this.isVR = true; });
+                this.el.sceneEl.addEventListener('exit-vr', () => { this.isVR = false; });
+            },
+
+            tick: function () {
+                const cameraEl = document.querySelector('#camera');
+                const anchor = document.querySelector('#avatarAnchor');
+                const rooms = document.querySelector('#rooms');
+                if (!cameraEl || !anchor || !rooms.getAttribute('visible')) return;
+
+                const cam = cameraEl.object3D;
+                const anchorObj = anchor.object3D;
+                if (!cam || !anchorObj) return;
+
+                // === Bewegungsglättung ===
+                const camPos = cam.position;
+                this.smoothedPos.lerp(camPos, 0.05); // 0.05 = Glättungsfaktor
+
+                // === Optionaler Offset nach hinten ===
+                const offset = new THREE.Vector3(0, 0, 0); // 30 cm hinter dir
+                offset.applyQuaternion(cam.quaternion);
+
+                const fixedY = 1.1; // feste Höhe für sitzenden Avatar
+                anchorObj.position.set(
+                    this.smoothedPos.x + offset.x,
+                    fixedY,
+                    this.smoothedPos.z + offset.z
+                );
+
+                // === Blickrichtung auslesen ===
+                const euler = new THREE.Euler().setFromQuaternion(cam.quaternion, 'YXZ');
+                const yaw = euler.y;
+                const pitch = THREE.MathUtils.radToDeg(euler.x);
+
+                // === Pitch-Filter: zu starkes Neigen ignorieren ===
+                const downMin = 30, downMax = 60;
+                const upMin = -20, upMax = -45;
+                let pitchFactor = 1.0;
+
+                if (pitch > downMin) {
+                    const t = Math.min((pitch - downMin) / (downMax - downMin), 1.0);
+                    pitchFactor = 1.0 - t * 0.98;
+                } else if (pitch < upMin) {
+                    const t = Math.min((upMin - pitch) / (upMin - upMax), 1.0);
+                    pitchFactor = 1.0 - t * 0.98;
+                }
+
+                // === Rotation glätten ===
+                if (this.isVR) {
+                    this.frameCount++;
+                    const updateInterval = 10;
+                    if (this.frameCount % updateInterval === 0) {
+                        const delta = yaw - this.lastYRot;
+                        const wrapped = Math.atan2(Math.sin(delta), Math.cos(delta));
+                        this.lastYRot += wrapped * 0.3 * pitchFactor;
+                        anchorObj.rotation.set(0, this.lastYRot, 0);
+                    }
+                } else {
+                    const smoothing = 0.3 * pitchFactor;
+                    const delta = yaw - anchorObj.rotation.y;
+                    const wrapped = Math.atan2(Math.sin(delta), Math.cos(delta));
+                    anchorObj.rotation.y += wrapped * smoothing;
+                }
+            }
+        });
 
         // AFRAME.registerComponent('adjust-avatar', {
         //     init: function () {
