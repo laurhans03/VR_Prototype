@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -161,12 +161,12 @@
                 const anchorObj = anchor.object3D;
                 if (!cam || !anchorObj) return;
 
-                // === Blickwinkel auslesen ===
+                // === Blickwinkel auslesen
                 const euler = new THREE.Euler().setFromQuaternion(cam.quaternion, 'YXZ');
                 const yaw = euler.y;
                 const pitch = THREE.MathUtils.radToDeg(euler.x);
 
-                // === Pitch-Filter für Rotation und Abstand ===
+                // === Pitch-Filter für Rotation und Abstand
                 const downMin = 30, downMax = 60;
                 const upMin = -20, upMax = -45;
                 let pitchFactor = 1.0;
@@ -179,9 +179,9 @@
                     pitchFactor = 1.0 - t * 0.98;
                 }
 
-                // === Dynamischer Abstand nach hinten bei Vorbeugen ===
-                const baseOffset = 0.4;
-                const pitchOffset = THREE.MathUtils.clamp(pitch / 90, 0, 1) * 0.3;
+                // === Dynamischer Abstand nach hinten bei Vorbeugen
+                const baseOffset = 0.6; // Grundabstand hinter dir (60 cm)
+                const pitchOffset = THREE.MathUtils.clamp(pitch / 90, 0, 1) * 0.3; // bis zu 30 cm extra
                 const totalOffset = baseOffset + pitchOffset;
 
                 const offset = new THREE.Vector3(0, 0, -totalOffset);
@@ -191,7 +191,7 @@
                 const camPos = cam.position;
                 this.smoothedPos.lerp(camPos, 0.05);
 
-                const fixedY = 1.0;
+                const fixedY = 1.0; // feste Höhe für sitzenden Avatar
                 anchorObj.position.set(
                     this.smoothedPos.x + offset.x,
                     fixedY,
