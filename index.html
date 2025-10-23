@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -159,9 +159,10 @@
                 const anchorObj = anchor.object3D;
                 if (!cam || !anchorObj) return;
                 
-                const fixedY = 1.1; // oder was bei dir passt
-                anchorObj.position.set(cam.position.x, fixedY, cam.position.z);
+                //const fixedY = 1.1; // oder was bei dir passt
+                //anchorObj.position.set(cam.position.x, fixedY, cam.position.z);
                 // anchorObj.position.copy(cam.position);
+                anchorObj.position.set(-2.06, 1.1, 0.16);
 
                 const euler = new THREE.Euler().setFromQuaternion(cam.quaternion, 'YXZ');
                 const yaw = euler.y;
