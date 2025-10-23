@@ -159,9 +159,9 @@
                 const anchorObj = anchor.object3D;
                 if (!cam || !anchorObj) return;
                 
-                // const fixedY = -1.3; // oder was bei dir passt
-                // anchorObj.position.set(cam.position.x, fixedY, cam.position.z);
-                anchorObj.position.copy(cam.position);
+                const fixedY = -1.3; // oder was bei dir passt
+                anchorObj.position.set(cam.position.x, fixedY, cam.position.z);
+                // anchorObj.position.copy(cam.position);
 
                 const euler = new THREE.Euler().setFromQuaternion(cam.quaternion, 'YXZ');
                 const yaw = euler.y;
