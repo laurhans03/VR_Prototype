@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Welcome! Select a video" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video!" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -79,14 +79,22 @@
     -->
         <a-entity id="rooms" visible="false">
             <!-- Avatar anchor. We update its position to the camera position when a room is active -->
-            <a-entity id="avatarAnchor">
-                <!-- <a-entity id="avatarWrapper" hide-avatar-behind rotation="0 -45 0"> -->
-                    <a-entity id="avatarWrapper" hide-avatar-behind rotation="0 0 0"></a-entity>
-                     <!-- <a-entity id="avatar" gltf-model="#avatarModel" position="-2.06 0.2 -0.1" rotation="0 0 0" -->
-                    <a-entity id="avatar" gltf-model="#avatarModel" position="-2.06 -1.3 0.16" rotation="0 0 0"
-                        scale="1 1 1"></a-entity>
+            <!-- <a-entity id="avatarAnchor">
+                <a-entity id="avatarWrapper" hide-avatar-behind rotation="0 -45 0">
+                <a-entity id="avatar" gltf-model="#avatarModel" position="-2.06 -1.3 0.16" rotation="0 0 0"
+                    scale="1 1 1"></a-entity>
+            </a-entity>
+        </a-entity> -->
+
+            <!-- Avatar anchor block -->
+            <a-entity id="avatarAnchor" position="0 0 0">
+                <a-entity id="avatarWrapper" rotation="0 -45 0">
+                    <a-entity id="avatar" gltf-model="#avatarModel" position="0 -1.3 -0.05" rotation="0 0 0"
+                        scale="1 1 1">
+                    </a-entity>
                 </a-entity>
             </a-entity>
+
 
             <!-- Plattform under the Avatar -->
             <a-plane id="floorPlatform" position="0 -1.3 0" rotation="-90 0 0" width="3" height="3"
@@ -149,45 +157,47 @@
 
         AFRAME.registerComponent('adjust-avatar', {
             schema: {
-                rotationSmoothness: { type: 'number', default: 0.08 }, // kleiner = weicher
-                maxYawDelta: { type: 'number', default: 0.03 },        // max Änderung pro Frame (in Rad)
-                pitchLimit: { type: 'number', default: 45 }            // ab diesem Winkel nach unten ignorieren
+                smoothing: { type: 'number', default: 0.08 }, // weichere oder direktere Rotation
+                maxTurnSpeed: { type: 'number', default: 1.5 }, // Grad pro Frame
+                verticalLockY: { type: 'number', default: -1.3 } // feste Sitzhöhe des Avatars
             },
 
             init: function () {
                 this.lastYaw = 0;
                 this.targetYaw = 0;
                 this.tempEuler = new THREE.Euler(0, 0, 0, 'YXZ');
+                this.tempPos = new THREE.Vector3();
             },
 
             tick: function (t, dt) {
-                const cameraEl = document.querySelector('#camera');
+                const camera = document.querySelector('#camera');
+                const avatarAnchor = document.querySelector('#avatarAnchor');
                 const rooms = document.querySelector('#rooms');
-                const avatarWrapper = document.querySelector('#avatarWrapper');
-                if (!cameraEl || !rooms.getAttribute('visible') || !avatarWrapper) return;
+                if (!camera || !avatarAnchor || !rooms.getAttribute('visible')) return;
 
-                const cam = cameraEl.object3D;
-                const avatarObj = avatarWrapper.object3D;
+                const camObj = camera.object3D;
+                const anchorObj = avatarAnchor.object3D;
 
-                // Hole die Kamerarotation (in Euler)
-                this.tempEuler.setFromQuaternion(cam.quaternion, 'YXZ');
+                // === 1️⃣ Horizontale Position folgen, Y fix lassen ===
+                camObj.getWorldPosition(this.tempPos);
+                anchorObj.position.x = this.tempPos.x;
+                anchorObj.position.z = this.tempPos.z;
+                anchorObj.position.y = this.data.verticalLockY; // bleibt stabil!
+
+                // === 2️⃣ Kamera-Yaw berechnen ===
+                this.tempEuler.setFromQuaternion(camObj.quaternion, 'YXZ');
                 const yaw = this.tempEuler.y;
-                const pitch = THREE.MathUtils.radToDeg(this.tempEuler.x);
 
-                // Wenn du zu stark nach unten/hinten schaust → keine Reaktion
-                if (pitch > this.data.pitchLimit || pitch < -this.data.pitchLimit) return;
-
-                // Zielwinkel bestimmen (nur Yaw)
+                // === 3️⃣ Zielrotation weich annähern ===
                 const delta = Math.atan2(Math.sin(yaw - this.targetYaw), Math.cos(yaw - this.targetYaw));
-                this.targetYaw += delta * this.data.rotationSmoothness;
+                this.targetYaw += delta * this.data.smoothing;
 
-                // Begrenze die Geschwindigkeit
                 const diff = this.targetYaw - this.lastYaw;
-                const clamped = THREE.MathUtils.clamp(diff, -this.data.maxYawDelta, this.data.maxYawDelta);
+                const maxDelta = THREE.MathUtils.degToRad(this.data.maxTurnSpeed);
+                const clamped = THREE.MathUtils.clamp(diff, -maxDelta, maxDelta);
                 this.lastYaw += clamped;
 
-                // Rotation auf Avatar anwenden (nur Y)
-                avatarObj.rotation.y = this.lastYaw;
+                anchorObj.rotation.set(0, this.lastYaw, 0);
             }
         });
 
