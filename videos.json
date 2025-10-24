@@ -33,8 +33,13 @@
     },
     {
       "id": "6",
-      "title": "Labor",
+      "title": "Labor1",
       "src": "media/TestLab1.mp4"
+    },
+    {
+      "id": "7",
+      "title": "Labor2",
+      "src": "media/TestLab2.mp4"
     }
   ]
 }
