@@ -69,7 +69,7 @@
     -->
         <a-entity id="menu" visible="true">
             <a-videosphere src="#menu_img" rotation="0 -102 0"></a-videosphere>
-            <a-text id="welcomeText" value="Test" align="center" color="#ffffff" width="3"></a-text>
+            <a-text id="welcomeText" value="Welcome! Select a video:" align="center" color="#ffffff" width="3"></a-text>
         </a-entity>
 
         <!--
@@ -426,8 +426,8 @@
             // --- Hide menu and show room container + avatar ---
             menu.setAttribute('visible', false);
             rooms.setAttribute('visible', true);
-            document.querySelector('#avatarAnchor').setAttribute('visible', true);
-            document.querySelector('#floorPlatform').setAttribute('visible', true);
+            // document.querySelector('#avatarAnchor').setAttribute('visible', true);
+            // document.querySelector('#floorPlatform').setAttribute('visible', true);
 
             // --- Stop menu music if playing ---
             if (menuMusicEntity && menuMusicEntity.components.sound) {
